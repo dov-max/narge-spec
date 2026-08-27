@@ -15,6 +15,10 @@ Two small public files add corrections:
 
 A day-one steward may edit these files. This is not a stamp. These files exist to refine the temporary feed until a later public host registry exists.
 
+## Resolver implementation
+
+See [resolver/](resolver/) for a ready-to-run Blocky DNS configuration that loads the temporary feed and overlay files. This is for VPS deployment, not a hosted service.
+
 ## Host grain
 
 A DNS product judges site-level intent: is this host's purpose arousal?

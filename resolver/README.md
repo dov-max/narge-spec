@@ -2,6 +2,8 @@
 
 This directory contains a ready-to-run DNS resolver configuration using [Blocky](https://github.com/0xERR0R/blocky) to block domains from the Narge temporary feed.
 
+**See [STATUS.md](STATUS.md) for operational status requirements, resolver addresses, rate limiting, and privacy details.**
+
 ## What This Is
 
 This is a **configuration file** for the Blocky DNS resolver. We do not fork or vendor Blocky. This is not a security product, a complete filtering solution, or a hardened service. It is a working example for VPS deployment.
@@ -80,7 +82,8 @@ See the [Blocky configuration documentation](https://0xerr0r.github.io/blocky/la
 - **Port 53 requires root or `CAP_NET_BIND_SERVICE`**: On Linux, either run the container with `--cap-add=NET_BIND_SERVICE` or use a higher port and redirect traffic.
 - **No DoH/DoT in this config**: This is plain DNS on port 53. Add DoH or DoT upstream in `config.yml` if needed.
 - **No query logging**: Domain names are not logged. If you need logging, add a `queryLog` section to `config.yml`.
-- **Not for public resolvers**: This setup is for internal or VPS use, not for operating a public DNS service.
+- **Rate limiting required for public use**: Before opening port 53 publicly, implement rate limiting by source IP and a global cap. See [STATUS.md](STATUS.md) for details.
+- **Current state**: Resolvers exist and filter locally. Not a public open service until port 53 is opened with proper rate limiting.
 
 ## Attribution
 

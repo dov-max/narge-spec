@@ -10,29 +10,20 @@
 <body>
   <main>
     <header>
-      <h1>A public coalition on one fact</h1>
+      <h1>Making Narge Harder to Reach</h1>
       <p class="tagline">Many people do not think Narge should be easy to reach</p>
     </header>
 
     <section class="pitch">
       <p>
         Many people do not think Narge should be easy to reach. We do not care why. 
-        This is a coalition on that one fact.
+        This is a shared purpose on that one fact.
       </p>
       <p>
         The tool is simple, free to use, open source, and aims at zero collateral. 
         It is not a full filter. If you need a specific kind of protection, put that 
         product on top. Use this anyway if you have nothing else, or use it in addition 
         so the count shows you.
-      </p>
-      <p>
-        Each household is a public number. That number is the statement: 
-        Narge should not be easy.
-      </p>
-      <p>
-        Later those numbers are what we show ISPs and mobile carriers so a regular 
-        plan can include this. The end state is ordinary internet without easy Narge. 
-        Unblocked access still exists. It just is not the default.
       </p>
       <p>
         Not government. Not a company stamp. The list is headed toward community 
@@ -44,17 +35,25 @@
       <h2>Current Status</h2>
       <div class="stat-box">
         <div class="stat-number">0</div>
-        <div class="stat-label">households active in the last 7 days</div>
-        <div class="stat-note">Not connected yet / no public resolver yet</div>
+        <div class="stat-label">distinct source IPs in the last 7 days</div>
+        <div class="stat-note">Port 53 not yet open publicly. Resolvers exist and filter locally.</div>
       </div>
     </section>
 
     <section class="how-it-works">
       <h2>How It Works</h2>
       <p>
-        Two DNS addresses later. A Narge-purpose host gets no address. Other names 
-        resolve. Traffic does not transit the resolver. This is extra, not a 
-        replacement for other security.
+        Configure your home router with two shared DNS addresses. A Narge-purpose host 
+        gets no address. Other names resolve. Traffic does not transit the resolver. 
+        This is extra, not a replacement for other security.
+      </p>
+      <p>
+        <strong>DNS resolvers:</strong><br>
+        Newark: <code>64.176.200.99</code><br>
+        Los Angeles: <code>149.28.79.49</code>
+      </p>
+      <p>
+        <small>Not a public open resolver yet. Port 53 rate-limited by source IP when opened.</small>
       </p>
     </section>
 
@@ -66,11 +65,15 @@
       </p>
     </section>
 
-    <section class="join">
-      <h2>Join</h2>
-      <p class="not-live">Not live yet.</p>
+    <section class="setup">
+      <h2>Setup</h2>
       <p>
-        A unique household token comes when resolvers exist.
+        Configure your home router's DNS settings to use the resolver addresses above. 
+        No account required. Rate-limited by your public IP address.
+      </p>
+      <p>
+        The resolver count is a public number. That number is the statement: 
+        Narge should not be easy to reach.
       </p>
     </section>
 

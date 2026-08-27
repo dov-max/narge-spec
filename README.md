@@ -33,6 +33,10 @@ That's Narge. A Narge site. This site may contain Narge. This site is promoting 
 
 Do not number it. There is no Narge-1. The bare word means the definition above.
 
+## Host list process
+
+See [LIST.md](LIST.md) for the open process that produces a hostname list based on this definition.
+
 ## Copyright
 
 This document is dedicated to the public domain under [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/). See LICENSE. Anyone may copy, change, or sell the text. There is no licensor.

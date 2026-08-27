@@ -1,0 +1,22 @@
+---
+name: Propose a type
+about: Suggest a new purpose type for host classification
+title: '[TYPE] '
+labels: ['type-proposal']
+---
+
+## Proposed type name
+
+<!-- Short name for the new type -->
+
+## Why this is a purpose
+
+<!-- Explain why this represents a distinct host purpose, not a moral campaign or subcategory of existing types. -->
+
+## Example hosts
+
+<!-- List 3-5 example hostnames that would fit this type -->
+
+## How it differs from existing types
+
+<!-- Explain how this differs from the existing 8 types in LIST.md -->

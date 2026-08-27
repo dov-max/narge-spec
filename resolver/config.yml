@@ -15,13 +15,13 @@ blocking:
     narge:
       # Temporary feed: StevenBlack porn-only list (MIT license)
       - https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/porn-only/hosts
-      # Local overlay: extra hosts to block
-      - /overlay/block.txt
+      # GitHub overlay: extra hosts to block
+      - https://raw.githubusercontent.com/dov-max/narge-spec/main/overlay/block.txt
   
   allowlists:
     narge:
-      # Local overlay: exceptions (takes precedence over denylist)
-      - /overlay/allow.txt
+      # GitHub overlay: exceptions (takes precedence over denylist)
+      - https://raw.githubusercontent.com/dov-max/narge-spec/main/overlay/allow.txt
   
   clientGroupsBlock:
     default:

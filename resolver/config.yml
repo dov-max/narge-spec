@@ -1,0 +1,39 @@
+# Blocky DNS resolver configuration for Narge
+# This config loads the temporary Narge feed (StevenBlack porn-only)
+# plus local overlay corrections.
+
+upstreams:
+  groups:
+    default:
+      - 1.1.1.1
+      - 1.0.0.1
+
+blocking:
+  blockType: nxDomain
+  
+  denylists:
+    narge:
+      # Temporary feed: StevenBlack porn-only list (MIT license)
+      - https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/porn-only/hosts
+      # Local overlay: extra hosts to block
+      - /overlay/block.txt
+  
+  allowlists:
+    narge:
+      # Local overlay: exceptions (takes precedence over denylist)
+      - /overlay/allow.txt
+  
+  clientGroupsBlock:
+    default:
+      - narge
+  
+  loading:
+    refreshPeriod: 24h
+    strategy: blocking
+
+# DNS port 53 only
+ports:
+  dns: 53
+
+# No query logging by name
+# queryLog section is omitted to disable query logging

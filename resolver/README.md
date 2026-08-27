@@ -10,10 +10,14 @@ This is a **configuration file** for the Blocky DNS resolver. We do not fork or 
 
 The resolver loads:
 - **StevenBlack porn-only list** (MIT license) as the temporary Narge feed
-- **`overlay/block.txt`** for extra denials
-- **`overlay/allow.txt`** for exceptions (takes precedence)
+- **`overlay/block.txt`** from GitHub for extra denials
+- **`overlay/allow.txt`** from GitHub for exceptions (takes precedence)
 
-Blocked domains return `NXDOMAIN`. Upstream DNS: Cloudflare (1.1.1.1, 1.0.0.1). Lists refresh every 24 hours.
+Blocked domains return `NXDOMAIN`. Upstream DNS: Cloudflare (1.1.1.1, 1.0.0.1).
+
+**List updates:** Blocky automatically refreshes all lists every 24 hours from their sources (including the GitHub overlay URLs). To update the overlay lists, edit the files in the `overlay/` directory on GitHub; you do not need to SSH to the VPS or restart the service. Changes will be picked up on the next refresh cycle.
+
+**Note:** Blocky the program itself does not auto-update. Only the domain lists auto-refresh.
 
 ## Running with Docker
 
@@ -63,9 +67,11 @@ dig @127.0.0.1 example.com
 
 ## What to Edit
 
-- **`overlay/block.txt`**: Add hostnames (one per line) to block beyond the StevenBlack list
-- **`overlay/allow.txt`**: Add hostnames (one per line) to unblock from the StevenBlack list
+- **`overlay/block.txt`**: Edit this file on GitHub to add hostnames (one per line) to block beyond the StevenBlack list. Blocky will fetch the updated file automatically within 24 hours.
+- **`overlay/allow.txt`**: Edit this file on GitHub to add hostnames (one per line) to unblock from the StevenBlack list. Blocky will fetch the updated file automatically within 24 hours.
 - **`config.yml`**: Change upstream DNS servers, refresh period, or other Blocky settings
+
+**Optional:** You can still mount local overlay files as a fallback if you need offline operation or want to override the GitHub sources. The docker commands show how to mount the local `overlay/` directory, though this is not required since the config now loads from GitHub URLs.
 
 See the [Blocky configuration documentation](https://0xerr0r.github.io/blocky/latest/configuration/) for all options.
 

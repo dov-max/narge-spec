@@ -1,0 +1,46 @@
+# Blocky configuration for Narge DNS resolver
+# Status: NOT RUNNING - template only
+
+# Upstream DNS servers
+upstream:
+  default:
+    - 1.1.1.1  # Cloudflare
+    - 8.8.8.8  # Google
+
+# Block lists
+blocking:
+  blackLists:
+    ads:
+      # StevenBlack hosts - porn-only category
+      - https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/fakenews-gambling-porn/hosts
+      
+      # GitHub-hosted overlay lists (URLs to be configured)
+      # - https://raw.githubusercontent.com/example/narge-overlay/main/domains.txt
+  
+  # Return NXDOMAIN for blocked domains
+  blockType: nxDomain
+  
+  # Refresh interval
+  refreshPeriod: 24h
+
+# Disable query logging (privacy requirement)
+queryLog:
+  type: none
+
+# Prometheus metrics (internal only, no query names)
+prometheus:
+  enable: true
+  path: /metrics
+
+# Ports
+ports:
+  dns: 53
+  http: 4000
+
+# Notes:
+# - Blocky is unmodified/unforked
+# - Block lists are porn-only (Narge content class)
+# - NXDOMAIN response for blocked queries
+# - No query logging
+# - Rate limiting happens in Caddy front, not here
+# - This file is a stub; actual list URLs need to be configured

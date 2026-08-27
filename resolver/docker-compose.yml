@@ -1,0 +1,61 @@
+# Docker Compose for Narge DNS Resolver
+# Status: NOT RUNNING - template for future deployment
+
+version: '3.8'
+
+services:
+  # Token-aware DoH front
+  # Handles DNS-over-HTTPS, extracts tokens from URL path, applies rate limiting
+  caddy:
+    image: caddy:2-alpine
+    container_name: narge-doh-front
+    # ports:
+    #   - "443:443"   # HTTPS for DoH
+    #   - "80:80"     # HTTP redirect
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    environment:
+      # Token validation and rate limiting happens here
+      - RATE_LIMIT_QPS=10  # per-token query-per-second limit
+    # networks:
+    #   - narge-net
+    restart: unless-stopped
+    depends_on:
+      - blocky
+
+  # Unmodified Blocky DNS resolver
+  # Handles actual DNS resolution and block list filtering
+  blocky:
+    image: spx01/blocky:latest
+    container_name: narge-blocky
+    # ports:
+    #   - "53:53/tcp"     # DNS TCP
+    #   - "53:53/udp"     # DNS UDP
+    #   - "4000:4000"     # Blocky API (internal only)
+    volumes:
+      - ./blocky/config.yml:/app/config.yml
+    # networks:
+    #   - narge-net
+    restart: unless-stopped
+
+# networks:
+#   narge-net:
+#     driver: bridge
+
+volumes:
+  caddy_data:
+  caddy_config:
+
+# Architecture notes:
+#
+# 1. Caddy receives DoH requests at https://doh.example.com/{token}/dns-query
+# 2. Caddy extracts token, validates it, applies per-token rate limit
+# 3. Caddy forwards DNS query to Blocky on internal network
+# 4. Blocky applies block lists (StevenBlack porn-only + GitHub overlays)
+# 5. Blocky returns NXDOMAIN for blocked domains
+# 6. Caddy returns response to client
+#
+# Rate limiting is per-token, not per-IP. No query logging.
+# All ports commented because this is not running yet.

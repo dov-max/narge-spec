@@ -1,0 +1,40 @@
+# Caddyfile for token-aware DoH front
+# Status: NOT RUNNING - template only
+
+# DoH endpoint with token in path
+doh.example.com {
+    # Extract token from path: /{token}/dns-query
+    @doh_request {
+        path_regexp token ^/([a-zA-Z0-9-]+)/dns-query$
+    }
+
+    # TODO: Implement token validation
+    # - Check token exists in database
+    # - Apply per-token rate limit (e.g., 10 QPS)
+    # - Track 7-day active token count for capacity management
+
+    # Forward to Blocky
+    reverse_proxy @doh_request http://blocky:53 {
+        # DNS-over-HTTPS to standard DNS
+        # Token rate limiting happens before this
+    }
+
+    # Health check endpoint
+    handle /health {
+        respond "OK" 200
+    }
+
+    # Log format: no query names
+    log {
+        output file /var/log/caddy/access.log
+        format json
+        # Exclude DNS query content from logs
+    }
+}
+
+# Notes:
+# - Token in URL path: https://doh.example.com/{token}/dns-query
+# - Rate limit is per-token, not per-IP
+# - No query name logging
+# - Requires token validation middleware or plugin
+# - This file is a stub; actual implementation needs token store and rate limiter

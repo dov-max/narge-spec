@@ -1,6 +1,6 @@
 # Site Directory
 
-This directory contains the static brochure website for the Narge Coalition.
+This directory contains the static brochure website for the grassroots effort to make Narge harder to reach.
 
 ## Files
 

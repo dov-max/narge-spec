@@ -1,9 +1,27 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import JoinCard from '../components/JoinCard.astro';
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Cutline",
+  "url": "https://thecutline.org",
+  "description": "A public cut path DNS resolver that does not resolve the Narge content class. No signup, no charge, open source.",
+  "author": {
+    "@type": "Person",
+    "name": "Dov Allison",
+    "url": "https://github.com/dov-max"
+  },
+  "sameAs": [
+    "https://github.com/dov-max"
+  ]
+};
 ---
 
 <Layout title="Cutline — A Cut Path DNS Resolver">
+  <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+  
   <div class="hero">
     <h1>Cutline</h1>
     <p class="tagline">A cut path DNS resolver</p>

@@ -1,0 +1,296 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Get On Cutline — Setup Guides">
+  <h1>Get On Cutline</h1>
+
+  <section class="intro">
+    <p class="lead">
+      Configure your device or network to use Cutline's DNS resolvers. Use these addresses:
+    </p>
+    <div class="resolver-box">
+      <code class="ip">64.176.200.99</code>
+      <code class="ip">149.28.79.49</code>
+    </div>
+  </section>
+
+  <nav class="platform-nav">
+    <a href="#router">Router</a>
+    <a href="#macos">macOS</a>
+    <a href="#iphone">iPhone/iPad</a>
+    <a href="#windows">Windows</a>
+    <a href="#android">Android</a>
+    <a href="#apple-profile">Apple Profile</a>
+  </nav>
+
+  <section id="router">
+    <h2>Router (Whole Network)</h2>
+    <p>
+      Setting DNS on your router applies the cut path to all devices on your network. 
+      <strong>Note:</strong> Some ISPs lock router DNS settings. If you cannot change DNS, 
+      configure individual devices instead.
+    </p>
+    <ol>
+      <li>Open your router's admin panel (usually http://192.168.1.1 or http://192.168.0.1)</li>
+      <li>Log in with your router credentials</li>
+      <li>Find the DNS settings (often under "Internet", "WAN", or "DHCP")</li>
+      <li>Set Primary DNS to <code>64.176.200.99</code></li>
+      <li>Set Secondary DNS to <code>149.28.79.49</code></li>
+      <li>Save and reboot the router</li>
+      <li>Restart devices or renew DHCP to pick up new DNS</li>
+    </ol>
+  </section>
+
+  <section id="macos">
+    <h2>macOS</h2>
+    <ol>
+      <li>Open <strong>System Settings</strong></li>
+      <li>Click <strong>Network</strong></li>
+      <li>Select your active connection (Wi-Fi or Ethernet)</li>
+      <li>Click <strong>Details</strong></li>
+      <li>Go to the <strong>DNS</strong> tab</li>
+      <li>Click the <strong>+</strong> button to add DNS servers</li>
+      <li>Add <code>64.176.200.99</code> and <code>149.28.79.49</code></li>
+      <li>Remove any other DNS servers</li>
+      <li>Click <strong>OK</strong>, then <strong>Apply</strong></li>
+    </ol>
+  </section>
+
+  <section id="iphone">
+    <h2>iPhone/iPad (Wi-Fi)</h2>
+    <p>This configures DNS for the specific Wi-Fi network. Repeat for each network you use.</p>
+    <ol>
+      <li>Open <strong>Settings</strong></li>
+      <li>Tap <strong>Wi-Fi</strong></li>
+      <li>Tap the <strong>ⓘ</strong> next to your connected network</li>
+      <li>Scroll down and tap <strong>Configure DNS</strong></li>
+      <li>Tap <strong>Manual</strong></li>
+      <li>Remove existing servers (swipe left and delete)</li>
+      <li>Tap <strong>Add Server</strong> and enter <code>64.176.200.99</code></li>
+      <li>Tap <strong>Add Server</strong> and enter <code>149.28.79.49</code></li>
+      <li>Tap <strong>Save</strong></li>
+    </ol>
+    <p>
+      <strong>For cellular data and easier setup</strong>, use the Apple Configuration Profile 
+      (see <a href="#apple-profile">below</a>) when available.
+    </p>
+  </section>
+
+  <section id="windows">
+    <h2>Windows 10/11</h2>
+    <ol>
+      <li>Open <strong>Settings</strong></li>
+      <li>Go to <strong>Network & Internet</strong></li>
+      <li>Click your connection type (Wi-Fi or Ethernet)</li>
+      <li>Click the network name or <strong>Properties</strong></li>
+      <li>Scroll down and click <strong>Edit</strong> under IP assignment or DNS</li>
+      <li>Change DNS to <strong>Manual</strong></li>
+      <li>Turn on <strong>IPv4</strong></li>
+      <li>Set Preferred DNS to <code>64.176.200.99</code></li>
+      <li>Set Alternate DNS to <code>149.28.79.49</code></li>
+      <li>Click <strong>Save</strong></li>
+    </ol>
+  </section>
+
+  <section id="android">
+    <h2>Android</h2>
+    <p>Instructions vary by Android version and manufacturer. Here's the general process:</p>
+    
+    <h3>Android 9+ (Private DNS)</h3>
+    <p>
+      <strong>Note:</strong> Private DNS requires DNS-over-TLS (DoT). Cutline does not currently 
+      support DoT. Use the Wi-Fi DNS method below instead.
+    </p>
+
+    <h3>Wi-Fi DNS (All Android versions)</h3>
+    <ol>
+      <li>Open <strong>Settings</strong></li>
+      <li>Tap <strong>Network & Internet</strong> or <strong>Connections</strong></li>
+      <li>Tap <strong>Wi-Fi</strong></li>
+      <li>Long-press or tap the gear icon for your connected network</li>
+      <li>Tap <strong>Modify</strong> or <strong>Manage network settings</strong></li>
+      <li>Expand <strong>Advanced options</strong></li>
+      <li>Change IP settings to <strong>Static</strong></li>
+      <li>Scroll to DNS fields</li>
+      <li>Set DNS 1 to <code>64.176.200.99</code></li>
+      <li>Set DNS 2 to <code>149.28.79.49</code></li>
+      <li>Tap <strong>Save</strong></li>
+    </ol>
+  </section>
+
+  <section id="apple-profile">
+    <h2>Apple Configuration Profile</h2>
+    <div class="profile-card">
+      <p class="coming-soon-badge">Coming Soon</p>
+      <p>
+        An Apple Configuration Profile will allow one-tap DNS setup for iOS and macOS, including 
+        cellular data on iPhone. This is not yet available.
+      </p>
+      <p>
+        When live, you'll be able to download a <code>.mobileconfig</code> file that configures 
+        Cutline DNS across all networks and connections.
+      </p>
+    </div>
+  </section>
+
+  <section class="domain-info">
+    <h2>DNS-over-HTTPS (DoH)</h2>
+    <p>
+      The domain <strong>thecutline.org</strong> is registered. HTTPS DNS (DoH) and DNS-over-TLS (DoT) 
+      are not yet live. For now, use plain DNS with the IP addresses above.
+    </p>
+  </section>
+
+  <section class="next-step">
+    <h2>Next: Verify It Works</h2>
+    <p>
+      After configuring DNS, test that you're using the cut path.
+    </p>
+    <a href="/narge-spec/verify" class="cta-button">How to Verify →</a>
+  </section>
+</Layout>
+
+<style>
+  .intro {
+    margin-bottom: var(--spacing-xl);
+  }
+
+  .lead {
+    font-size: 1.25rem;
+    line-height: 1.7;
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .resolver-box {
+    background: var(--color-card-bg);
+    border: 2px solid var(--color-accent);
+    border-radius: var(--radius);
+    padding: var(--spacing-lg);
+    display: flex;
+    gap: var(--spacing-md);
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .ip {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--color-accent);
+    background: var(--color-bg);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: 4px;
+  }
+
+  .platform-nav {
+    display: flex;
+    gap: var(--spacing-sm);
+    flex-wrap: wrap;
+    margin: var(--spacing-xl) 0;
+    padding: var(--spacing-md);
+    background: var(--color-card-bg);
+    border-radius: var(--radius);
+  }
+
+  .platform-nav a {
+    padding: var(--spacing-xs) var(--spacing-md);
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: border-color 0.2s, color 0.2s;
+  }
+
+  .platform-nav a:hover {
+    border-color: var(--color-accent);
+    text-decoration: none;
+  }
+
+  section {
+    margin: var(--spacing-2xl) 0;
+  }
+
+  h3 {
+    margin-top: var(--spacing-xl);
+    font-size: 1.25rem;
+  }
+
+  ol {
+    padding-left: var(--spacing-lg);
+    margin: var(--spacing-md) 0;
+  }
+
+  li {
+    margin-bottom: var(--spacing-sm);
+    line-height: 1.7;
+  }
+
+  code {
+    white-space: nowrap;
+  }
+
+  .profile-card {
+    background: var(--color-card-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: var(--spacing-xl);
+  }
+
+  .coming-soon-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    background: #f0f0f0;
+    color: var(--color-text-muted);
+    border-radius: 4px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: var(--spacing-md);
+  }
+
+  .domain-info {
+    background: var(--color-card-bg);
+    border-radius: var(--radius);
+    padding: var(--spacing-lg);
+  }
+
+  .next-step {
+    text-align: center;
+    padding: var(--spacing-xl);
+    background: var(--color-card-bg);
+    border-radius: var(--radius);
+  }
+
+  .cta-button {
+    display: inline-block;
+    background: var(--color-accent);
+    color: white;
+    padding: var(--spacing-md) var(--spacing-xl);
+    border-radius: var(--radius);
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.2s;
+  }
+
+  .cta-button:hover {
+    background: var(--color-accent-hover);
+    text-decoration: none;
+    transform: translateY(-2px);
+  }
+
+  @media (max-width: 640px) {
+    .resolver-box {
+      flex-direction: column;
+    }
+
+    .ip {
+      font-size: 1.25rem;
+      text-align: center;
+    }
+
+    .platform-nav {
+      justify-content: center;
+    }
+  }
+</style>

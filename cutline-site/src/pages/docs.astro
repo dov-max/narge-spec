@@ -1,0 +1,375 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Documentation — Cutline">
+  <h1>Documentation</h1>
+
+  <section class="intro">
+    <p class="lead">
+      Complete documentation, FAQ, and technical reference for Cutline cut path DNS.
+    </p>
+  </section>
+
+  <nav class="doc-nav">
+    <a href="#what-is-cutline">What is Cutline?</a>
+    <a href="#what-is-narge">What is Narge?</a>
+    <a href="#how-it-works">How It Works</a>
+    <a href="#privacy">Privacy</a>
+    <a href="#limitations">Limitations</a>
+    <a href="#troubleshooting">Troubleshooting</a>
+    <a href="#technical">Technical Details</a>
+    <a href="#contributing">Contributing</a>
+  </nav>
+
+  <section id="what-is-cutline">
+    <h2>What is Cutline?</h2>
+    <p>
+      Cutline is a public DNS resolver service that provides a "cut path"—an internet connection that does not 
+      resolve the Narge content class. It operates two DNS resolvers at <code>64.176.200.99</code> and 
+      <code>149.28.79.49</code>.
+    </p>
+    <p>
+      Cutline is:
+    </p>
+    <ul>
+      <li>One operator providing cut path DNS (not the only one)</li>
+      <li>Open source and publicly documented</li>
+      <li>No signup, no charge, no accounts</li>
+      <li>Run by <a href="https://github.com/dov-max" target="_blank" rel="noopener">Dov Allison</a></li>
+    </ul>
+    <p>
+      Cutline is not a house filter, safety product, trust brand, government program, or kids-specific service.
+    </p>
+  </section>
+
+  <section id="what-is-narge">
+    <h2>What is Narge?</h2>
+    <p>
+      <strong>Narge</strong> (pronounced NARJ) is a technical content class defined as:
+    </p>
+    <blockquote>
+      A video or still (including photorealistic AI) of one or more real or photorealistic humans, 
+      produced or posted primarily to sexually arouse.
+    </blockquote>
+    <p>
+      This includes sex acts, masturbation, nudes, and partial nudes when arousal is the purpose. 
+      It does not include:
+    </p>
+    <ul>
+      <li>CSAM (already illegal, separate category)</li>
+      <li>Written-only text or non-photoreal illustration</li>
+      <li>Medical, sex education, news, documentary content</li>
+      <li>Breastfeeding, clothing sales, story films (when purpose is not arousal)</li>
+    </ul>
+    <p>
+      See the full <a href="/narge-spec/spec">Narge specification</a> for complete details.
+    </p>
+  </section>
+
+  <section id="how-it-works">
+    <h2>How It Works</h2>
+    
+    <h3>DNS Resolution</h3>
+    <p>
+      When you configure Cutline as your DNS server:
+    </p>
+    <ol>
+      <li>Your device asks Cutline to resolve a domain name (e.g., "example.com")</li>
+      <li>Cutline checks if the domain is on the Narge block list</li>
+      <li>If blocked: returns <code>NXDOMAIN</code> (domain does not exist)</li>
+      <li>If not blocked: queries upstream DNS (Cloudflare 1.1.1.1) and returns the result</li>
+    </ol>
+
+    <h3>What Gets Blocked</h3>
+    <p>
+      Cutline uses the <a href="https://github.com/StevenBlack/hosts" target="_blank" rel="noopener">StevenBlack porn-only list</a> 
+      (MIT license) as a temporary approximation of Narge, plus overlay corrections maintained in the 
+      <a href="https://github.com/dov-max/narge-spec/tree/main/overlay" target="_blank" rel="noopener">narge-spec repository</a>.
+    </p>
+
+    <h3>Your Traffic</h3>
+    <p>
+      <strong>Important:</strong> Only DNS queries go through Cutline. Your actual web traffic (loading pages, 
+      downloading files) goes directly from your device to the destination server. Cutline does not see or proxy your traffic.
+    </p>
+  </section>
+
+  <section id="privacy">
+    <h2>Privacy</h2>
+    
+    <h3>What We Don't Log</h3>
+    <ul>
+      <li><strong>Query names:</strong> We do not log which domains you request</li>
+      <li><strong>User identity:</strong> No accounts, no tracking, no user profiles</li>
+      <li><strong>Browsing history:</strong> We only handle DNS, not web traffic</li>
+    </ul>
+
+    <h3>What We Count</h3>
+    <ul>
+      <li><strong>Source IPs:</strong> Counted for capacity planning and service health</li>
+      <li><strong>Query volume:</strong> Aggregate statistics for service monitoring</li>
+    </ul>
+
+    <h3>No Data Sale</h3>
+    <p>
+      There is no business model involving your data. Cutline is a public service with no charge to users.
+    </p>
+  </section>
+
+  <section id="limitations">
+    <h2>Limitations</h2>
+    
+    <h3>Not a Complete Filter</h3>
+    <p>
+      Cutline only addresses the Narge content class. It does not block:
+    </p>
+    <ul>
+      <li>Malware or phishing sites (use additional security tools)</li>
+      <li>Social media content (sexual or otherwise)</li>
+      <li>Dating or hookup apps</li>
+      <li>Non-Narge adult content (violence, gambling, etc.)</li>
+    </ul>
+
+    <h3>Easy to Bypass</h3>
+    <p>
+      Someone who wants to access blocked content can:
+    </p>
+    <ul>
+      <li>Change their DNS settings back to default</li>
+      <li>Use a VPN or proxy</li>
+      <li>Use mobile data instead of Wi-Fi</li>
+    </ul>
+    <p>
+      Cutline makes Narge harder to reach by accident or habit, not impossible to find.
+    </p>
+
+    <h3>List Quality</h3>
+    <p>
+      The block list is an approximation. It uses StevenBlack's porn-only list, which is:
+    </p>
+    <ul>
+      <li>Community-maintained (quality varies)</li>
+      <li>A proxy for Narge (not exact)</li>
+      <li>Subject to false positives and false negatives</li>
+    </ul>
+    <p>
+      A more accurate, community-judged host registry is a future goal.
+    </p>
+
+    <h3>HTTPS Cannot Be Categorized</h3>
+    <p>
+      DNS blocking only works at the domain level. HTTPS content on general-purpose platforms 
+      (Twitter, Reddit, Imgur) cannot be filtered by DNS.
+    </p>
+  </section>
+
+  <section id="troubleshooting">
+    <h2>Troubleshooting</h2>
+    
+    <h3>Sites Won't Load</h3>
+    <ul>
+      <li>Verify DNS settings: <code>64.176.200.99</code> and <code>149.28.79.49</code></li>
+      <li>Restart your device or renew DHCP</li>
+      <li>Flush DNS cache (see <a href="/narge-spec/verify">verification guide</a>)</li>
+      <li>Check for VPN or proxy overriding DNS</li>
+    </ul>
+
+    <h3>Blocked Sites Still Load</h3>
+    <ul>
+      <li>Fully quit and restart your browser (especially Safari)</li>
+      <li>Ensure no VPN or proxy is active</li>
+      <li>On iOS, verify DNS is set for the specific Wi-Fi network</li>
+      <li>The site may not be in the block list</li>
+    </ul>
+
+    <h3>Slow DNS Resolution</h3>
+    <ul>
+      <li>Try both resolvers to see if one is faster</li>
+      <li>Check your network connection</li>
+      <li>Report persistent issues on <a href="https://github.com/dov-max/narge-spec/issues" target="_blank" rel="noopener">GitHub</a></li>
+    </ul>
+  </section>
+
+  <section id="technical">
+    <h2>Technical Details</h2>
+    
+    <h3>Resolver IPs</h3>
+    <pre><code>Primary:   64.176.200.99
+Secondary: 149.28.79.49</code></pre>
+
+    <h3>Domain</h3>
+    <p>
+      <strong>thecutline.org</strong> (registered, HTTPS/DoH not yet live)
+    </p>
+
+    <h3>Software Stack</h3>
+    <ul>
+      <li><strong>DNS Server:</strong> Blocky (Apache-2.0)</li>
+      <li><strong>Block List:</strong> StevenBlack porn-only (MIT) + overlay</li>
+      <li><strong>Upstream:</strong> Cloudflare 1.1.1.1</li>
+      <li><strong>Locations:</strong> US East (EWR), US West (LAX)</li>
+    </ul>
+
+    <h3>Supported Protocols</h3>
+    <ul>
+      <li><strong>DNS (UDP/TCP port 53):</strong> ✅ Live</li>
+      <li><strong>DNS-over-HTTPS (DoH):</strong> ❌ Not yet available</li>
+      <li><strong>DNS-over-TLS (DoT):</strong> ❌ Not yet available</li>
+    </ul>
+
+    <h3>List Refresh</h3>
+    <p>
+      Block lists automatically refresh every 24 hours from:
+    </p>
+    <ul>
+      <li><a href="https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/porn-only/hosts" target="_blank" rel="noopener">StevenBlack porn-only hosts</a></li>
+      <li><a href="https://github.com/dov-max/narge-spec/tree/main/overlay" target="_blank" rel="noopener">Overlay files</a> (block.txt, allow.txt)</li>
+    </ul>
+
+    <h3>Response for Blocked Domains</h3>
+    <p>
+      Blocked domains return <code>NXDOMAIN</code> (DNS response code 3), meaning "no such domain exists."
+    </p>
+  </section>
+
+  <section id="contributing">
+    <h2>Contributing</h2>
+    
+    <h3>Report Issues</h3>
+    <p>
+      Found a problem? Open an issue on <a href="https://github.com/dov-max/narge-spec/issues" target="_blank" rel="noopener">GitHub</a>.
+    </p>
+
+    <h3>Propose Host Changes</h3>
+    <p>
+      Use the <a href="https://github.com/dov-max/narge-spec/issues/new/choose" target="_blank" rel="noopener">issue templates</a> 
+      to propose:
+    </p>
+    <ul>
+      <li>A host to add to the block list</li>
+      <li>A host to remove (false positive)</li>
+      <li>A new host type or classification rule</li>
+    </ul>
+
+    <h3>Improve Documentation</h3>
+    <p>
+      Documentation is in the <a href="https://github.com/dov-max/narge-spec" target="_blank" rel="noopener">narge-spec repository</a>. 
+      Pull requests welcome.
+    </p>
+
+    <h3>Run Your Own</h3>
+    <p>
+      The resolver configuration is open source. <a href="/narge-spec/run-your-own">Deploy your own cut path</a> 
+      and share it with others.
+    </p>
+  </section>
+
+  <section class="contact">
+    <h2>Contact</h2>
+    <p>
+      <strong>GitHub:</strong> <a href="https://github.com/dov-max/narge-spec/issues" target="_blank" rel="noopener">Open an issue</a>
+    </p>
+    <p>
+      <strong>Maintainer:</strong> <a href="https://github.com/dov-max" target="_blank" rel="noopener">Dov Allison</a>
+    </p>
+  </section>
+</Layout>
+
+<style>
+  .intro {
+    margin-bottom: var(--spacing-xl);
+  }
+
+  .lead {
+    font-size: 1.25rem;
+    line-height: 1.7;
+  }
+
+  .doc-nav {
+    display: flex;
+    gap: var(--spacing-sm);
+    flex-wrap: wrap;
+    margin: var(--spacing-xl) 0;
+    padding: var(--spacing-md);
+    background: var(--color-card-bg);
+    border-radius: var(--radius);
+  }
+
+  .doc-nav a {
+    padding: var(--spacing-xs) var(--spacing-md);
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: border-color 0.2s, color 0.2s;
+  }
+
+  .doc-nav a:hover {
+    border-color: var(--color-accent);
+    text-decoration: none;
+  }
+
+  section {
+    margin: var(--spacing-2xl) 0;
+    scroll-margin-top: 5rem;
+  }
+
+  h3 {
+    margin-top: var(--spacing-xl);
+    font-size: 1.25rem;
+  }
+
+  ul, ol {
+    padding-left: var(--spacing-lg);
+    margin: var(--spacing-md) 0;
+  }
+
+  li {
+    margin-bottom: var(--spacing-sm);
+    line-height: 1.7;
+  }
+
+  blockquote {
+    border-left: 4px solid var(--color-accent);
+    padding-left: var(--spacing-md);
+    margin: var(--spacing-md) 0;
+    font-style: italic;
+    color: var(--color-text-muted);
+  }
+
+  pre {
+    background: var(--color-text);
+    color: #f8f8f2;
+    padding: var(--spacing-md);
+    border-radius: var(--radius);
+    overflow-x: auto;
+    margin: var(--spacing-md) 0;
+  }
+
+  pre code {
+    color: #f8f8f2;
+  }
+
+  code {
+    white-space: nowrap;
+  }
+
+  .contact {
+    background: var(--color-card-bg);
+    border-radius: var(--radius);
+    padding: var(--spacing-xl);
+    text-align: center;
+  }
+
+  .contact h2 {
+    margin-top: 0;
+  }
+
+  @media (max-width: 640px) {
+    .doc-nav {
+      justify-content: center;
+    }
+  }
+</style>

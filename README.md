@@ -1,6 +1,6 @@
 # Narge
 
-Brochure page: https://dov-max.github.io/narge-spec/
+Website: https://dov-max.github.io/narge-spec/
 
 Narge is a class of visual content. It is not a brand, a product, a filter, a religion, or a law.
 

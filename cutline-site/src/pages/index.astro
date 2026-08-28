@@ -1,0 +1,196 @@
+---
+import Layout from '../layouts/Layout.astro';
+import JoinCard from '../components/JoinCard.astro';
+---
+
+<Layout title="Cutline — A Cut Path DNS Resolver">
+  <div class="hero">
+    <h1>Cutline</h1>
+    <p class="tagline">A cut path DNS resolver</p>
+  </div>
+
+  <section class="intro">
+    <p class="lead">
+      Cutline provides <strong>a cut path</strong>—an internet path that does not resolve the Narge content class. 
+      It is a public DNS resolver service you can use right now.
+    </p>
+    <p>
+      A cut path is not the only path. Anyone may run one. Cutline is one operator. The goal is ordinary 
+      internet routing that does not make Narge easy to reach, while keeping everything else reachable.
+    </p>
+  </section>
+
+  <section class="what-is-cut-path">
+    <h2>What is a Cut Path?</h2>
+    <p>
+      A <strong>cut path</strong> is an internet connection that does not resolve the <a href="/narge-spec/spec">Narge content class</a>. 
+      It is not a full filter, a safety product, or a trust brand. It addresses one narrow technical class.
+    </p>
+    <p>
+      When you use a cut path DNS resolver like Cutline:
+    </p>
+    <ul>
+      <li>Domains identified as Narge-purpose do not resolve (return NXDOMAIN)</li>
+      <li>All other domains resolve normally through upstream DNS</li>
+      <li>Your traffic does not transit the resolver—only DNS queries</li>
+      <li>This is extra protection, not a replacement for other security</li>
+    </ul>
+  </section>
+
+  <section class="what-cutline-is">
+    <h2>What Cutline Is</h2>
+    <ul>
+      <li><strong>One operator</strong> providing a cut path DNS service</li>
+      <li><strong>No signup, no tokens, no accounts</strong></li>
+      <li><strong>Open source</strong> configuration and specification</li>
+      <li><strong>No charge</strong> to use</li>
+      <li>Run by <a href="https://github.com/dov-max" target="_blank" rel="noopener">Dov Allison</a></li>
+    </ul>
+  </section>
+
+  <section class="what-cutline-is-not">
+    <h2>What Cutline Is Not</h2>
+    <ul>
+      <li><strong>Not a house filter, hechsher, government, or kids product</strong></li>
+      <li><strong>Not a "safe/clean/trusted" brand</strong>—no shield, guard, or family language</li>
+      <li><strong>Not a movement or coalition</strong>—Narge is a content class, not a brand</li>
+      <li><strong>Not the only cut path</strong>—anyone can run one</li>
+      <li><strong>Not an addiction treatment or complete filtering solution</strong></li>
+    </ul>
+  </section>
+
+  <JoinCard />
+
+  <section class="next-steps">
+    <h2>Learn More</h2>
+    <div class="card-grid">
+      <a href="/narge-spec/why" class="info-card">
+        <h3>Why Cut Paths?</h3>
+        <p>The reasoning behind making Narge harder to reach</p>
+      </a>
+      <a href="/narge-spec/get-on" class="info-card">
+        <h3>Get On</h3>
+        <p>Platform-specific setup guides for all devices</p>
+      </a>
+      <a href="/narge-spec/verify" class="info-card">
+        <h3>Verify It Works</h3>
+        <p>How to test that you're using the cut path</p>
+      </a>
+      <a href="/narge-spec/spec" class="info-card">
+        <h3>Narge Spec</h3>
+        <p>The formal definition of the Narge content class</p>
+      </a>
+      <a href="/narge-spec/stats" class="info-card">
+        <h3>Live Stats</h3>
+        <p>Service health, capacity, and usage statistics</p>
+      </a>
+      <a href="/narge-spec/run-your-own" class="info-card">
+        <h3>Run Your Own</h3>
+        <p>Deploy your own cut path resolver</p>
+      </a>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .hero {
+    text-align: center;
+    padding: var(--spacing-2xl) 0;
+    border-bottom: 1px solid var(--color-border);
+    margin-bottom: var(--spacing-xl);
+  }
+
+  .hero h1 {
+    font-size: 3.5rem;
+    margin-bottom: var(--spacing-sm);
+    font-weight: 700;
+  }
+
+  .tagline {
+    font-size: 1.5rem;
+    color: var(--color-text-muted);
+    margin-bottom: 0;
+  }
+
+  .intro {
+    margin-bottom: var(--spacing-xl);
+  }
+
+  .lead {
+    font-size: 1.25rem;
+    line-height: 1.7;
+    color: var(--color-text);
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .what-is-cut-path,
+  .what-cutline-is,
+  .what-cutline-is-not {
+    margin: var(--spacing-2xl) 0;
+  }
+
+  ul {
+    padding-left: var(--spacing-lg);
+    margin-bottom: var(--spacing-md);
+  }
+
+  li {
+    margin-bottom: var(--spacing-sm);
+    line-height: 1.7;
+  }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-lg);
+  }
+
+  .info-card {
+    background: var(--color-card-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: var(--spacing-lg);
+    text-decoration: none;
+    color: var(--color-text);
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  }
+
+  .info-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-color: var(--color-accent);
+    text-decoration: none;
+  }
+
+  .info-card h3 {
+    margin-top: 0;
+    margin-bottom: var(--spacing-sm);
+    color: var(--color-accent);
+    font-size: 1.25rem;
+  }
+
+  .info-card p {
+    margin-bottom: 0;
+    color: var(--color-text-muted);
+    font-size: 0.95rem;
+  }
+
+  @media (max-width: 768px) {
+    .hero h1 {
+      font-size: 2.5rem;
+    }
+
+    .tagline {
+      font-size: 1.2rem;
+    }
+
+    .lead {
+      font-size: 1.1rem;
+    }
+
+    .card-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

@@ -1,0 +1,29 @@
+# llms.txt - Information about Cutline for AI crawlers
+
+# Cutline
+
+Cutline is a public cut-path DNS operator. A cut path is an internet connection that does not resolve the Narge content class.
+
+## What is Cutline?
+
+- Public DNS resolver service that does not resolve Narge-class domains
+- No signup, no tokens, no accounts required
+- No charge to use
+- Open source configuration and specification
+- Operated by Dov Allison (not a coalition brand, not Optivantage)
+
+## Privacy
+
+Query names are not stored. After a query, the operator cannot look up the query. Source IP addresses are kept for 7 days, then deleted.
+
+## Key URLs
+
+- Home: https://thecutline.org
+- Why Cut Paths: https://thecutline.org/why
+- Get On (Setup): https://thecutline.org/get-on
+- Narge Spec: https://thecutline.org/spec
+- GitHub Repository: https://github.com/dov-max/narge-spec
+
+## Technical Details
+
+Cutline is one operator providing a cut path. Anyone can run their own cut path resolver. The Narge content class is a technical specification, not a brand.

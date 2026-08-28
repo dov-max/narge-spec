@@ -11,6 +11,37 @@ import Layout from '../layouts/Layout.astro';
     </p>
   </section>
 
+  <section class="dns-check">
+    <h2>Automatic DNS Check</h2>
+    <p>Click the button below to check if this device is using Cutline DNS:</p>
+    
+    <button id="check-button" class="check-button">Check Now</button>
+    
+    <div id="status-banner" class="status-banner status-idle">
+      <strong>Not checked yet.</strong> Click "Check Now" to test.
+    </div>
+
+    <details class="how-it-works">
+      <summary>How this check works</summary>
+      <div class="details-content">
+        <p>
+          This page is served via public DNS, so it always loads. When you click "Check Now," your browser 
+          attempts to fetch <code>https://on.thecutline.org/ok</code>. That hostname is <strong>not</strong> 
+          in public DNS—only Cutline resolvers answer it.
+        </p>
+        <p>
+          If the fetch succeeds, this device used Cutline DNS to resolve the name. If it fails, this device 
+          either did not query Cutline DNS, or another service (Private Relay, Secure DNS, or a VPN) 
+          overrode your configuration.
+        </p>
+        <p>
+          You are not sent to a hostname that fails. The check is performed silently in JavaScript, and 
+          any error is caught by this page.
+        </p>
+      </div>
+    </details>
+  </section>
+
   <section class="steps">
     <h2>Test Steps</h2>
 
@@ -49,15 +80,10 @@ import Layout from '../layouts/Layout.astro';
     <div class="test-step">
       <div class="step-number">3</div>
       <div class="step-content">
-        <h3>Test Blocked Name Fails</h3>
+        <h3>Run the Automatic Check</h3>
         <p>
-          Try to visit a site that should be blocked. The page should fail to load with a "can't find server" 
-          or "DNS_PROBE_FINISHED_NXDOMAIN" error.
-        </p>
-        <p class="warning">
-          <strong>Note:</strong> We don't list specific blocked domains here as examples. If you need to test, 
-          check the <a href="https://github.com/StevenBlack/hosts/blob/master/alternates/porn-only/hosts" target="_blank" rel="noopener">StevenBlack hosts list</a> 
-          (the temporary feed Cutline uses).
+          Use the <strong>Automatic DNS Check</strong> button at the top of this page to verify 
+          you're on the cut path. This is the easiest and most reliable verification method.
         </p>
       </div>
     </div>
@@ -142,6 +168,65 @@ import Layout from '../layouts/Layout.astro';
   </section>
 </Layout>
 
+<script>
+  function checkDNS() {
+    const banner = document.getElementById('status-banner');
+    const button = document.getElementById('check-button');
+    
+    if (!banner || !button) return;
+    
+    // Set checking state
+    banner.className = 'status-banner status-checking';
+    banner.innerHTML = '<strong>Checking...</strong>';
+    button.disabled = true;
+    
+    // Attempt to fetch the cut path endpoint
+    fetch('https://on.thecutline.org/ok', {
+      method: 'GET',
+      cache: 'no-store',
+      mode: 'cors'
+    })
+      .then(response => {
+        if (response.ok) {
+          // Success - on cut path
+          banner.className = 'status-banner status-success';
+          banner.innerHTML = `
+            <strong>You are on a cut path.</strong>
+            <p class="status-note">Another DNS, a VPN, or Private Relay can skip Cutline.</p>
+          `;
+        } else {
+          // Response but not ok
+          showNotOnCutPath(banner);
+        }
+        button.disabled = false;
+      })
+      .catch(() => {
+        // Failed to connect - not on cut path
+        showNotOnCutPath(banner);
+        button.disabled = false;
+      });
+  }
+  
+  function showNotOnCutPath(banner) {
+    banner.className = 'status-banner status-fail';
+    banner.innerHTML = `
+      <strong>You are not on a cut path.</strong>
+      <p class="status-note">Another DNS, a VPN, or Private Relay can skip Cutline.</p>
+    `;
+  }
+  
+  // Auto-run check on page load
+  document.addEventListener('DOMContentLoaded', () => {
+    checkDNS();
+  });
+  
+  // Button click handler
+  const checkButton = document.getElementById('check-button');
+  if (checkButton) {
+    checkButton.addEventListener('click', checkDNS);
+  }
+</script>
+
 <style>
   .intro {
     margin-bottom: var(--spacing-xl);
@@ -150,6 +235,106 @@ import Layout from '../layouts/Layout.astro';
   .lead {
     font-size: 1.25rem;
     line-height: 1.7;
+  }
+
+  .dns-check {
+    margin: var(--spacing-2xl) 0;
+    padding: var(--spacing-xl);
+    background: var(--color-card-bg);
+    border-radius: var(--radius);
+    border: 2px solid var(--color-border);
+  }
+
+  .dns-check h2 {
+    margin-top: 0;
+  }
+
+  .check-button {
+    background: var(--color-accent);
+    color: white;
+    border: none;
+    padding: var(--spacing-md) var(--spacing-xl);
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: var(--radius);
+    cursor: pointer;
+    margin: var(--spacing-md) 0;
+    transition: background 0.2s;
+  }
+
+  .check-button:hover:not(:disabled) {
+    background: var(--color-accent-hover);
+  }
+
+  .check-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .status-banner {
+    padding: var(--spacing-lg);
+    border-radius: var(--radius);
+    margin: var(--spacing-lg) 0;
+    border-left: 4px solid #ccc;
+  }
+
+  .status-banner strong {
+    display: block;
+    font-size: 1.15rem;
+    margin-bottom: var(--spacing-xs);
+  }
+
+  .status-note {
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+    margin: var(--spacing-xs) 0 0 0;
+  }
+
+  .status-idle {
+    background: #f5f5f5;
+    border-left-color: #999;
+  }
+
+  .status-checking {
+    background: #e3f2fd;
+    border-left-color: #2196f3;
+  }
+
+  .status-success {
+    background: #e8f5e9;
+    border-left-color: #4caf50;
+  }
+
+  .status-fail {
+    background: #fff3e0;
+    border-left-color: #ff9800;
+  }
+
+  .how-it-works {
+    margin-top: var(--spacing-xl);
+    padding: var(--spacing-md);
+    background: #fafafa;
+    border-radius: var(--radius);
+    border: 1px solid var(--color-border);
+  }
+
+  .how-it-works summary {
+    cursor: pointer;
+    font-weight: 600;
+    padding: var(--spacing-sm);
+    user-select: none;
+  }
+
+  .how-it-works summary:hover {
+    color: var(--color-accent);
+  }
+
+  .details-content {
+    padding: var(--spacing-md) var(--spacing-sm) 0;
+  }
+
+  .details-content p {
+    margin-bottom: var(--spacing-md);
   }
 
   .steps {

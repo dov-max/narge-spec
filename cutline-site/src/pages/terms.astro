@@ -1,0 +1,112 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout 
+  title="Terms — Cutline" 
+  description="What Cutline is and is not. A public disclaimer for the cut path DNS service."
+>
+  <h1>Terms</h1>
+
+  <section class="intro">
+    <p class="lead">
+      This is a plain-language notice about what Cutline is and what it is not. 
+      It is not a terms of service. You are not signing a contract.
+    </p>
+  </section>
+
+  <section>
+    <h2>What Cutline Is</h2>
+    <p>
+      Cutline is an open-source cut-path DNS resolver. It is operated by Dov Allison as a free public service.
+    </p>
+    <p>
+      The purpose of Cutline is to provide a DNS resolver that does not resolve the <a href="/spec">Narge content class</a>. 
+      That is the only purpose. If you do not want the Narge content class to resolve on a device or network, 
+      you may point that device or network at this DNS resolver.
+    </p>
+  </section>
+
+  <section>
+    <h2>What Cutline Is Not</h2>
+    <p>
+      Cutline is not a business. It is not a product for sale. It is not a warranty. It is not a kids safety service, 
+      a compliance service, or a filtering solution beyond the narrow Narge class.
+    </p>
+    <p>
+      There is no company. There is no signup. There is no charge.
+    </p>
+  </section>
+
+  <section>
+    <h2>Use at Your Own Risk</h2>
+    <p>
+      You choose to point a device at this resolver. You are responsible for that choice.
+    </p>
+    <p>
+      We do not promise that every Narge name is on the list. We do not promise that every non-Narge name stays up. 
+      The list is an approximation. This is an extra path, not a guarantee.
+    </p>
+    <p>
+      We are not responsible for what you can or cannot reach. We are not responsible for other software on your devices. 
+      We are not responsible for anyone else's use of the same path.
+    </p>
+  </section>
+
+  <section>
+    <h2>Privacy</h2>
+    <p>
+      We do not log query names. We count source IPs for capacity planning and service health. There is no business model 
+      involving your data. For more detail, see the <a href="/privacy">Privacy page</a>.
+    </p>
+  </section>
+
+  <section>
+    <h2>Open Source</h2>
+    <p>
+      The resolver configuration, block list sources, and overlay corrections are all public. You can read exactly what is 
+      happening and verify it yourself. See the <a href="/spec">Narge specification</a> and the 
+      <a href="https://github.com/dov-max/narge-spec" target="_blank" rel="noopener">narge-spec repository</a>.
+    </p>
+  </section>
+
+  <section>
+    <h2>Feedback</h2>
+    <p>
+      If you have questions, found a problem, or want to propose a change to the host list, open an issue on 
+      <a href="https://github.com/dov-max/narge-spec/issues" target="_blank" rel="noopener">GitHub</a>.
+    </p>
+  </section>
+
+  <section>
+    <h2>Not Legal Advice</h2>
+    <p>
+      This page is a notice. It describes what Cutline is and what it is not. It is not legal advice. 
+      It does not create rights or obligations beyond what the law already provides.
+    </p>
+  </section>
+</Layout>
+
+<style>
+  .intro {
+    margin-bottom: var(--spacing-xl);
+  }
+
+  .lead {
+    font-size: 1.25rem;
+    line-height: 1.7;
+    color: var(--color-text);
+  }
+
+  section {
+    margin: var(--spacing-2xl) 0;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+
+  p {
+    line-height: 1.7;
+  }
+</style>

@@ -46,24 +46,16 @@ import Layout from '../layouts/Layout.astro';
   <section id="what-is-narge">
     <h2>What is Narge?</h2>
     <p>
-      <strong>Narge</strong> (pronounced NARJ) is a technical content class defined as:
+      <strong>Narge</strong> (pronounced NARJ) is a technical content class. It is narrowly defined 
+      in the <a href="/spec">Narge specification</a>.
     </p>
-    <blockquote>
-      A video or still (including photorealistic AI) of one or more real or photorealistic humans, 
-      produced or posted primarily to sexually arouse.
-    </blockquote>
     <p>
-      This includes sex acts, masturbation, nudes, and partial nudes when arousal is the purpose. 
-      It does not include:
+      The classification looks at purpose and content type. It does not include CSAM (already illegal), 
+      written-only text, non-photoreal illustration, medical content, sex education, news, documentary, 
+      breastfeeding, clothing sales, or story films when purpose is not arousal.
     </p>
-    <ul>
-      <li>CSAM (already illegal, separate category)</li>
-      <li>Written-only text or non-photoreal illustration</li>
-      <li>Medical, sex education, news, documentary content</li>
-      <li>Breastfeeding, clothing sales, story films (when purpose is not arousal)</li>
-    </ul>
     <p>
-      See the full <a href="/spec">Narge specification</a> for complete details.
+      See the full <a href="/spec">Narge specification</a> for the complete definition and what is included or excluded.
     </p>
   </section>
 
@@ -83,7 +75,7 @@ import Layout from '../layouts/Layout.astro';
 
     <h3>What Gets Blocked</h3>
     <p>
-      Cutline uses the <a href="https://github.com/StevenBlack/hosts" target="_blank" rel="noopener">StevenBlack porn-only list</a> 
+      Cutline uses the <a href="https://github.com/StevenBlack/hosts" target="_blank" rel="noopener">StevenBlack hosts list</a> 
       (MIT license) as a temporary approximation of Narge, plus overlay corrections maintained in the 
       <a href="https://github.com/dov-max/narge-spec/tree/main/overlay" target="_blank" rel="noopener">narge-spec repository</a>.
     </p>
@@ -136,7 +128,7 @@ import Layout from '../layouts/Layout.astro';
 
     <h3>List Quality</h3>
     <p>
-      The block list is an approximation. It uses StevenBlack's porn-only list, which is:
+      The block list is an approximation. It uses StevenBlack's hosts list, which is:
     </p>
     <ul>
       <li>Community-maintained (quality varies)</li>
@@ -213,7 +205,7 @@ Secondary: 149.28.79.49</code></pre>
       Block lists automatically refresh every 24 hours from:
     </p>
     <ul>
-      <li><a href="https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/porn-only/hosts" target="_blank" rel="noopener">StevenBlack porn-only hosts</a></li>
+      <li><a href="https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/porn-only/hosts" target="_blank" rel="noopener">StevenBlack hosts</a></li>
       <li><a href="https://github.com/dov-max/narge-spec/tree/main/overlay" target="_blank" rel="noopener">Overlay files</a> (block.txt, allow.txt)</li>
     </ul>
 

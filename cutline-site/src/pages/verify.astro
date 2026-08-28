@@ -153,6 +153,29 @@ import Layout from '../layouts/Layout.astro';
       <li>The site may not be in the block list (the list is an approximation)</li>
     </ul>
 
+    <h3>Windows: IPv6 DNS Leak</h3>
+    <p>
+      Even after setting the IPv4 Cutline DNS servers, Windows may prioritize an IPv6 DNS resolver 
+      from your router, bypassing Cutline. To check:
+    </p>
+    <pre><code>ipconfig /all</code></pre>
+    <p>
+      Look at the DNS Servers list. If an <strong>IPv6 address appears first</strong> (e.g., starting with 
+      <code>2600:</code> or <code>fe80:</code>), Windows is not using Cutline DNS. The Settings app 
+      "IPv6 DNS Off" toggle does not prevent this.
+    </p>
+    <p><strong>Fix:</strong> Disable IPv6 on your network adapter:</p>
+    <ul>
+      <li><strong>GUI:</strong> Press <kbd>Win+R</kbd>, type <code>ncpa.cpl</code>, press Enter. 
+          Right-click your connection, select Properties, and uncheck 
+          <strong>Internet Protocol Version 6 (TCP/IPv6)</strong>.</li>
+      <li><strong>PowerShell</strong> (Administrator): 
+          <code>Disable-NetAdapterBinding -Name 'Wi-Fi' -ComponentID ms_tcpip6</code></li>
+    </ul>
+    <p>
+      After disabling IPv6, run <code>ipconfig /flushdns</code> and retest with the Check Now button above.
+    </p>
+
     <h3>Flush DNS Cache</h3>
     <p><strong>macOS:</strong></p>
     <pre><code>sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder</code></pre>

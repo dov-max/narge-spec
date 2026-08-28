@@ -91,6 +91,42 @@ import Layout from '../layouts/Layout.astro';
       <li>Set Alternate DNS to <code>149.28.79.49</code></li>
       <li>Click <strong>Save</strong></li>
     </ol>
+
+    <div class="warning-box">
+      <h3>IPv6 DNS Leak (Common Issue)</h3>
+      <p>
+        After setting the IPv4 DNS servers above, open PowerShell or Command Prompt and run:
+      </p>
+      <pre><code>ipconfig /all</code></pre>
+      <p>
+        Look at the DNS Servers list for your connection. If you see an <strong>IPv6 address</strong> 
+        (especially first in the list), Windows is using that IPv6 resolver and <strong>skipping Cutline</strong>.
+      </p>
+      <p>
+        The Settings app "IPv6 DNS Off" toggle does <strong>not</strong> remove IPv6 resolvers delivered 
+        by your router via Router Advertisement or DHCPv6.
+      </p>
+      <p><strong>Fix:</strong> Disable IPv6 on your network adapter.</p>
+      <p><strong>GUI method:</strong></p>
+      <ol>
+        <li>Press <kbd>Win+R</kbd>, type <code>ncpa.cpl</code>, press Enter</li>
+        <li>Right-click your connection (Wi-Fi or Ethernet), select <strong>Properties</strong></li>
+        <li>Uncheck <strong>Internet Protocol Version 6 (TCP/IPv6)</strong></li>
+        <li>Click <strong>OK</strong></li>
+      </ol>
+      <p><strong>PowerShell method</strong> (requires Administrator):</p>
+      <pre><code>Disable-NetAdapterBinding -Name 'Wi-Fi' -ComponentID ms_tcpip6</code></pre>
+      <p class="note-small">
+        (Replace <code>'Wi-Fi'</code> with <code>'Ethernet'</code> if using a wired connection.)
+      </p>
+      <p>
+        After disabling IPv6, flush the DNS cache and test:
+      </p>
+      <pre><code>ipconfig /flushdns</code></pre>
+      <p>
+        Then visit <a href="/verify">thecutline.org/verify</a> to confirm you're on the cut path.
+      </p>
+    </div>
   </section>
 
   <section id="android">
@@ -228,6 +264,61 @@ import Layout from '../layouts/Layout.astro';
 
   code {
     white-space: nowrap;
+  }
+
+  .warning-box {
+    background: #fff3cd;
+    border: 2px solid #ffc107;
+    border-radius: var(--radius);
+    padding: var(--spacing-lg);
+    margin-top: var(--spacing-xl);
+  }
+
+  .warning-box h3 {
+    margin-top: 0;
+    color: #856404;
+  }
+
+  .warning-box pre {
+    background: var(--color-text);
+    color: #f8f8f2;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: 4px;
+    overflow-x: auto;
+    margin: var(--spacing-sm) 0;
+  }
+
+  .warning-box code {
+    background: rgba(0, 0, 0, 0.05);
+    padding: 0.125rem 0.375rem;
+    border-radius: 3px;
+    font-size: 0.9em;
+  }
+
+  .warning-box pre code {
+    background: transparent;
+    padding: 0;
+    color: #f8f8f2;
+  }
+
+  .warning-box kbd {
+    background: var(--color-text);
+    color: white;
+    padding: 0.125rem 0.375rem;
+    border-radius: 3px;
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+  }
+
+  .warning-box ol {
+    margin: var(--spacing-sm) 0;
+  }
+
+  .note-small {
+    font-size: 0.9rem;
+    color: #856404;
+    font-style: italic;
+    margin: var(--spacing-xs) 0;
   }
 
   .profile-card {

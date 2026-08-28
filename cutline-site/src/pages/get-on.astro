@@ -7,7 +7,8 @@ import Layout from '../layouts/Layout.astro';
 
   <section class="intro">
     <p class="lead">
-      Configure your device or network to use Cutline's DNS resolvers. Use these addresses:
+      Configure your device to use Cutline's encrypted DNS resolvers. For the shortest path, use the 
+      one-tap setup below. Manual DNS addresses:
     </p>
     <div class="resolver-box">
       <code class="ip">64.176.200.99</code>
@@ -16,13 +17,99 @@ import Layout from '../layouts/Layout.astro';
   </section>
 
   <nav class="platform-nav">
+    <a href="#encrypted">Encrypted DNS (One-Tap)</a>
     <a href="#router">Router</a>
     <a href="#macos">macOS</a>
     <a href="#iphone">iPhone/iPad</a>
     <a href="#windows">Windows</a>
     <a href="#android">Android</a>
-    <a href="#apple-profile">Apple Profile</a>
   </nav>
+
+  <section id="encrypted" class="encrypted-section">
+    <h2>Encrypted DNS (One-Tap Setup)</h2>
+    <p class="lead">
+      Cutline now supports <strong>DNS-over-HTTPS (DoH)</strong> and <strong>DNS-over-TLS (DoT)</strong>. 
+      These encrypt your DNS queries end-to-end.
+    </p>
+
+    <div class="encrypted-grid">
+      <div class="encrypted-card">
+        <h3>📱 iPhone / Mac</h3>
+        <p>Download and install the configuration profile for one-tap encrypted DNS setup.</p>
+        <ol>
+          <li><strong>Open this page in Safari</strong> (profiles only work in Safari)</li>
+          <li>Tap the button below to download the profile</li>
+          <li>Go to <strong>Settings → Profile Downloaded → Install</strong></li>
+          <li>Enter your passcode and tap <strong>Install</strong> (twice)</li>
+          <li>The profile is unsigned—this is expected</li>
+        </ol>
+        <a href="/cutline-dns.mobileconfig" class="download-button" download>
+          Download Cutline DNS Profile
+        </a>
+        <p class="note">
+          <strong>Note:</strong> This profile configures DoH for all networks, including cellular data. 
+          You can remove it anytime from Settings → General → VPN & Device Management.
+        </p>
+      </div>
+
+      <div class="encrypted-card">
+        <h3>🤖 Android</h3>
+        <p>Android 9+ has built-in encrypted DNS support.</p>
+        <ol>
+          <li>Open <strong>Settings</strong></li>
+          <li>Go to <strong>Network & internet</strong></li>
+          <li>Tap <strong>Private DNS</strong></li>
+          <li>Select <strong>Private DNS provider hostname</strong></li>
+          <li>Enter: <code class="inline-code">dns.thecutline.org</code></li>
+          <li>Tap <strong>Save</strong></li>
+        </ol>
+        <p class="note">
+          This configures DNS-over-TLS (DoT) system-wide, including mobile data.
+        </p>
+      </div>
+
+      <div class="encrypted-card">
+        <h3>🪟 Windows</h3>
+        <p>Download and run the PowerShell setup script (requires Administrator).</p>
+        <ol>
+          <li>Download the script using the button below</li>
+          <li>Right-click <strong>PowerShell</strong> and select <strong>Run as Administrator</strong></li>
+          <li>Navigate to your Downloads folder</li>
+          <li>Run: <code class="inline-code">.\cutline-dns-windows.ps1</code></li>
+          <li>The script registers DoH templates and configures your adapters</li>
+        </ol>
+        <a href="/cutline-dns-windows.ps1" class="download-button" download>
+          Download Windows Setup Script
+        </a>
+        <p class="note">
+          <strong>IPv6 note:</strong> The script disables IPv6 DNS bindings by default to prevent leaks. 
+          Use <code class="inline-code">-KeepIPv6</code> flag if needed. Chrome/Edge have separate "Secure DNS" 
+          settings that may override system DNS—either point them to the same DoH URL or turn them off.
+        </p>
+      </div>
+    </div>
+
+    <div class="technical-details">
+      <h3>Technical Details</h3>
+      <div class="details-grid">
+        <div>
+          <strong>DoH Endpoint:</strong><br>
+          <code class="inline-code">https://dns.thecutline.org/dns-query</code><br>
+          <small>(application/dns-message)</small>
+        </div>
+        <div>
+          <strong>DoT Endpoint:</strong><br>
+          <code class="inline-code">dns.thecutline.org:853</code><br>
+          <small>TLS, SAN dns.thecutline.org</small>
+        </div>
+        <div>
+          <strong>IP Addresses:</strong><br>
+          <code class="inline-code">64.176.200.99</code><br>
+          <code class="inline-code">149.28.79.49</code>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <section id="router">
     <h2>Router (Whole Network)</h2>
@@ -58,8 +145,14 @@ import Layout from '../layouts/Layout.astro';
   </section>
 
   <section id="iphone">
-    <h2>iPhone/iPad (Wi-Fi)</h2>
-    <p>This configures DNS for the specific Wi-Fi network. Repeat for each network you use.</p>
+    <h2>iPhone/iPad</h2>
+    <p>
+      <strong>Recommended:</strong> Use the <a href="#encrypted">Apple Configuration Profile</a> above 
+      for encrypted DNS on all networks, including cellular.
+    </p>
+    <p>
+      <strong>Alternative (Wi-Fi only, unencrypted):</strong> Configure DNS manually for a specific Wi-Fi network.
+    </p>
     <ol>
       <li>Open <strong>Settings</strong></li>
       <li>Tap <strong>Wi-Fi</strong></li>
@@ -71,14 +164,17 @@ import Layout from '../layouts/Layout.astro';
       <li>Tap <strong>Add Server</strong> and enter <code>149.28.79.49</code></li>
       <li>Tap <strong>Save</strong></li>
     </ol>
-    <p>
-      <strong>For cellular data and easier setup</strong>, use the Apple Configuration Profile 
-      (see <a href="#apple-profile">below</a>) when available.
-    </p>
   </section>
 
   <section id="windows">
     <h2>Windows 10/11</h2>
+    <p>
+      <strong>Recommended:</strong> Use the <a href="#encrypted">PowerShell setup script</a> above 
+      for encrypted DNS (DoH) with proper configuration.
+    </p>
+    <p>
+      <strong>Alternative (unencrypted):</strong> Manually configure DNS servers.
+    </p>
     <ol>
       <li>Open <strong>Settings</strong></li>
       <li>Go to <strong>Network & Internet</strong></li>
@@ -131,15 +227,13 @@ import Layout from '../layouts/Layout.astro';
 
   <section id="android">
     <h2>Android</h2>
-    <p>Instructions vary by Android version and manufacturer. Here's the general process:</p>
-    
-    <h3>Android 9+ (Private DNS)</h3>
     <p>
-      <strong>Note:</strong> Private DNS requires DNS-over-TLS (DoT). Cutline does not currently 
-      support DoT. Use the Wi-Fi DNS method below instead.
+      <strong>Recommended:</strong> Use <a href="#encrypted">Private DNS (DoT)</a> above for 
+      encrypted DNS on all networks, including mobile data.
     </p>
-
-    <h3>Wi-Fi DNS (All Android versions)</h3>
+    <p>
+      <strong>Alternative (Wi-Fi only, unencrypted):</strong> Manually configure DNS for a specific Wi-Fi network.
+    </p>
     <ol>
       <li>Open <strong>Settings</strong></li>
       <li>Tap <strong>Network & Internet</strong> or <strong>Connections</strong></li>
@@ -153,28 +247,8 @@ import Layout from '../layouts/Layout.astro';
       <li>Set DNS 2 to <code>149.28.79.49</code></li>
       <li>Tap <strong>Save</strong></li>
     </ol>
-  </section>
-
-  <section id="apple-profile">
-    <h2>Apple Configuration Profile</h2>
-    <div class="profile-card">
-      <p class="coming-soon-badge">Coming Soon</p>
-      <p>
-        An Apple Configuration Profile will allow one-tap DNS setup for iOS and macOS, including 
-        cellular data on iPhone. This is not yet available.
-      </p>
-      <p>
-        When live, you'll be able to download a <code>.mobileconfig</code> file that configures 
-        Cutline DNS across all networks and connections.
-      </p>
-    </div>
-  </section>
-
-  <section class="domain-info">
-    <h2>DNS-over-HTTPS (DoH)</h2>
-    <p>
-      The domain <strong>thecutline.org</strong> is registered. HTTPS DNS (DoH) and DNS-over-TLS (DoT) 
-      are not yet live. For now, use plain DNS with the IP addresses above.
+    <p class="note">
+      <strong>Note:</strong> Steps may vary by Android version and manufacturer.
     </p>
   </section>
 
@@ -264,6 +338,91 @@ import Layout from '../layouts/Layout.astro';
 
   code {
     white-space: nowrap;
+  }
+
+  .inline-code {
+    background: var(--color-card-bg);
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+    font-size: 0.9em;
+  }
+
+  .encrypted-section {
+    background: linear-gradient(135deg, var(--color-card-bg) 0%, rgba(139, 69, 19, 0.05) 100%);
+    border: 2px solid var(--color-accent);
+    border-radius: var(--radius);
+    padding: var(--spacing-xl);
+    margin: var(--spacing-2xl) 0;
+  }
+
+  .encrypted-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--spacing-lg);
+    margin: var(--spacing-xl) 0;
+  }
+
+  .encrypted-card {
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: var(--spacing-lg);
+  }
+
+  .encrypted-card h3 {
+    margin-top: 0;
+    margin-bottom: var(--spacing-md);
+    font-size: 1.3rem;
+  }
+
+  .encrypted-card ol {
+    margin: var(--spacing-md) 0;
+  }
+
+  .download-button {
+    display: inline-block;
+    background: var(--color-accent);
+    color: white;
+    padding: var(--spacing-sm) var(--spacing-lg);
+    border-radius: var(--radius);
+    text-decoration: none;
+    font-weight: 600;
+    margin: var(--spacing-md) 0;
+    transition: background 0.2s, transform 0.2s;
+  }
+
+  .download-button:hover {
+    background: var(--color-accent-hover);
+    text-decoration: none;
+    transform: translateY(-2px);
+  }
+
+  .note {
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+    margin-top: var(--spacing-md);
+    padding: var(--spacing-sm);
+    background: var(--color-card-bg);
+    border-left: 3px solid var(--color-accent);
+    border-radius: 4px;
+  }
+
+  .technical-details {
+    margin-top: var(--spacing-xl);
+    padding: var(--spacing-lg);
+    background: var(--color-bg);
+    border-radius: var(--radius);
+  }
+
+  .details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-lg);
+    margin-top: var(--spacing-md);
+  }
+
+  .details-grid small {
+    color: var(--color-text-muted);
   }
 
   .warning-box {

@@ -25,18 +25,23 @@ import Layout from '../layouts/Layout.astro';
       <summary>How this check works</summary>
       <div class="details-content">
         <p>
-          This page is served via public DNS, so it always loads. When you click "Check Now," your browser 
-          attempts to fetch <code>https://on.thecutline.org/ok</code>. That hostname is <strong>not</strong> 
-          in public DNS—only Cutline resolvers answer it.
+          When you click "Check Now," your browser silently probes two hostnames:
+        </p>
+        <ul>
+          <li><code>on.thecutline.org</code> — exists <strong>only</strong> on Cutline DNS, not in public DNS</li>
+          <li><code>off.thecutline.org</code> — exists in public DNS but is on the Cutline block overlay, so a cut path must return NXDOMAIN</li>
+        </ul>
+        <p>
+          <strong>Green (you are on a cut path) only if:</strong> the first fetch succeeds <strong>and</strong> the second fetch fails.
         </p>
         <p>
-          If the fetch succeeds, this device used Cutline DNS to resolve the name. If it fails, this device 
-          either did not query Cutline DNS, or another service (Private Relay, Secure DNS, or a VPN) 
-          overrode your configuration.
+          Any other combination means you are not on a cut path. If both succeed, you are either using public DNS, 
+          a mixed resolver, or Cutline is not blocking the off probe (leak). If the on probe fails, you are not 
+          using Cutline DNS. If both fail, you are not on a cut path.
         </p>
         <p>
-          You are not sent to a hostname that fails. The check is performed silently in JavaScript, and 
-          any error is caught by this page.
+          You are not sent to either hostname. The check is performed silently in JavaScript with fetch, 
+          and all errors are caught by this page.
         </p>
       </div>
     </details>
@@ -180,29 +185,43 @@ import Layout from '../layouts/Layout.astro';
     banner.innerHTML = '<strong>Checking...</strong>';
     button.disabled = true;
     
-    // Attempt to fetch the cut path endpoint
-    fetch('https://on.thecutline.org/ok', {
+    // Probe both endpoints
+    const onProbe = fetch('https://on.thecutline.org/ok', {
       method: 'GET',
       cache: 'no-store',
       mode: 'cors'
-    })
-      .then(response => {
-        if (response.ok) {
-          // Success - on cut path
+    });
+    
+    const offProbe = fetch('https://off.thecutline.org/ok', {
+      method: 'GET',
+      cache: 'no-store',
+      mode: 'cors'
+    });
+    
+    // Wait for both probes to complete (or fail)
+    Promise.allSettled([onProbe, offProbe])
+      .then(results => {
+        const onResult = results[0];
+        const offResult = results[1];
+        
+        // Check if on succeeded (200)
+        const onSuccess = onResult.status === 'fulfilled' && onResult.value.ok;
+        
+        // Check if off failed (network/DNS error)
+        const offFailed = offResult.status === 'rejected';
+        
+        // Green ONLY if on succeeds AND off fails
+        if (onSuccess && offFailed) {
           banner.className = 'status-banner status-success';
           banner.innerHTML = `
             <strong>You are on a cut path.</strong>
             <p class="status-note">Another DNS, a VPN, or Private Relay can skip Cutline.</p>
           `;
         } else {
-          // Response but not ok
+          // Any other combination: not on cut path
           showNotOnCutPath(banner);
         }
-        button.disabled = false;
-      })
-      .catch(() => {
-        // Failed to connect - not on cut path
-        showNotOnCutPath(banner);
+        
         button.disabled = false;
       });
   }

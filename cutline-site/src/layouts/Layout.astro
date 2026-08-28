@@ -32,6 +32,7 @@ const { pathname } = Astro.url;
           <a href="/run-your-own" class={pathname === "/run-your-own" ? "active" : ""}>Run Your Own</a>
           <a href="/docs" class={pathname === "/docs" ? "active" : ""}>Docs</a>
           <a href="/privacy" class={pathname === "/privacy" ? "active" : ""}>Privacy</a>
+          <a href="/terms" class={pathname === "/terms" ? "active" : ""}>Terms</a>
           <a href="https://github.com/dov-max/narge-spec/issues" target="_blank" rel="noopener">Feedback</a>
         </div>
       </div>
@@ -42,8 +43,8 @@ const { pathname } = Astro.url;
     <footer class="footer">
       <div class="footer-container">
         <p>Run by <a href="https://github.com/dov-max" target="_blank" rel="noopener">Dov Allison</a>. Open source, no charge.</p>
-        <p><a href="/privacy">Privacy</a> · This page is dedicated to the public domain under <a href="https://creativecommons.org/publicdomain/zero/1.0/" target="_blank" rel="noopener">CC0 1.0</a>.</p>
-        <p><a href="https://github.com/dov-max/narge-spec" target="_blank" rel="noopener">GitHub: dov-max/narge-spec</a></p>
+        <p><a href="/privacy">Privacy</a> · <a href="/terms">Terms</a> · <a href="https://github.com/dov-max/narge-spec" target="_blank" rel="noopener">GitHub: dov-max/narge-spec</a></p>
+        <p>This page is dedicated to the public domain under <a href="https://creativecommons.org/publicdomain/zero/1.0/" target="_blank" rel="noopener">CC0 1.0</a>.</p>
       </div>
     </footer>
   </body>

@@ -21,6 +21,7 @@ Query names are not stored. After a query, the operator cannot look up the query
 - Home: https://thecutline.org
 - Why Cut Paths: https://thecutline.org/why
 - Get On (Setup): https://thecutline.org/get-on
+- Privacy: https://thecutline.org/privacy
 - Narge Spec: https://thecutline.org/spec
 - GitHub Repository: https://github.com/dov-max/narge-spec
 

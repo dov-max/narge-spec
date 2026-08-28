@@ -1,0 +1,139 @@
+---
+// Stats display with example data banner
+const isLiveData = false; // Set to true when live stats API exists
+---
+
+<div class="stats-section">
+  {!isLiveData && (
+    <div class="example-banner">
+      <strong>⚠️ Example Data</strong> — This is not live data. Live stats will be available soon.
+    </div>
+  )}
+  
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon">✓</div>
+      <div class="stat-value">Healthy</div>
+      <div class="stat-label">Service Status</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">⚡</div>
+      <div class="stat-value">2.4 Gbps</div>
+      <div class="stat-label">Capacity / Bandwidth</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">👥</div>
+      <div class="stat-value">847</div>
+      <div class="stat-label">Distinct Source IPs (7 days)</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">📍</div>
+      <div class="stat-value">US EWR, LAX</div>
+      <div class="stat-label">Locations</div>
+    </div>
+  </div>
+
+  <div class="stats-notes">
+    <h3>Privacy</h3>
+    <p><strong>No query-name logging.</strong> We do not log which domains you request. Source IPs are counted for capacity planning only.</p>
+    
+    <h3>Technical Details</h3>
+    <ul>
+      <li><strong>DNS Software:</strong> Blocky</li>
+      <li><strong>Block List:</strong> StevenBlack hosts (porn-only) + overlay corrections</li>
+      <li><strong>Upstream:</strong> Cloudflare 1.1.1.1</li>
+      <li><strong>Locations:</strong> US East (Newark) and US West (Los Angeles)</li>
+    </ul>
+  </div>
+</div>
+
+<style>
+  .stats-section {
+    margin: var(--spacing-xl) 0;
+  }
+
+  .example-banner {
+    background: #fff3cd;
+    border: 2px solid #ffc107;
+    border-radius: var(--radius);
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+    text-align: center;
+    color: #856404;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-xl);
+  }
+
+  .stat-card {
+    background: var(--color-card-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: var(--spacing-lg);
+    text-align: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .stat-icon {
+    font-size: 2rem;
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .stat-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--color-accent);
+    margin-bottom: var(--spacing-xs);
+  }
+
+  .stat-label {
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+  }
+
+  .stats-notes {
+    background: var(--color-card-bg);
+    border-radius: var(--radius);
+    padding: var(--spacing-xl);
+  }
+
+  .stats-notes h3 {
+    margin-top: var(--spacing-lg);
+    font-size: 1.2rem;
+  }
+
+  .stats-notes h3:first-child {
+    margin-top: 0;
+  }
+
+  .stats-notes ul {
+    padding-left: var(--spacing-lg);
+    color: var(--color-text-muted);
+  }
+
+  .stats-notes li {
+    margin-bottom: var(--spacing-xs);
+  }
+
+  @media (max-width: 640px) {
+    .stats-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .stat-card {
+      padding: var(--spacing-md);
+    }
+  }
+</style>

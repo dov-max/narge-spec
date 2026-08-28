@@ -1,0 +1,170 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Narge Specification">
+  <h1>Narge Specification</h1>
+
+  <section class="intro">
+    <p class="lead">
+      Narge is a class of visual content. It is not a brand, a product, a filter, a religion, or a law.
+    </p>
+    <p>
+      <strong>Version 0.2.</strong> 27 August 2026.
+    </p>
+    <p>
+      The spoken word is <strong>NARJ</strong>.
+    </p>
+  </section>
+
+  <section>
+    <h2>Definition</h2>
+    <p>
+      A file, stream, or post is <strong>Narge</strong> when it is a video or still (including photorealistic AI) 
+      of one or more real or photorealistic humans, produced or posted <strong>primarily to sexually arouse</strong>.
+    </p>
+    <p>
+      That includes sex acts, masturbation, nudes, and partial nudes when that is the purpose. 
+      If the purpose is not arousal, it is not Narge.
+    </p>
+    <p>
+      If the payload is already a crime under CSAM law, this class does not apply.
+    </p>
+  </section>
+
+  <section>
+    <h2>Not Narge</h2>
+    <p>
+      Anything that is already a CSAM crime. Written-only text. Non-photoreal illustration. Medical, sex education, 
+      news, documentary, breastfeeding, a clothing sale, or a story film, when the purpose is not arousal.
+    </p>
+    <p>
+      A clip or still cut from a story to arouse is Narge. A link inherits the class of the destination payload.
+    </p>
+  </section>
+
+  <section>
+    <h2>Rules</h2>
+    <ol>
+      <li><strong>Look at the payload, not the domain.</strong></li>
+      <li><strong>Purpose decides.</strong> Two providers may disagree at the margin of a specific picture. 
+          That is expected. There are no numbered ratings and no extra classes.</li>
+      <li><strong>Photoreal counts.</strong> Photoreal AI or a deepfake is the same payload if it meets this definition. 
+          Consent is a different stack.</li>
+      <li><strong>The bar is malware, not prohibition.</strong> The class can sit off the ordinary trusted path 
+          and still be findable if someone tries.</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>How to Use the Word</h2>
+    <p>
+      That's Narge. A Narge site. This site may contain Narge. This site is promoting Narge. Blocks Narge. A Narge warning.
+    </p>
+    <p>
+      <strong>Do not number it.</strong> There is no Narge-1. The bare word means the definition above.
+    </p>
+  </section>
+
+  <section>
+    <h2>Host List Process</h2>
+    <p>
+      The open process for producing a hostname list based on this definition is documented separately. 
+      See the <a href="https://github.com/dov-max/narge-spec/blob/main/LIST.md" target="_blank" rel="noopener">LIST.md</a> file 
+      in the repository.
+    </p>
+
+    <h3>Temporary Feed</h3>
+    <p>
+      Until a public host registry exists, the list pulls from the 
+      <a href="https://github.com/StevenBlack/hosts" target="_blank" rel="noopener">StevenBlack hosts porn-only list</a> 
+      (MIT license, attributed). This is an approximation of Narge, not Narge. It is pulled on a timer.
+    </p>
+
+    <h3>Overlay Files</h3>
+    <p>
+      Two small public files add corrections:
+    </p>
+    <ul>
+      <li><code>overlay/block.txt</code> — extra hosts to block</li>
+      <li><code>overlay/allow.txt</code> — StevenBlack entries to unblock</li>
+    </ul>
+    <p>
+      These files exist to refine the temporary feed until a later public host registry exists.
+    </p>
+  </section>
+
+  <section>
+    <h2>Copyright</h2>
+    <p>
+      This document is dedicated to the public domain under 
+      <a href="https://creativecommons.org/publicdomain/zero/1.0/" target="_blank" rel="noopener">CC0 1.0</a>. 
+      Anyone may copy, change, or sell the text. There is no licensor.
+    </p>
+  </section>
+
+  <section>
+    <h2>Class Name</h2>
+    <p>
+      Narge, as used in this document, is a classification token. It is not a product name. 
+      The author claims no trademark in that use and asks others not to treat it as a brand.
+    </p>
+  </section>
+
+  <section class="links">
+    <h2>Full Specification</h2>
+    <p>
+      The complete, authoritative specification and list process are maintained in the GitHub repository:
+    </p>
+    <ul>
+      <li><a href="https://github.com/dov-max/narge-spec/blob/main/README.md" target="_blank" rel="noopener">README.md</a> — Narge definition</li>
+      <li><a href="https://github.com/dov-max/narge-spec/blob/main/LIST.md" target="_blank" rel="noopener">LIST.md</a> — Host list process</li>
+      <li><a href="https://github.com/dov-max/narge-spec" target="_blank" rel="noopener">dov-max/narge-spec</a> — Full repository</li>
+    </ul>
+  </section>
+</Layout>
+
+<style>
+  .intro {
+    margin-bottom: var(--spacing-xl);
+  }
+
+  .lead {
+    font-size: 1.25rem;
+    line-height: 1.7;
+    margin-bottom: var(--spacing-md);
+  }
+
+  section {
+    margin: var(--spacing-2xl) 0;
+  }
+
+  h3 {
+    margin-top: var(--spacing-xl);
+    font-size: 1.25rem;
+  }
+
+  ol, ul {
+    padding-left: var(--spacing-lg);
+    margin: var(--spacing-md) 0;
+  }
+
+  li {
+    margin-bottom: var(--spacing-sm);
+    line-height: 1.7;
+  }
+
+  code {
+    white-space: nowrap;
+  }
+
+  .links {
+    background: var(--color-card-bg);
+    border-radius: var(--radius);
+    padding: var(--spacing-xl);
+  }
+
+  .links h2 {
+    margin-top: 0;
+  }
+</style>

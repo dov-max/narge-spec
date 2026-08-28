@@ -1,0 +1,173 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Why Cut Paths? — Cutline">
+  <h1>Why Cut Paths?</h1>
+
+  <section class="intro">
+    <p class="lead">
+      Many people believe Narge should not be easy to reach on the ordinary internet. 
+      A cut path makes that belief actionable.
+    </p>
+  </section>
+
+  <section>
+    <h2>The Problem</h2>
+    <p>
+      The current internet makes Narge content trivially accessible. A single typo, search result, 
+      or link can expose anyone—including children using family devices—to explicit sexual content 
+      designed for arousal.
+    </p>
+    <p>
+      This is not about prohibition. It's about routing. The internet can work differently.
+    </p>
+  </section>
+
+  <section>
+    <h2>What a Cut Path Does</h2>
+    <p>
+      A cut path is a DNS resolver that does not resolve the Narge content class. It makes Narge 
+      harder to reach—not impossible, just not the default.
+    </p>
+    <ul>
+      <li>Sites identified as Narge-purpose return no address (NXDOMAIN)</li>
+      <li>Everything else resolves normally</li>
+      <li>No accounts, no filtering dashboard, no "family settings"</li>
+      <li>This is a technical class, not a moral judgment system</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Why This Approach</h2>
+    
+    <h3>Narrow and Technical</h3>
+    <p>
+      Narge is a defined content class—photorealistic sexual content produced primarily for arousal. 
+      It is not "objectionable content" or "adult material." The definition is narrow by design.
+    </p>
+
+    <h3>Host-Level Intent</h3>
+    <p>
+      The classification looks at a site's purpose, not individual pictures. A sex education site 
+      is not Narge. A shop is not Narge. An arousal-first platform is.
+    </p>
+
+    <h3>Open and Verifiable</h3>
+    <p>
+      The specification, block list source, and resolver configuration are all public. You can read 
+      exactly what is happening. No company stamp, no secret rules.
+    </p>
+
+    <h3>Not a Complete Filter</h3>
+    <p>
+      This is not a kids-safety product, an addiction treatment, or a house filter. If you need those, 
+      use a complete filtering solution. A cut path addresses one narrow class.
+    </p>
+  </section>
+
+  <section>
+    <h2>Not Government, Not a Brand</h2>
+    <p>
+      This is not a law. It's not a government program. It's not a certification or trust seal. 
+      It's infrastructure anyone can run.
+    </p>
+    <p>
+      The goal: make it normal for ISPs and carriers to offer a cut path option. Show demand 
+      with usage numbers. Let users choose their own routing.
+    </p>
+  </section>
+
+  <section>
+    <h2>Who This Is For</h2>
+    <ul>
+      <li><strong>Parents</strong> who want baseline protection without full filtering</li>
+      <li><strong>Individuals</strong> who prefer a default path that doesn't serve Narge</li>
+      <li><strong>Organizations</strong> that want a secular, technical option</li>
+      <li><strong>Anyone</strong> who believes Narge should not be the default internet</li>
+    </ul>
+    <p>
+      This is not a religious product. It's not a political statement. It's a routing choice.
+    </p>
+  </section>
+
+  <section>
+    <h2>Honesty About Limitations</h2>
+    <p>
+      A cut path will not stop someone who wants to find Narge. It makes it harder to reach by accident 
+      or habit. If you need stronger protection, use additional tools.
+    </p>
+    <p>
+      The block list is an approximation. It uses the StevenBlack porn-only list plus overlay corrections 
+      until a public host registry exists. Some sites will be misclassified. That is expected.
+    </p>
+  </section>
+
+  <section class="cta">
+    <h2>Try It</h2>
+    <p>
+      Cutline is live. No signup, no charge. Configure your device to use the resolvers and see how it works.
+    </p>
+    <a href="/narge-spec/get-on" class="cta-button">Get Started →</a>
+  </section>
+</Layout>
+
+<style>
+  .intro {
+    margin-bottom: var(--spacing-xl);
+  }
+
+  .lead {
+    font-size: 1.25rem;
+    line-height: 1.7;
+    color: var(--color-text);
+  }
+
+  section {
+    margin: var(--spacing-2xl) 0;
+  }
+
+  h3 {
+    margin-top: var(--spacing-xl);
+  }
+
+  ul {
+    padding-left: var(--spacing-lg);
+    margin: var(--spacing-md) 0;
+  }
+
+  li {
+    margin-bottom: var(--spacing-sm);
+    line-height: 1.7;
+  }
+
+  .cta {
+    background: var(--color-card-bg);
+    border-radius: var(--radius);
+    padding: var(--spacing-xl);
+    text-align: center;
+    margin-top: var(--spacing-2xl);
+  }
+
+  .cta h2 {
+    margin-top: 0;
+  }
+
+  .cta-button {
+    display: inline-block;
+    background: var(--color-accent);
+    color: white;
+    padding: var(--spacing-md) var(--spacing-xl);
+    border-radius: var(--radius);
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.2s;
+  }
+
+  .cta-button:hover {
+    background: var(--color-accent-hover);
+    text-decoration: none;
+    transform: translateY(-2px);
+  }
+</style>

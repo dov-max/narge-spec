@@ -1,0 +1,178 @@
+---
+import Layout from '../layouts/Layout.astro';
+import StatsDisplay from '../components/StatsDisplay.astro';
+---
+
+<Layout title="Live Stats — Cutline">
+  <h1>Live Stats</h1>
+
+  <section class="intro">
+    <p class="lead">
+      Service health, capacity, and usage statistics for Cutline's DNS resolvers.
+    </p>
+  </section>
+
+  <StatsDisplay />
+
+  <section class="privacy-commitment">
+    <h2>Privacy and Logging</h2>
+    <p>
+      Cutline follows these privacy practices:
+    </p>
+    <ul>
+      <li><strong>No query-name logging.</strong> We do not log which domain names you request.</li>
+      <li><strong>Source IPs are counted</strong> for capacity planning and service health only.</li>
+      <li><strong>No user accounts or tracking.</strong> We do not know who you are.</li>
+      <li><strong>No data sale.</strong> There is no business model involving your data.</li>
+    </ul>
+  </section>
+
+  <section class="technical-stack">
+    <h2>Technical Stack</h2>
+    <div class="tech-grid">
+      <div class="tech-card">
+        <h3>DNS Software</h3>
+        <p><strong>Blocky</strong></p>
+        <p class="tech-description">
+          Open source DNS resolver with automatic list refresh and minimal overhead.
+        </p>
+        <a href="https://github.com/0xERR0R/blocky" target="_blank" rel="noopener">GitHub →</a>
+      </div>
+
+      <div class="tech-card">
+        <h3>Block List Source</h3>
+        <p><strong>StevenBlack hosts (porn-only)</strong></p>
+        <p class="tech-description">
+          MIT-licensed community-maintained host list, plus overlay corrections for the Narge definition.
+        </p>
+        <a href="https://github.com/StevenBlack/hosts" target="_blank" rel="noopener">GitHub →</a>
+      </div>
+
+      <div class="tech-card">
+        <h3>Upstream DNS</h3>
+        <p><strong>Cloudflare 1.1.1.1</strong></p>
+        <p class="tech-description">
+          Non-blocked queries are resolved through Cloudflare's public DNS for speed and reliability.
+        </p>
+      </div>
+
+      <div class="tech-card">
+        <h3>Infrastructure</h3>
+        <p><strong>US East (EWR), US West (LAX)</strong></p>
+        <p class="tech-description">
+          Hosted on VPS infrastructure in Newark and Los Angeles for coverage across the United States.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="updates">
+    <h2>List Updates</h2>
+    <p>
+      The block list automatically refreshes every 24 hours from upstream sources:
+    </p>
+    <ul>
+      <li>StevenBlack porn-only list (MIT license)</li>
+      <li>Overlay corrections from <code>overlay/block.txt</code> and <code>overlay/allow.txt</code> in the 
+          <a href="https://github.com/dov-max/narge-spec" target="_blank" rel="noopener">narge-spec repository</a></li>
+    </ul>
+    <p>
+      No manual VPS access or service restart is needed. Changes to the overlay files are picked up automatically.
+    </p>
+  </section>
+
+  <section class="transparency">
+    <h2>Transparency</h2>
+    <p>
+      Everything about Cutline is public:
+    </p>
+    <ul>
+      <li><a href="https://github.com/dov-max/narge-spec/blob/main/resolver/config.yml" target="_blank" rel="noopener">Blocky configuration</a></li>
+      <li><a href="https://github.com/dov-max/narge-spec/blob/main/overlay/block.txt" target="_blank" rel="noopener">Block overlay</a></li>
+      <li><a href="https://github.com/dov-max/narge-spec/blob/main/overlay/allow.txt" target="_blank" rel="noopener">Allow overlay</a></li>
+      <li><a href="https://github.com/dov-max/narge-spec" target="_blank" rel="noopener">Full repository</a></li>
+    </ul>
+    <p>
+      You can verify exactly what is being blocked and how the resolver is configured.
+    </p>
+  </section>
+</Layout>
+
+<style>
+  .intro {
+    margin-bottom: var(--spacing-xl);
+  }
+
+  .lead {
+    font-size: 1.25rem;
+    line-height: 1.7;
+  }
+
+  section {
+    margin: var(--spacing-2xl) 0;
+  }
+
+  .privacy-commitment,
+  .transparency,
+  .updates {
+    background: var(--color-card-bg);
+    border-radius: var(--radius);
+    padding: var(--spacing-xl);
+  }
+
+  .privacy-commitment h2,
+  .transparency h2,
+  .updates h2 {
+    margin-top: 0;
+  }
+
+  ul {
+    padding-left: var(--spacing-lg);
+    margin: var(--spacing-md) 0;
+  }
+
+  li {
+    margin-bottom: var(--spacing-sm);
+    line-height: 1.7;
+  }
+
+  .tech-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-lg);
+  }
+
+  .tech-card {
+    background: var(--color-card-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: var(--spacing-lg);
+  }
+
+  .tech-card h3 {
+    margin-top: 0;
+    margin-bottom: var(--spacing-sm);
+    font-size: 1.1rem;
+    color: var(--color-accent);
+  }
+
+  .tech-card p {
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .tech-description {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+  }
+
+  code {
+    white-space: nowrap;
+  }
+
+  @media (max-width: 640px) {
+    .tech-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

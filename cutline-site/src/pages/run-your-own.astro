@@ -1,0 +1,261 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Run Your Own Cut Path">
+  <h1>Run Your Own Cut Path</h1>
+
+  <section class="intro">
+    <p class="lead">
+      Anyone can run a cut path DNS resolver. Cutline is one operator, not the only one. 
+      This guide shows you how to deploy your own.
+    </p>
+  </section>
+
+  <section class="why-run-your-own">
+    <h2>Why Run Your Own?</h2>
+    <ul>
+      <li><strong>Control:</strong> Full control over configuration, upstream DNS, and overlay rules</li>
+      <li><strong>Privacy:</strong> No third-party DNS queries (all resolution happens on your infrastructure)</li>
+      <li><strong>Customization:</strong> Add your own block/allow lists on top of the Narge spec</li>
+      <li><strong>Local deployment:</strong> Run it on your home network or organization's infrastructure</li>
+      <li><strong>Resilience:</strong> Don't depend on any single operator</li>
+    </ul>
+  </section>
+
+  <section class="what-you-need">
+    <h2>What You Need</h2>
+    <ul>
+      <li>A Linux server, VPS, or Raspberry Pi with Docker installed</li>
+      <li>Basic command-line skills</li>
+      <li>Access to the <a href="https://github.com/dov-max/narge-spec" target="_blank" rel="noopener">narge-spec repository</a></li>
+    </ul>
+  </section>
+
+  <section class="quick-start">
+    <h2>Quick Start with Docker</h2>
+    
+    <h3>1. Clone the Repository</h3>
+    <pre><code>git clone https://github.com/dov-max/narge-spec.git
+cd narge-spec</code></pre>
+
+    <h3>2. Start the Resolver</h3>
+    <p>Using Docker Compose (recommended):</p>
+    <pre><code>docker compose -f resolver/docker-compose.yml up -d</code></pre>
+
+    <p>Or with a direct Docker command:</p>
+    <pre><code>docker run -d \
+  --name blocky \
+  -v "$(pwd)/resolver/config.yml:/app/config.yml:ro" \
+  -p 53:53/udp \
+  -p 53:53/tcp \
+  ghcr.io/0xerr0r/blocky</code></pre>
+
+    <h3>3. Test It</h3>
+    <pre><code>dig @127.0.0.1 example.com</code></pre>
+    <p>Should return an address. Test a blocked domain to verify blocking works.</p>
+
+    <h3>4. Configure Your Devices</h3>
+    <p>
+      Point your devices to your server's IP address as the DNS server. Use the same setup process 
+      as <a href="/narge-spec/get-on">getting on Cutline</a>, but with your own server's IP.
+    </p>
+  </section>
+
+  <section class="configuration">
+    <h2>Configuration</h2>
+    
+    <p>
+      The resolver configuration is in <code>resolver/config.yml</code>. Key settings:
+    </p>
+
+    <h3>Block Lists</h3>
+    <p>
+      The default configuration loads:
+    </p>
+    <ul>
+      <li>StevenBlack porn-only list (temporary Narge approximation)</li>
+      <li>GitHub overlay files (<code>overlay/block.txt</code>, <code>overlay/allow.txt</code>)</li>
+    </ul>
+    <p>
+      Lists refresh automatically every 24 hours. Edit the overlay files to add corrections.
+    </p>
+
+    <h3>Upstream DNS</h3>
+    <p>
+      Default upstream is Cloudflare 1.1.1.1. Change this in <code>config.yml</code>:
+    </p>
+    <pre><code>upstream:
+  default:
+    - 1.1.1.1
+    - 1.0.0.1</code></pre>
+
+    <h3>Custom Overlay Files</h3>
+    <p>
+      You can maintain your own overlay files instead of using the GitHub URLs. Mount them as local files 
+      or host them on your own server.
+    </p>
+  </section>
+
+  <section class="production-notes">
+    <h2>Production Deployment</h2>
+
+    <h3>Port 53 Permissions</h3>
+    <p>
+      Port 53 requires root or <code>CAP_NET_BIND_SERVICE</code>. On Linux:
+    </p>
+    <pre><code>docker run --cap-add=NET_BIND_SERVICE ...</code></pre>
+
+    <h3>Firewall</h3>
+    <p>
+      Open UDP and TCP port 53:
+    </p>
+    <pre><code>sudo ufw allow 53/udp
+sudo ufw allow 53/tcp</code></pre>
+
+    <h3>HTTPS/DoH (Optional)</h3>
+    <p>
+      Blocky supports DNS-over-HTTPS (DoH) and DNS-over-TLS (DoT). Add to <code>config.yml</code>:
+    </p>
+    <pre><code>ports:
+  dns: 53
+  http: 4000
+  https: 443
+  tls: 853
+
+certFile: /path/to/cert.pem
+keyFile: /path/to/key.pem</code></pre>
+
+    <h3>Monitoring</h3>
+    <p>
+      Blocky provides Prometheus metrics. Add to <code>config.yml</code>:
+    </p>
+    <pre><code>prometheus:
+  enable: true
+  path: /metrics</code></pre>
+  </section>
+
+  <section class="customization">
+    <h2>Customization Options</h2>
+
+    <h3>Add Your Own Block Lists</h3>
+    <p>
+      Beyond Narge, you can block additional categories:
+    </p>
+    <pre><code>blocking:
+  denylists:
+    narge:
+      - https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/porn-only/hosts
+      - https://raw.githubusercontent.com/dov-max/narge-spec/main/overlay/block.txt
+    malware:
+      - https://malware-blocklist.example.com/hosts
+    ads:
+      - https://ad-blocklist.example.com/hosts</code></pre>
+
+    <h3>Allowlist for Exceptions</h3>
+    <p>
+      The allowlist overrides all denylists:
+    </p>
+    <pre><code>blocking:
+  allowlists:
+    - https://raw.githubusercontent.com/dov-max/narge-spec/main/overlay/allow.txt
+    - /path/to/custom-allow.txt</code></pre>
+  </section>
+
+  <section class="resources">
+    <h2>Resources</h2>
+    <ul>
+      <li><a href="https://github.com/dov-max/narge-spec/tree/main/resolver" target="_blank" rel="noopener">Resolver README</a> — Full deployment guide</li>
+      <li><a href="https://github.com/dov-max/narge-spec/blob/main/resolver/config.yml" target="_blank" rel="noopener">Example config.yml</a> — Ready-to-use configuration</li>
+      <li><a href="https://0xerr0r.github.io/blocky/latest/" target="_blank" rel="noopener">Blocky documentation</a> — Complete Blocky reference</li>
+      <li><a href="https://github.com/0xERR0R/blocky" target="_blank" rel="noopener">Blocky GitHub</a> — Source code and issues</li>
+    </ul>
+  </section>
+
+  <section class="contribute">
+    <h2>Share Your Deployment</h2>
+    <p>
+      If you run a public cut path resolver, consider sharing it! Open an issue or PR on 
+      <a href="https://github.com/dov-max/narge-spec" target="_blank" rel="noopener">GitHub</a> to list it 
+      as an alternative operator.
+    </p>
+    <p>
+      The goal is multiple independent operators, not one central service.
+    </p>
+  </section>
+</Layout>
+
+<style>
+  .intro {
+    margin-bottom: var(--spacing-xl);
+  }
+
+  .lead {
+    font-size: 1.25rem;
+    line-height: 1.7;
+  }
+
+  section {
+    margin: var(--spacing-2xl) 0;
+  }
+
+  h3 {
+    margin-top: var(--spacing-xl);
+    font-size: 1.25rem;
+  }
+
+  ul {
+    padding-left: var(--spacing-lg);
+    margin: var(--spacing-md) 0;
+  }
+
+  li {
+    margin-bottom: var(--spacing-sm);
+    line-height: 1.7;
+  }
+
+  pre {
+    background: var(--color-text);
+    color: #f8f8f2;
+    padding: var(--spacing-md);
+    border-radius: var(--radius);
+    overflow-x: auto;
+    margin: var(--spacing-md) 0;
+  }
+
+  pre code {
+    color: #f8f8f2;
+  }
+
+  code {
+    white-space: nowrap;
+  }
+
+  .why-run-your-own,
+  .what-you-need,
+  .contribute {
+    background: var(--color-card-bg);
+    border-radius: var(--radius);
+    padding: var(--spacing-xl);
+  }
+
+  .why-run-your-own h2,
+  .what-you-need h2,
+  .contribute h2 {
+    margin-top: 0;
+  }
+
+  .resources {
+    background: var(--color-card-bg);
+    border-radius: var(--radius);
+    padding: var(--spacing-xl);
+  }
+
+  .resources h2 {
+    margin-top: 0;
+  }
+
+  .resources ul {
+    margin-bottom: 0;
+  }
+</style>

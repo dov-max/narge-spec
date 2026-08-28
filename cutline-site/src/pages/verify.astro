@@ -1,0 +1,268 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Verify You're Using Cutline">
+  <h1>Verify You're Using Cutline</h1>
+
+  <section class="intro">
+    <p class="lead">
+      After configuring your DNS, follow these steps to confirm you're using the cut path.
+    </p>
+  </section>
+
+  <section class="steps">
+    <h2>Test Steps</h2>
+
+    <div class="test-step">
+      <div class="step-number">1</div>
+      <div class="step-content">
+        <h3>Quit and Restart Safari (macOS/iOS)</h3>
+        <p>
+          Safari caches DNS aggressively. On macOS, fully quit Safari (⌘Q), then reopen it. 
+          On iOS, swipe up to close Safari completely, then reopen.
+        </p>
+        <p>
+          Other browsers may also cache DNS. If testing in Chrome or Firefox, restart them as well.
+        </p>
+      </div>
+    </div>
+
+    <div class="test-step">
+      <div class="step-number">2</div>
+      <div class="step-content">
+        <h3>Test Normal Sites Work</h3>
+        <p>
+          Visit a normal website to confirm DNS is working:
+        </p>
+        <ul>
+          <li><a href="https://example.com" target="_blank" rel="noopener">example.com</a> — Should load</li>
+          <li><a href="https://wikipedia.org" target="_blank" rel="noopener">wikipedia.org</a> — Should load</li>
+          <li><a href="https://github.com" target="_blank" rel="noopener">github.com</a> — Should load</li>
+        </ul>
+        <p>
+          If these sites don't load, your DNS configuration may be incorrect. Double-check the settings.
+        </p>
+      </div>
+    </div>
+
+    <div class="test-step">
+      <div class="step-number">3</div>
+      <div class="step-content">
+        <h3>Test Blocked Name Fails</h3>
+        <p>
+          Try to visit a site that should be blocked. The page should fail to load with a "can't find server" 
+          or "DNS_PROBE_FINISHED_NXDOMAIN" error.
+        </p>
+        <p class="warning">
+          <strong>Note:</strong> We don't list specific blocked domains here as examples. If you need to test, 
+          check the <a href="https://github.com/StevenBlack/hosts/blob/master/alternates/porn-only/hosts" target="_blank" rel="noopener">StevenBlack porn-only list</a> 
+          (the temporary feed Cutline uses).
+        </p>
+      </div>
+    </div>
+
+    <div class="test-step">
+      <div class="step-number">4</div>
+      <div class="step-content">
+        <h3>Use the Canary (Connection Proof, Not DNS Proof)</h3>
+        <p>
+          Visit the HTTP canary by IP address to confirm you can reach the resolver infrastructure:
+        </p>
+        <p>
+          <a href="http://64.176.200.99/" target="_blank" rel="noopener" class="canary-link">http://64.176.200.99/</a>
+        </p>
+        <p class="canary-note">
+          <strong>Important:</strong> This canary proves you can connect to this path, <strong>NOT</strong> 
+          that you're using these DNS servers. It is connectivity verification only.
+        </p>
+        <p>
+          The hostname canary <code>on.narge.test</code> exists but is weak in Safari (may be bypassed by search).
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="dns-check-tools">
+    <h2>Command-Line DNS Check (Advanced)</h2>
+    <p>
+      If you're comfortable with terminal/command prompt, you can directly query Cutline DNS:
+    </p>
+    
+    <h3>macOS/Linux</h3>
+    <pre><code>dig @64.176.200.99 example.com</code></pre>
+    <p>Should return an address for example.com.</p>
+
+    <h3>Windows</h3>
+    <pre><code>nslookup example.com 64.176.200.99</code></pre>
+    <p>Should return an address for example.com.</p>
+
+    <h3>Test a Blocked Domain</h3>
+    <p>
+      Query a domain from the StevenBlack list. It should return <code>NXDOMAIN</code> (no such domain).
+    </p>
+  </section>
+
+  <section class="troubleshooting">
+    <h2>Troubleshooting</h2>
+
+    <h3>Normal sites don't load</h3>
+    <ul>
+      <li>Double-check the DNS server IPs: <code>64.176.200.99</code> and <code>149.28.79.49</code></li>
+      <li>Restart your device or renew DHCP</li>
+      <li>Try flushing DNS cache (see below)</li>
+      <li>On Windows, make sure you selected "Manual" DNS, not "Automatic"</li>
+    </ul>
+
+    <h3>Blocked sites still load</h3>
+    <ul>
+      <li>Fully quit and restart your browser (especially Safari)</li>
+      <li>Check that your device isn't using another DNS source (VPN, proxy, corporate network)</li>
+      <li>On iOS, verify DNS is set for the specific Wi-Fi network you're on</li>
+      <li>The site may not be in the block list (the list is an approximation)</li>
+    </ul>
+
+    <h3>Flush DNS Cache</h3>
+    <p><strong>macOS:</strong></p>
+    <pre><code>sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder</code></pre>
+
+    <p><strong>Windows:</strong></p>
+    <pre><code>ipconfig /flushdns</code></pre>
+
+    <p><strong>Linux:</strong></p>
+    <pre><code>sudo systemd-resolve --flush-caches</code></pre>
+  </section>
+
+  <section class="help">
+    <h2>Still Having Issues?</h2>
+    <p>
+      If you're stuck, check the <a href="/narge-spec/docs">docs</a> or open an issue on 
+      <a href="https://github.com/dov-max/narge-spec/issues" target="_blank" rel="noopener">GitHub</a>.
+    </p>
+  </section>
+</Layout>
+
+<style>
+  .intro {
+    margin-bottom: var(--spacing-xl);
+  }
+
+  .lead {
+    font-size: 1.25rem;
+    line-height: 1.7;
+  }
+
+  .steps {
+    margin: var(--spacing-2xl) 0;
+  }
+
+  .test-step {
+    display: flex;
+    gap: var(--spacing-lg);
+    margin: var(--spacing-xl) 0;
+    padding: var(--spacing-lg);
+    background: var(--color-card-bg);
+    border-radius: var(--radius);
+  }
+
+  .step-number {
+    flex-shrink: 0;
+    width: 3rem;
+    height: 3rem;
+    background: var(--color-accent);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+
+  .step-content {
+    flex: 1;
+  }
+
+  .step-content h3 {
+    margin-top: 0;
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .step-content ul {
+    padding-left: var(--spacing-lg);
+  }
+
+  .step-content li {
+    margin-bottom: var(--spacing-xs);
+  }
+
+  .warning {
+    background: #fff3cd;
+    border-left: 4px solid #ffc107;
+    padding: var(--spacing-md);
+    margin: var(--spacing-md) 0;
+    border-radius: 4px;
+    color: #856404;
+  }
+
+  .canary-link {
+    display: inline-block;
+    font-size: 1.1rem;
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--color-card-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    margin: var(--spacing-sm) 0;
+  }
+
+  .canary-note {
+    font-size: 0.95rem;
+    color: var(--color-text-muted);
+    font-style: italic;
+  }
+
+  .dns-check-tools,
+  .troubleshooting,
+  .help {
+    margin: var(--spacing-2xl) 0;
+  }
+
+  h3 {
+    margin-top: var(--spacing-xl);
+    font-size: 1.25rem;
+  }
+
+  pre {
+    background: var(--color-text);
+    color: #f8f8f2;
+    padding: var(--spacing-md);
+    border-radius: var(--radius);
+    overflow-x: auto;
+  }
+
+  pre code {
+    color: #f8f8f2;
+  }
+
+  ul {
+    padding-left: var(--spacing-lg);
+  }
+
+  li {
+    margin-bottom: var(--spacing-sm);
+    line-height: 1.7;
+  }
+
+  @media (max-width: 640px) {
+    .test-step {
+      flex-direction: column;
+      gap: var(--spacing-sm);
+    }
+
+    .step-number {
+      width: 2.5rem;
+      height: 2.5rem;
+      font-size: 1.25rem;
+    }
+  }
+</style>

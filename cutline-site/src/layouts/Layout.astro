@@ -14,23 +14,23 @@ const { pathname } = Astro.url;
     <meta charset="UTF-8" />
     <meta name="description" content={description} />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/svg+xml" href="/narge-spec/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
   </head>
   <body>
     <nav class="nav">
       <div class="nav-container">
-        <a href="/narge-spec/" class="nav-logo">Cutline</a>
+        <a href="/" class="nav-logo">Cutline</a>
         <div class="nav-links">
-          <a href="/narge-spec/" class={pathname === "/narge-spec/" || pathname === "/" ? "active" : ""}>Home</a>
-          <a href="/narge-spec/why" class={pathname === "/narge-spec/why" ? "active" : ""}>Why</a>
-          <a href="/narge-spec/get-on" class={pathname === "/narge-spec/get-on" ? "active" : ""}>Get On</a>
-          <a href="/narge-spec/verify" class={pathname === "/narge-spec/verify" ? "active" : ""}>Verify</a>
-          <a href="/narge-spec/spec" class={pathname === "/narge-spec/spec" ? "active" : ""}>Spec</a>
-          <a href="/narge-spec/stats" class={pathname === "/narge-spec/stats" ? "active" : ""}>Stats</a>
-          <a href="/narge-spec/run-your-own" class={pathname === "/narge-spec/run-your-own" ? "active" : ""}>Run Your Own</a>
-          <a href="/narge-spec/docs" class={pathname === "/narge-spec/docs" ? "active" : ""}>Docs</a>
+          <a href="/" class={pathname === "/" ? "active" : ""}>Home</a>
+          <a href="/why" class={pathname === "/why" ? "active" : ""}>Why</a>
+          <a href="/get-on" class={pathname === "/get-on" ? "active" : ""}>Get On</a>
+          <a href="/verify" class={pathname === "/verify" ? "active" : ""}>Verify</a>
+          <a href="/spec" class={pathname === "/spec" ? "active" : ""}>Spec</a>
+          <a href="/stats" class={pathname === "/stats" ? "active" : ""}>Stats</a>
+          <a href="/run-your-own" class={pathname === "/run-your-own" ? "active" : ""}>Run Your Own</a>
+          <a href="/docs" class={pathname === "/docs" ? "active" : ""}>Docs</a>
           <a href="https://github.com/dov-max/narge-spec/issues" target="_blank" rel="noopener">Feedback</a>
         </div>
       </div>

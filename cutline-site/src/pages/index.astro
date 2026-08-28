@@ -1,0 +1,303 @@
+---
+const site = "The Cutline";
+const dohUrl = "https://dns.thecutline.org/dns-query";
+const dotHostname = "dns.thecutline.org";
+const plainDns1 = "64.176.200.99";
+const plainDns2 = "149.28.79.49";
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" href="/favicon.ico" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>{site} - Encrypted DNS</title>
+		<style>
+			:root {
+				--color-bg: #fafafa;
+				--color-text: #222;
+				--color-heading: #111;
+				--color-border: #ddd;
+				--color-link: #0066cc;
+				--color-link-hover: #0052a3;
+				--color-warning: #ff6b35;
+				--color-warning-bg: #fff3e0;
+				--color-success: #2ecc71;
+				--color-code-bg: #f5f5f5;
+				--spacing-xs: 0.5rem;
+				--spacing-sm: 1rem;
+				--spacing-md: 1.5rem;
+				--spacing-lg: 2rem;
+				--spacing-xl: 3rem;
+			}
+
+			* {
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+			}
+
+			body {
+				font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+				line-height: 1.6;
+				color: var(--color-text);
+				background: var(--color-bg);
+				padding: var(--spacing-md);
+			}
+
+			main {
+				max-width: 800px;
+				margin: 0 auto;
+			}
+
+			h1 {
+				font-size: 2.5rem;
+				color: var(--color-heading);
+				margin-bottom: var(--spacing-sm);
+				font-weight: 700;
+			}
+
+			h2 {
+				font-size: 1.75rem;
+				color: var(--color-heading);
+				margin-top: var(--spacing-xl);
+				margin-bottom: var(--spacing-md);
+				font-weight: 600;
+			}
+
+			h3 {
+				font-size: 1.25rem;
+				color: var(--color-heading);
+				margin-top: var(--spacing-lg);
+				margin-bottom: var(--spacing-sm);
+				font-weight: 600;
+			}
+
+			p {
+				margin-bottom: var(--spacing-sm);
+			}
+
+			a {
+				color: var(--color-link);
+				text-decoration: none;
+			}
+
+			a:hover {
+				color: var(--color-link-hover);
+				text-decoration: underline;
+			}
+
+			code {
+				background: var(--color-code-bg);
+				padding: 0.125rem 0.375rem;
+				border-radius: 3px;
+				font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+				font-size: 0.9em;
+			}
+
+			.warning-banner {
+				background: var(--color-warning-bg);
+				border: 2px solid var(--color-warning);
+				border-radius: 8px;
+				padding: var(--spacing-md);
+				margin: var(--spacing-lg) 0;
+			}
+
+			.warning-banner strong {
+				color: var(--color-warning);
+				font-weight: 700;
+				font-size: 1.1em;
+			}
+
+			.device-section {
+				background: white;
+				border: 1px solid var(--color-border);
+				border-radius: 8px;
+				padding: var(--spacing-lg);
+				margin: var(--spacing-lg) 0;
+			}
+
+			.download-button {
+				display: inline-block;
+				background: var(--color-link);
+				color: white;
+				padding: var(--spacing-sm) var(--spacing-lg);
+				border-radius: 6px;
+				font-weight: 600;
+				margin: var(--spacing-sm) 0;
+				text-decoration: none;
+				transition: background 0.2s;
+			}
+
+			.download-button:hover {
+				background: var(--color-link-hover);
+				text-decoration: none;
+			}
+
+			.untested-badge {
+				display: inline-block;
+				background: var(--color-warning);
+				color: white;
+				padding: 0.25rem 0.625rem;
+				border-radius: 4px;
+				font-size: 0.75rem;
+				font-weight: 700;
+				text-transform: uppercase;
+				letter-spacing: 0.5px;
+				margin-left: var(--spacing-sm);
+			}
+
+			.step-list {
+				counter-reset: step-counter;
+				list-style: none;
+				padding: 0;
+			}
+
+			.step-list li {
+				counter-increment: step-counter;
+				margin-bottom: var(--spacing-md);
+				padding-left: var(--spacing-xl);
+				position: relative;
+			}
+
+			.step-list li::before {
+				content: counter(step-counter);
+				position: absolute;
+				left: 0;
+				top: 0;
+				background: var(--color-link);
+				color: white;
+				width: 28px;
+				height: 28px;
+				border-radius: 50%;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				font-weight: 700;
+				font-size: 0.9rem;
+			}
+
+			.dns-address {
+				background: var(--color-code-bg);
+				padding: var(--spacing-md);
+				border-radius: 6px;
+				margin: var(--spacing-sm) 0;
+				border-left: 4px solid var(--color-success);
+			}
+
+			.dns-address strong {
+				display: block;
+				margin-bottom: var(--spacing-xs);
+			}
+
+			footer {
+				margin-top: var(--spacing-xl);
+				padding-top: var(--spacing-lg);
+				border-top: 1px solid var(--color-border);
+				color: #666;
+				font-size: 0.9rem;
+			}
+		</style>
+	</head>
+	<body>
+		<main>
+			<h1>{site}</h1>
+			<p style="font-size: 1.25rem; color: #666;">Encrypted DNS for filtering Narge content</p>
+
+			<div class="warning-banner">
+				<p><strong>⚠️ IMPORTANT:</strong> Encrypted DNS (DoH/DoT) is <strong>not live yet</strong>. The configuration files and instructions below are ready to use, but the encrypted endpoints are not yet responding. Plain DNS at the addresses below is working.</p>
+				<p style="margin-top: var(--spacing-sm);">Do not expect these encrypted settings to work until this notice is removed.</p>
+			</div>
+
+			<h2>Current Status</h2>
+			<div class="dns-address">
+				<strong>Working Now - Plain DNS (unencrypted):</strong>
+				<code>{plainDns1}</code><br />
+				<code>{plainDns2}</code>
+			</div>
+
+			<div class="dns-address" style="border-left-color: var(--color-warning);">
+				<strong>Coming Soon - Encrypted DNS:</strong>
+				DNS-over-HTTPS: <code>{dohUrl}</code><br />
+				DNS-over-TLS: <code>{dotHostname}:853</code>
+			</div>
+
+			<h2>Device Setup</h2>
+
+			<div class="device-section">
+				<h3>
+					iOS / iPadOS / macOS
+					<span class="untested-badge">Untested</span>
+				</h3>
+				<p>Download and install the DNS configuration profile for Apple devices.</p>
+				<a href="/cutline-dns.mobileconfig" class="download-button" download>
+					Download Profile (.mobileconfig)
+				</a>
+				<p style="margin-top: var(--spacing-md); font-size: 0.9rem; color: #666;">
+					<strong>After download:</strong> Open the file and follow the prompts to install. 
+					On iOS/iPadOS: Settings → Profile Downloaded → Install. 
+					On macOS: System Settings → Privacy & Security → Profiles → Install.
+				</p>
+				<p style="margin-top: var(--spacing-sm); font-size: 0.9rem; color: var(--color-warning);">
+					⚠️ This profile points to <code>{dohUrl}</code> which is not responding yet.
+				</p>
+			</div>
+
+			<div class="device-section">
+				<h3>
+					Android
+					<span class="untested-badge">Untested</span>
+				</h3>
+				<p>Configure Private DNS (DNS-over-TLS) in your Android settings.</p>
+				<ol class="step-list">
+					<li>Open <strong>Settings</strong></li>
+					<li>Go to <strong>Network & internet</strong></li>
+					<li>Tap <strong>Private DNS</strong></li>
+					<li>Select <strong>Private DNS provider hostname</strong></li>
+					<li>Enter: <code>{dotHostname}</code></li>
+					<li>Tap <strong>Save</strong></li>
+				</ol>
+				<p style="margin-top: var(--spacing-md); font-size: 0.9rem; color: var(--color-warning);">
+					⚠️ The hostname <code>{dotHostname}</code> is not accepting DoT connections yet.
+				</p>
+			</div>
+
+			<div class="device-section">
+				<h3>
+					Windows 11
+					<span class="untested-badge">Untested</span>
+				</h3>
+				<p>Enable DNS-over-HTTPS in Windows 11 network settings.</p>
+				<ol class="step-list">
+					<li>Open <strong>Settings</strong></li>
+					<li>Go to <strong>Network & Internet</strong></li>
+					<li>Click on your active network connection (Wi-Fi or Ethernet)</li>
+					<li>Scroll down and click <strong>Edit</strong> next to DNS server assignment</li>
+					<li>Select <strong>Manual</strong></li>
+					<li>Turn on <strong>IPv4</strong></li>
+					<li>In the Preferred DNS field, enter: <code>64.176.200.99</code></li>
+					<li>Set <strong>DNS over HTTPS</strong> to <strong>On (automatic template)</strong></li>
+					<li>In the Alternate DNS field, enter: <code>149.28.79.49</code></li>
+					<li>Set <strong>DNS over HTTPS</strong> to <strong>On (automatic template)</strong></li>
+					<li>Click <strong>Save</strong></li>
+				</ol>
+				<p style="margin-top: var(--spacing-md); font-size: 0.9rem; color: #666;">
+					<strong>Note:</strong> Windows 11 will attempt to discover DoH support automatically. Currently, only plain DNS will work until DoH is live.
+				</p>
+				<p style="margin-top: var(--spacing-sm); font-size: 0.9rem; color: var(--color-warning);">
+					⚠️ DoH autodiscovery will not succeed until the service is live.
+				</p>
+			</div>
+
+			<h2>What is this?</h2>
+			<p>The Cutline provides encrypted DNS resolution that filters Narge content (photorealistic sexual content intended to arouse). Traffic does not transit the resolver - we only handle DNS queries.</p>
+			<p>This is part of the broader <a href="https://github.com/dov-max/narge-spec">Narge specification</a> effort to make such content harder to reach by default.</p>
+
+			<footer>
+				<p>Questions or issues? See the <a href="https://github.com/dov-max/narge-spec">narge-spec repository</a>.</p>
+			</footer>
+		</main>
+	</body>
+</html>

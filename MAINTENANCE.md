@@ -90,6 +90,10 @@ Push to `main`. The GitHub Action rebuilds `dist/` automatically.
 
 One person (Dov). Malware bar: incomplete coverage is expected. No query-name logs. No DNS census.
 
+## Catalog Requests
+
+When a catalog asks to include this list, the answer is: separate Narge category or no.
+
 ## Subscribe URL
 
 - **Hostname list**: https://raw.githubusercontent.com/dov-max/narge-spec/main/dist/narge.txt

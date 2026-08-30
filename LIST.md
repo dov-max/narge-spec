@@ -88,6 +88,16 @@ A day-one steward maintains the list through overlay edits and periodic pruning.
 
 The process produces a plain text file of hostnames. Big tech would consume a file, not a voting UI.
 
+## Catalog ingest
+
+Third-party catalogs may ingest the Narge list as a separate, optional category. See [README.md](README.md#definition) for the class definition.
+
+**Policy:**
+- Ingest as "Narge," a distinct optional category
+- Do not merge into existing porn/adult/NSFW lists
+- Do not relabel the class with those words
+- If a catalog will only accept it as "adult," skip that catalog
+
 ## Contributing
 
 Use the [issue templates](.github/ISSUE_TEMPLATE/) to propose a host or a new type.

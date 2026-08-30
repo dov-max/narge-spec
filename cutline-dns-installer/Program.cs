@@ -14,6 +14,8 @@ namespace CutlineDnsInstaller
         private const string DoHTemplate = "https://dns.thecutline.org/dns-query";
         private const string DisplayName = "Cutline DNS";
         private const string TaskName = "CutlineDnsNetworkMonitor";
+        private const string InstallPath = @"C:\Program Files\Cutline DNS";
+        private const string InstalledExeName = "cutline-dns-setup.exe";
         
         private static bool _silentMode = false;
 
@@ -84,6 +86,18 @@ namespace CutlineDnsInstaller
             Console.WriteLine("=================\n");
             Console.WriteLine("Installing encrypted DNS for Windows...\n");
 
+            // Copy exe to Program Files
+            string installedExePath = Path.Combine(InstallPath, InstalledExeName);
+            string currentExePath = GetCurrentExecutablePath();
+            
+            if (!File.Exists(installedExePath) || !string.Equals(Path.GetFullPath(currentExePath), Path.GetFullPath(installedExePath), StringComparison.OrdinalIgnoreCase))
+            {
+                Console.WriteLine($"Installing to {InstallPath}...");
+                Directory.CreateDirectory(InstallPath);
+                File.Copy(currentExePath, installedExePath, true);
+                Console.WriteLine("✓ Installed\n");
+            }
+
             var adapters = GetPhysicalNetworkAdapters();
             if (adapters.Count == 0)
             {
@@ -110,8 +124,8 @@ namespace CutlineDnsInstaller
             if (IsWindows11OrLater())
             {
                 Console.WriteLine("Registering encrypted DNS (DoH) templates...");
-                RegisterDoHTemplate(PrimaryDNS, DoHTemplate);
-                RegisterDoHTemplate(SecondaryDNS, DoHTemplate);
+                RegisterDoHTemplate(PrimaryDNS, DoHTemplate, adapters);
+                RegisterDoHTemplate(SecondaryDNS, DoHTemplate, adapters);
                 Console.WriteLine("✓ DoH templates registered\n");
             }
             else
@@ -139,7 +153,7 @@ namespace CutlineDnsInstaller
             Console.WriteLine("Verify at: https://thecutline.org/verify\n");
             Console.WriteLine("To uninstall:");
             Console.WriteLine("  • Settings → Apps → Cutline DNS → Uninstall");
-            Console.WriteLine($"  • Or run: {GetExecutablePath()} /uninstall\n");
+            Console.WriteLine($"  • Or run: {GetInstalledExecutablePath()} /uninstall\n");
             
             if (!_silentMode)
             {
@@ -169,8 +183,8 @@ namespace CutlineDnsInstaller
             if (IsWindows11OrLater())
             {
                 Console.WriteLine("Removing DoH templates...");
-                RemoveDoHTemplate(PrimaryDNS);
-                RemoveDoHTemplate(SecondaryDNS);
+                RemoveDoHTemplate(PrimaryDNS, adapters);
+                RemoveDoHTemplate(SecondaryDNS, adapters);
                 Console.WriteLine("✓ DoH templates removed\n");
             }
 
@@ -185,6 +199,33 @@ namespace CutlineDnsInstaller
             Console.WriteLine("Unregistering from Programs and Features...");
             UnregisterUninstaller();
             Console.WriteLine("✓ Unregistered\n");
+
+            // Remove installed files
+            try
+            {
+                string installedExePath = GetInstalledExecutablePath();
+                if (File.Exists(installedExePath))
+                {
+                    // If we're running from the installed location, we can't delete ourselves
+                    // Schedule deletion on reboot
+                    string currentExe = GetCurrentExecutablePath();
+                    if (string.Equals(Path.GetFullPath(currentExe), Path.GetFullPath(installedExePath), StringComparison.OrdinalIgnoreCase))
+                    {
+                        Console.WriteLine("Scheduling file removal on next reboot...");
+                        RunCommand("cmd.exe", $"/c timeout /t 2 /nobreak > nul && rd /s /q \"{InstallPath}\"", ignoreErrors: true);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Removing installation files...");
+                        Directory.Delete(InstallPath, true);
+                        Console.WriteLine("✓ Files removed\n");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"  Note: Could not remove installation files: {ex.Message}");
+            }
 
             Console.WriteLine("========================================");
             Console.WriteLine("Uninstallation complete!");
@@ -293,12 +334,28 @@ namespace CutlineDnsInstaller
             }
         }
 
-        static void RegisterDoHTemplate(string ipAddress, string template)
+        static void RegisterDoHTemplate(string ipAddress, string template, System.Collections.Generic.List<string> adapters)
         {
             try
             {
+                // Remove existing template
                 RunPowerShell($"Remove-DnsClientDohServerAddress -ServerAddress '{ipAddress}' -ErrorAction SilentlyContinue");
+                
+                // Add global DoH template
                 RunPowerShell($"Add-DnsClientDohServerAddress -ServerAddress '{ipAddress}' -DohTemplate '{template}' -AllowFallbackToUdp $false -AutoUpgrade $true");
+                
+                // Set per-adapter DohFlags to 2 (Encrypted-only)
+                foreach (var adapter in adapters)
+                {
+                    try
+                    {
+                        RunPowerShell($"Set-DnsClientServerAddress -InterfaceAlias '{adapter}' -ServerAddresses '{ipAddress}' -DohFlags 2 -ErrorAction SilentlyContinue");
+                    }
+                    catch
+                    {
+                        // Some adapters may not support DohFlags, continue
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -306,11 +363,24 @@ namespace CutlineDnsInstaller
             }
         }
 
-        static void RemoveDoHTemplate(string ipAddress)
+        static void RemoveDoHTemplate(string ipAddress, System.Collections.Generic.List<string> adapters)
         {
             try
             {
                 RunPowerShell($"Remove-DnsClientDohServerAddress -ServerAddress '{ipAddress}' -ErrorAction SilentlyContinue");
+                
+                // Clear per-adapter DohFlags
+                foreach (var adapter in adapters)
+                {
+                    try
+                    {
+                        RunPowerShell($"Set-DnsClientServerAddress -InterfaceAlias '{adapter}' -ResetServerAddresses -ErrorAction SilentlyContinue");
+                    }
+                    catch
+                    {
+                        // Continue on error
+                    }
+                }
             }
             catch
             {
@@ -335,7 +405,7 @@ namespace CutlineDnsInstaller
             {
                 RemoveScheduledTask();
                 
-                string exePath = GetExecutablePath();
+                string exePath = GetInstalledExecutablePath();
                 string xml = $@"<?xml version=""1.0"" encoding=""UTF-16""?>
 <Task version=""1.2"" xmlns=""http://schemas.microsoft.com/windows/2004/02/mit/task"">
   <RegistrationInfo>
@@ -407,7 +477,7 @@ namespace CutlineDnsInstaller
         {
             try
             {
-                string exePath = GetExecutablePath();
+                string exePath = GetInstalledExecutablePath();
                 string uninstallKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\CutlineDNS";
                 
                 using (RegistryKey key = Registry.LocalMachine.CreateSubKey(uninstallKey))
@@ -458,11 +528,16 @@ namespace CutlineDnsInstaller
             }
         }
 
-        static string GetExecutablePath()
+        static string GetCurrentExecutablePath()
         {
             return Process.GetCurrentProcess().MainModule?.FileName ?? 
                    AppContext.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar) + 
-                   Path.DirectorySeparatorChar + "cutline-dns-setup.exe";
+                   Path.DirectorySeparatorChar + InstalledExeName;
+        }
+
+        static string GetInstalledExecutablePath()
+        {
+            return Path.Combine(InstallPath, InstalledExeName);
         }
 
         static void RunPowerShell(string command)

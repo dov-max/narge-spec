@@ -18,6 +18,8 @@
 	<string>97AD94B8-4799-4CB8-B6D1-2FB32A2A25DE</string>
 	<key>PayloadVersion</key>
 	<integer>1</integer>
+	<key>PayloadScope</key>
+	<string>System</string>
 	<key>PayloadContent</key>
 	<array>
 		<dict>

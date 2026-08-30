@@ -43,6 +43,11 @@ import Layout from '../layouts/Layout.astro';
           <li>Enter your passcode and tap <strong>Install</strong> (twice)</li>
           <li>The profile is unsigned—this is expected</li>
         </ol>
+        <p class="note">
+          <strong>macOS 26.1+ (Tahoe):</strong> If a previous install failed, delete the Downloaded stub in 
+          System Settings → General → Device Management first, then install the new file. 
+          An admin password prompt is expected.
+        </p>
         <a href="/cutline-dns.mobileconfig" class="download-button" download>
           Download Cutline DNS Profile
         </a>

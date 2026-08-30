@@ -41,19 +41,21 @@ import Layout from '../layouts/Layout.astro';
           <li>Tap the button below to download the profile</li>
           <li>Go to <strong>Settings → Profile Downloaded → Install</strong></li>
           <li>Enter your passcode and tap <strong>Install</strong> (twice)</li>
-          <li>The profile is unsigned—this is expected</li>
+          <li>Install should show <strong>Verified</strong>, not Not Signed</li>
+          <li>Apple may display <strong>Optivantage Solutions LLC</strong> as the signer (the Apple developer identity used to sign the file). Cutline is not an Optivantage product</li>
         </ol>
         <p class="note">
           <strong>macOS 26.1+ (Tahoe):</strong> If a previous install failed, delete the Downloaded stub in 
           System Settings → General → Device Management first, then install the new file. 
-          An admin password prompt is expected.
+          An admin password prompt is expected (PayloadScope System).
         </p>
         <a href="/cutline-dns.mobileconfig" class="download-button" download>
           Download Cutline DNS Profile
         </a>
         <p class="note">
           <strong>Note:</strong> This profile configures DoH for all networks, including cellular data. 
-          You can remove it anytime from Settings → General → VPN & Device Management.
+          You can remove it anytime from Settings → General → VPN & Device Management. 
+          This is not MDM and not a content filter.
         </p>
       </div>
 

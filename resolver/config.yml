@@ -1,5 +1,5 @@
 # Blocky DNS resolver configuration for Narge
-# This config loads the temporary Narge feed (StevenBlack porn-only)
+# This config loads the Narge production list
 # plus local overlay corrections.
 
 upstreams:

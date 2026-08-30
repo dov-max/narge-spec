@@ -1,6 +1,6 @@
 # Blocky DNS Resolver Configuration
 
-This directory contains a ready-to-run DNS resolver configuration using [Blocky](https://github.com/0xERR0R/blocky) to block domains from the Narge temporary feed.
+This directory contains a ready-to-run DNS resolver configuration using [Blocky](https://github.com/0xERR0R/blocky) to block domains from the Narge list.
 
 ## What This Is
 
@@ -9,7 +9,7 @@ This is a **configuration file** for the Blocky DNS resolver. We do not fork or 
 ## What It Does
 
 The resolver loads:
-- **StevenBlack porn-only list** (MIT license) as the temporary Narge feed
+- **Narge production list** from the stable subscribe URL
 - **`overlay/block.txt`** from GitHub for extra denials
 - **`overlay/allow.txt`** from GitHub for exceptions (takes precedence)
 
@@ -67,8 +67,8 @@ dig @127.0.0.1 example.com
 
 ## What to Edit
 
-- **`overlay/block.txt`**: Edit this file on GitHub to add hostnames (one per line) to block beyond the StevenBlack list. Blocky will fetch the updated file automatically within 24 hours.
-- **`overlay/allow.txt`**: Edit this file on GitHub to add hostnames (one per line) to unblock from the StevenBlack list. Blocky will fetch the updated file automatically within 24 hours.
+- **`overlay/block.txt`**: Edit this file on GitHub to add hostnames (one per line) to block beyond the core Narge list. Blocky will fetch the updated file automatically within 24 hours.
+- **`overlay/allow.txt`**: Edit this file on GitHub to add hostnames (one per line) to unblock from the Narge list. Blocky will fetch the updated file automatically within 24 hours.
 - **`config.yml`**: Change upstream DNS servers, refresh period, or other Blocky settings
 
 **Optional:** You can still mount local overlay files as a fallback if you need offline operation or want to override the GitHub sources. The docker commands show how to mount the local `overlay/` directory, though this is not required since the config now loads from GitHub URLs.
@@ -85,6 +85,6 @@ See the [Blocky configuration documentation](https://0xerr0r.github.io/blocky/la
 ## Attribution
 
 - **Blocky** DNS resolver: Apache-2.0 license, by Dimitri Herzog ([0xERR0R](https://github.com/0xERR0R/blocky))
-- **StevenBlack hosts**: MIT license, by Steven Black ([StevenBlack/hosts](https://github.com/StevenBlack/hosts))
+- **Narge list seed**: Initial core domains sourced from StevenBlack hosts porn-only list (MIT license, by Steven Black, [StevenBlack/hosts](https://github.com/StevenBlack/hosts))
 
-We run their software and reference their list. The overlay files and this configuration are part of the Narge specification repository (CC0 1.0).
+We run the Blocky software and consume the Narge list. The Narge list, overlay files, and this configuration are part of the Narge specification repository (CC0 1.0).

@@ -2,22 +2,34 @@
 
 This process sits next to the [Narge specification](README.md). It produces a hostname list a DNS resolver can load.
 
-## Temporary feed
+## Subscribe URL
 
-Until a public host registry exists, the list pulls from the [StevenBlack hosts porn-only list](https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/porn-only/hosts) (MIT license, attributed). This is an approximation of Narge, not Narge. It is pulled on a timer.
+The stable Narge list is available at:
+
+**https://raw.githubusercontent.com/dov-max/narge-spec/main/dist/narge.txt**
+
+A hosts file format is also available:
+
+**https://raw.githubusercontent.com/dov-max/narge-spec/main/dist/narge.hosts**
+
+The list is rebuilt daily and on every change to the source files. It is dedicated to the public domain under CC0 1.0.
+
+## Initial seed
+
+The list was seeded once from the [StevenBlack hosts porn-only list](https://github.com/StevenBlack/hosts) (MIT license). Apex domains with high subdomain fanout (≥10 hostnames) were selected as likely type 1 (watch) or type 2 (paid creator) sites. This was a one-time candidate source. The seed is attributed in the distribution file headers.
 
 ## Overlay
 
 Two small public files add corrections:
 
 - `overlay/block.txt` — extra hosts to block
-- `overlay/allow.txt` — StevenBlack entries to unblock
+- `overlay/allow.txt` — domains to allow (takes precedence)
 
-A day-one steward may edit these files. This is not a stamp. These files exist to refine the temporary feed until a later public host registry exists.
+A day-one steward may edit these files. These files exist to refine the core list through targeted additions and exceptions.
 
 ## Resolver implementation
 
-See [resolver/](resolver/) for a ready-to-run Blocky DNS configuration that loads the temporary feed and overlay files. This is for VPS deployment, not a hosted service.
+See [resolver/](resolver/) for a ready-to-run Blocky DNS configuration that loads the Narge list and overlay files. This is for VPS deployment, not a hosted service.
 
 ## Host grain
 
@@ -68,7 +80,7 @@ New types have a high bar. A type must be a purpose, not a moral campaign. Sugge
 
 ## Steward model
 
-A day-one steward exists until a later anti-gaming vote system is built. No Community Notes implementation now.
+A day-one steward maintains the list through overlay edits and periodic pruning. Upkeep is manual curation, not census or voting.
 
 ## Output
 

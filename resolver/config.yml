@@ -13,8 +13,8 @@ blocking:
   
   denylists:
     narge:
-      # Temporary feed: StevenBlack porn-only list (MIT license)
-      - https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/porn-only/hosts
+      # Narge production list
+      - https://raw.githubusercontent.com/dov-max/narge-spec/main/dist/narge.txt
       # GitHub overlay: extra hosts to block
       - https://raw.githubusercontent.com/dov-max/narge-spec/main/overlay/block.txt
   

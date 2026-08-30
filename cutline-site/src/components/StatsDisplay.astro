@@ -4,93 +4,35 @@
 ---
 
 <div class="stats-section">
-  <div class="tabs-container" role="tablist" aria-label="Resolver locations">
-    <button 
-      class="tab-button active" 
-      role="tab" 
-      aria-selected="true" 
-      aria-controls="ewr-stats" 
-      id="tab-ewr"
-      data-location="ewr"
-    >
-      EWR
-    </button>
-    <button 
-      class="tab-button" 
-      role="tab" 
-      aria-selected="false" 
-      aria-controls="lax-stats" 
-      id="tab-lax"
-      data-location="lax"
-    >
-      LAX
-    </button>
-  </div>
-
-  <div class="tab-content active" role="tabpanel" id="ewr-stats" aria-labelledby="tab-ewr">
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-icon">✓</div>
-        <div class="stat-value" data-stat="ewr-health">—</div>
-        <div class="stat-label">Health</div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-icon">👥</div>
-        <div class="stat-value" data-stat="ewr-ips">—</div>
-        <div class="stat-label">IPs (7 days)</div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-icon">⚡</div>
-        <div class="stat-value" data-stat="ewr-latency-p50">—</div>
-        <div class="stat-label">Latency p50</div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-icon">📊</div>
-        <div class="stat-value" data-stat="ewr-latency-p95">—</div>
-        <div class="stat-label">Latency p95</div>
-      </div>
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon">✓</div>
+      <div class="stat-value" data-stat="health">—</div>
+      <div class="stat-label">Health</div>
     </div>
-  </div>
 
-  <div class="tab-content" role="tabpanel" id="lax-stats" aria-labelledby="tab-lax">
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-icon">✓</div>
-        <div class="stat-value" data-stat="lax-health">—</div>
-        <div class="stat-label">Health</div>
-      </div>
+    <div class="stat-card">
+      <div class="stat-icon">👥</div>
+      <div class="stat-value" data-stat="distinct-ips">—</div>
+      <div class="stat-label">Distinct IPs (7 days)</div>
+    </div>
 
-      <div class="stat-card">
-        <div class="stat-icon">👥</div>
-        <div class="stat-value" data-stat="lax-ips">—</div>
-        <div class="stat-label">IPs (7 days)</div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-icon">⚡</div>
-        <div class="stat-value" data-stat="lax-latency-p50">—</div>
-        <div class="stat-label">Latency p50</div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-icon">📊</div>
-        <div class="stat-value" data-stat="lax-latency-p95">—</div>
-        <div class="stat-label">Latency p95</div>
-      </div>
+    <div class="stat-card">
+      <div class="stat-icon">⚡</div>
+      <div class="stat-value" data-stat="latency-p50">—</div>
+      <div class="stat-label">Average Latency (p50)</div>
     </div>
   </div>
 
   <div class="stats-notes">
     <h3>About These Numbers</h3>
     <p>
-      <strong>IPs:</strong> Count of distinct source IP addresses that queried each resolver in the last 7 days. 
-      This is not households. A single device may appear in both EWR and LAX counts if it queried both resolvers.
+      <strong>Distinct IPs:</strong> Count of distinct source IP addresses that queried the resolver in the last 7 days. 
+      This is not households. A household can query multiple resolvers, so this is not a unique-across-both count. 
+      The number shown is from whichever resolver is busier.
     </p>
     <p>
-      <strong>Latency:</strong> Average (p50) and 95th percentile (p95) resolver processing time for the last 24 hours. 
+      <strong>Latency:</strong> Median (p50) resolver processing time for the last 24 hours, from whichever resolver is busier. 
       This measures query-in to answer-out time at the resolver, NOT last-mile network latency or browser Secure DNS overhead.
       See <a href="/spec">the specification</a> for details.
     </p>
@@ -119,151 +61,84 @@
 </div>
 
 <script>
-  let currentLocation = 'ewr';
-
-  // Tab switching logic with keyboard accessibility
-  function initializeTabs() {
-    const tabButtons = document.querySelectorAll('.tab-button');
-    const tabContents = document.querySelectorAll('.tab-content');
-
-    tabButtons.forEach((button) => {
-      button.addEventListener('click', () => {
-        const location = button.dataset.location;
-        switchTab(location);
-      });
-
-      // Keyboard navigation
-      button.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
-          e.preventDefault();
-          const buttons = Array.from(tabButtons);
-          const currentIndex = buttons.indexOf(button);
-          const nextIndex = e.key === 'ArrowLeft' 
-            ? (currentIndex - 1 + buttons.length) % buttons.length
-            : (currentIndex + 1) % buttons.length;
-          buttons[nextIndex].click();
-          buttons[nextIndex].focus();
-        }
-      });
-    });
-  }
-
-  function switchTab(location) {
-    currentLocation = location;
-
-    // Update tab buttons
-    document.querySelectorAll('.tab-button').forEach((btn) => {
-      const isActive = btn.dataset.location === location;
-      btn.classList.toggle('active', isActive);
-      btn.setAttribute('aria-selected', isActive.toString());
-    });
-
-    // Update tab content
-    document.querySelectorAll('.tab-content').forEach((content) => {
-      const isActive = content.id === `${location}-stats`;
-      content.classList.toggle('active', isActive);
-    });
-
-    // Update history for the selected location
-    displayHistoryForLocation(location);
-  }
-
-  // Fetch live stats from both resolvers
+  // Fetch live stats from unified endpoint
   async function fetchStats() {
-    const endpoints = [
-      { site: 'ewr', url: 'https://ewr.dns.thecutline.org/stats.json' },
-      { site: 'lax', url: 'https://lax.dns.thecutline.org/stats.json' }
-    ];
-
-    for (const endpoint of endpoints) {
-      try {
-        const response = await fetch(endpoint.url, {
-          signal: AbortSignal.timeout(5000)
-        });
-        
-        if (!response.ok) throw new Error('Fetch failed');
-        
-        const data = await response.json();
-        
-        // Update health
-        const healthEl = document.querySelector(`[data-stat="${endpoint.site}-health"]`);
-        if (healthEl) {
-          healthEl.textContent = data.health === 'healthy' ? 'Healthy' : 'Unhealthy';
-          healthEl.classList.toggle('healthy', data.health === 'healthy');
-          healthEl.classList.toggle('unhealthy', data.health !== 'healthy');
-        }
-        
-        // Update IP count
-        const ipsEl = document.querySelector(`[data-stat="${endpoint.site}-ips"]`);
-        if (ipsEl && typeof data.distinct_ips_7d === 'number') {
-          ipsEl.textContent = data.distinct_ips_7d.toLocaleString();
-        }
-        
-        // Update latency
-        if (data.latency && typeof data.latency === 'object') {
-          const p50El = document.querySelector(`[data-stat="${endpoint.site}-latency-p50"]`);
-          const p95El = document.querySelector(`[data-stat="${endpoint.site}-latency-p95"]`);
-          
-          if (p50El && typeof data.latency.p50_ms === 'number') {
-            p50El.textContent = `${data.latency.p50_ms.toFixed(1)} ms`;
-          }
-          if (p95El && typeof data.latency.p95_ms === 'number') {
-            p95El.textContent = `${data.latency.p95_ms.toFixed(1)} ms`;
-          }
-        }
-      } catch (error) {
-        console.error(`Failed to fetch stats for ${endpoint.site}:`, error);
-        // Fail closed - leave em-dash in place
+    try {
+      const response = await fetch('https://dns.thecutline.org/stats.json', {
+        signal: AbortSignal.timeout(5000)
+      });
+      
+      if (!response.ok) throw new Error('Fetch failed');
+      
+      const data = await response.json();
+      
+      // Update health
+      const healthEl = document.querySelector('[data-stat="health"]');
+      if (healthEl && data.health !== null && data.health !== undefined) {
+        healthEl.textContent = data.health === 'ok' ? 'OK' : 'Down';
+        healthEl.classList.toggle('healthy', data.health === 'ok');
+        healthEl.classList.toggle('unhealthy', data.health !== 'ok');
       }
+      
+      // Update distinct IPs
+      const ipsEl = document.querySelector('[data-stat="distinct-ips"]');
+      if (ipsEl && data.distinct_ips_7d !== null && data.distinct_ips_7d !== undefined) {
+        ipsEl.textContent = data.distinct_ips_7d.toLocaleString();
+      }
+      
+      // Update latency
+      const latencyEl = document.querySelector('[data-stat="latency-p50"]');
+      if (latencyEl && data.latency_p50_ms !== null && data.latency_p50_ms !== undefined) {
+        latencyEl.textContent = `${data.latency_p50_ms.toFixed(1)} ms`;
+      }
+    } catch (error) {
+      console.error('Failed to fetch stats:', error);
+      // Fail closed - leave em-dashes in place
     }
   }
 
-  // Fetch and display history from both resolvers
-  let historyData = { ewr: [], lax: [] };
-
+  // Fetch and display history from unified endpoint
   async function fetchHistory() {
-    const endpoints = [
-      { site: 'ewr', url: 'https://ewr.dns.thecutline.org/history.jsonl' },
-      { site: 'lax', url: 'https://lax.dns.thecutline.org/history.jsonl' }
-    ];
-
-    for (const endpoint of endpoints) {
-      try {
-        const response = await fetch(endpoint.url, {
-          signal: AbortSignal.timeout(5000)
-        });
-        
-        if (!response.ok) throw new Error('Fetch failed');
-        
-        const text = await response.text();
-        const lines = text.trim().split('\n').filter(line => line.length > 0);
-        
-        historyData[endpoint.site] = [];
-        for (const line of lines) {
-          try {
-            const entry = JSON.parse(line);
-            historyData[endpoint.site].push(entry);
-          } catch (e) {
-            console.error('Failed to parse history line:', e);
-          }
+    try {
+      const response = await fetch('https://dns.thecutline.org/history.jsonl', {
+        signal: AbortSignal.timeout(5000)
+      });
+      
+      if (!response.ok) throw new Error('Fetch failed');
+      
+      const text = await response.text();
+      const lines = text.trim().split('\n').filter(line => line.length > 0);
+      
+      const historyData = [];
+      for (const line of lines) {
+        try {
+          const entry = JSON.parse(line);
+          historyData.push(entry);
+        } catch (e) {
+          console.error('Failed to parse history line:', e);
         }
-      } catch (error) {
-        console.error(`Failed to fetch history for ${endpoint.site}:`, error);
+      }
+      
+      // Display history table (last 30 days)
+      displayHistory(historyData);
+    } catch (error) {
+      console.error('Failed to fetch history:', error);
+      const container = document.getElementById('history-chart');
+      if (container) {
+        container.innerHTML = '<p class="no-data">Unable to load historical data.</p>';
       }
     }
-
-    // Display history for the currently selected location
-    displayHistoryForLocation(currentLocation);
   }
 
-  function displayHistoryForLocation(location) {
+  function displayHistory(data) {
     const container = document.getElementById('history-chart');
     if (!container) return;
 
-    const data = historyData[location] || [];
-    
-    // Sort by date descending and take last 30 days
-    const sortedData = [...data].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 30);
+    // Sort by date and take last 30 days
+    const sortedData = data
+      .filter(e => e.date)
+      .sort((a, b) => b.date.localeCompare(a.date))
+      .slice(0, 30);
 
     if (sortedData.length === 0) {
       container.innerHTML = '<p class="no-data">No historical data available yet.</p>';
@@ -273,17 +148,15 @@
     // Create table
     let html = '<table class="history-table"><thead><tr>';
     html += '<th>Date</th>';
-    html += '<th>IPs (7 days)</th>';
-    html += '<th>Latency p50</th>';
-    html += '<th>Latency p95</th>';
+    html += '<th>Distinct IPs</th>';
+    html += '<th>Average Latency</th>';
     html += '</tr></thead><tbody>';
 
     for (const entry of sortedData) {
       html += '<tr>';
-      html += `<td>${entry.date || '—'}</td>`;
-      html += `<td>${typeof entry.distinct_ips_7d === 'number' ? entry.distinct_ips_7d.toLocaleString() : '—'}</td>`;
-      html += `<td>${entry.latency && typeof entry.latency.p50_ms === 'number' ? entry.latency.p50_ms.toFixed(1) + ' ms' : '—'}</td>`;
-      html += `<td>${entry.latency && typeof entry.latency.p95_ms === 'number' ? entry.latency.p95_ms.toFixed(1) + ' ms' : '—'}</td>`;
+      html += `<td>${entry.date}</td>`;
+      html += `<td>${entry.distinct_ips_7d !== null && entry.distinct_ips_7d !== undefined ? entry.distinct_ips_7d.toLocaleString() : '—'}</td>`;
+      html += `<td>${entry.latency_p50_ms !== null && entry.latency_p50_ms !== undefined ? entry.latency_p50_ms.toFixed(1) + ' ms' : '—'}</td>`;
       html += '</tr>';
     }
 
@@ -291,8 +164,7 @@
     container.innerHTML = html;
   }
 
-  // Initialize on page load
-  initializeTabs();
+  // Fetch on page load
   fetchStats();
   fetchHistory();
   
@@ -304,49 +176,6 @@
 <style>
   .stats-section {
     margin: var(--spacing-xl) 0;
-  }
-
-  .tabs-container {
-    display: flex;
-    gap: var(--spacing-sm);
-    margin-bottom: var(--spacing-lg);
-    border-bottom: 2px solid var(--color-border);
-  }
-
-  .tab-button {
-    padding: var(--spacing-md) var(--spacing-lg);
-    background: none;
-    border: none;
-    border-bottom: 3px solid transparent;
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: var(--color-text-muted);
-    cursor: pointer;
-    transition: all 0.2s;
-    position: relative;
-    top: 2px;
-  }
-
-  .tab-button:hover {
-    color: var(--color-text);
-  }
-
-  .tab-button.active {
-    color: var(--color-accent);
-    border-bottom-color: var(--color-accent);
-  }
-
-  .tab-button:focus-visible {
-    outline: 2px solid var(--color-accent);
-    outline-offset: 2px;
-  }
-
-  .tab-content {
-    display: none;
-  }
-
-  .tab-content.active {
-    display: block;
   }
 
   .stats-grid {
@@ -470,11 +299,6 @@
 
     .stat-card {
       padding: var(--spacing-md);
-    }
-
-    .tab-button {
-      padding: var(--spacing-sm) var(--spacing-md);
-      font-size: 1rem;
     }
 
     .history-table {

@@ -36,25 +36,29 @@ import Layout from '../layouts/Layout.astro';
       <div class="encrypted-card">
         <h3>📱 iPhone / Mac</h3>
         <p>Download and install the configuration profile for one-tap encrypted DNS setup.</p>
+        <div class="warning-inline">
+          <strong>⚠️ iCloud Private Relay:</strong> If enabled, verify will show you're not on Cutline even with the profile installed. 
+          Turn off: <strong>Settings → [your name] → iCloud → Private Relay → Off</strong>. 
+          Also: <strong>Settings → Wi-Fi → (i) on this network → Limit IP Address Tracking → Off</strong>. 
+          Then reload verify in Safari.
+        </div>
         <ol>
           <li><strong>Open this page in Safari</strong> (profiles only work in Safari)</li>
           <li>Tap the button below to download the profile</li>
           <li>Go to <strong>Settings → Profile Downloaded → Install</strong></li>
-          <li>Enter your passcode and tap <strong>Install</strong> (twice)</li>
-          <li>Install should show <strong>Verified</strong>, not Not Signed</li>
+          <li>Enter your passcode and tap <strong>Install</strong></li>
+          <li>The install screen should show <strong>Verified</strong></li>
         </ol>
-        <p class="note">
-          <strong>macOS 26.1+ (Tahoe):</strong> If a previous install failed, delete the Downloaded stub in 
-          System Settings → General → Device Management first, then install the new file. 
-          An admin password prompt is expected (PayloadScope System).
-        </p>
         <a href="/cutline-dns.mobileconfig" class="download-button" download>
           Download Cutline DNS Profile
         </a>
         <p class="note">
-          <strong>Note:</strong> This profile configures DoH for all networks, including cellular data. 
-          You can remove it anytime from Settings → General → VPN & Device Management. 
-          This is not MDM and not a content filter.
+          <strong>Signed profile.</strong> Removable anytime from Settings → General → VPN & Device Management. 
+          Not MDM, not a content filter. Configures DoH for all networks, including cellular data.
+        </p>
+        <p class="note-mac">
+          <strong>Mac users:</strong> If a previous install failed, delete any leftover "Downloaded" profile 
+          in System Settings → General → Device Management, then download again.
         </p>
       </div>
 
@@ -411,6 +415,30 @@ import Layout from '../layouts/Layout.astro';
     background: var(--color-card-bg);
     border-left: 3px solid var(--color-accent);
     border-radius: 4px;
+  }
+
+  .note-mac {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    margin-top: var(--spacing-sm);
+    padding: var(--spacing-sm);
+    background: var(--color-card-bg);
+    border-left: 3px solid var(--color-border);
+    border-radius: 4px;
+  }
+
+  .warning-inline {
+    background: #fff3cd;
+    border: 2px solid #ffc107;
+    border-radius: var(--radius);
+    padding: var(--spacing-sm) var(--spacing-md);
+    margin: var(--spacing-md) 0;
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  .warning-inline strong {
+    color: #856404;
   }
 
   .technical-details {

@@ -10,7 +10,7 @@ Cutline is a public cut-path DNS operator. A cut path is an internet connection 
 - No signup, no tokens, no accounts required
 - No charge to use
 - Open source configuration and specification
-- Operated by Dov Allison (not a coalition brand, not Optivantage)
+- Operated by Dov Allison (not a coalition brand)
 
 ## Privacy
 

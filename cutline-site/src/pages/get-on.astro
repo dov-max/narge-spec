@@ -34,13 +34,11 @@ import Layout from '../layouts/Layout.astro';
 
     <div class="encrypted-grid">
       <div class="encrypted-card">
-        <h3>📱 iPhone / Mac</h3>
-        <p>Download and install the configuration profile for one-tap encrypted DNS setup.</p>
+        <h3>📱 iPhone, iPad, and Mac</h3>
+        <p>Download and install the configuration profile for one-tap encrypted DNS setup. Works on iOS/iPadOS 14+ and macOS 11+.</p>
         <div class="warning-inline">
-          <strong>⚠️ iCloud Private Relay:</strong> If enabled, verify will show you're not on Cutline even with the profile installed. 
-          Turn off: <strong>Settings → [your name] → iCloud → Private Relay → Off</strong>. 
-          Also: <strong>Settings → Wi-Fi → (i) on this network → Limit IP Address Tracking → Off</strong>. 
-          Then reload verify in Safari.
+          <strong>⚠️ iCloud Private Relay:</strong> If Private Relay is on, Apple bypasses Cutline DNS entirely and the cut will not work. 
+          Turn Private Relay off: <strong>Settings → [your name] → iCloud → Private Relay → Off</strong>.
         </div>
         <ol>
           <li><strong>Open this page in Safari</strong> (profiles only work in Safari)</li>

@@ -78,21 +78,23 @@ import Layout from '../layouts/Layout.astro';
 
       <div class="encrypted-card">
         <h3>🪟 Windows</h3>
-        <p>Download and run the PowerShell setup script (requires Administrator).</p>
+        <p>Download and run the one-click installer (requires Administrator).</p>
         <ol>
-          <li>Download the script using the button below</li>
-          <li>Right-click <strong>PowerShell</strong> and select <strong>Run as Administrator</strong></li>
-          <li>Navigate to your Downloads folder</li>
-          <li>Run: <code class="inline-code">.\cutline-dns-windows.ps1</code></li>
-          <li>The script registers DoH templates and configures your adapters</li>
+          <li>Download the installer using the button below</li>
+          <li>Double-click <strong>cutline-dns-setup.exe</strong></li>
+          <li>Approve the UAC prompt (User Account Control)</li>
+          <li>The installer configures encrypted DNS on all network adapters</li>
+          <li>Done! Visit <a href="/verify">/verify</a> to confirm</li>
         </ol>
-        <a href="/cutline-dns-windows.ps1" class="download-button" download>
-          Download Windows Setup Script
+        <a href="/cutline-dns-setup.exe" class="download-button" download>
+          Download Windows Installer
         </a>
         <p class="note">
-          <strong>IPv6 note:</strong> The script disables IPv6 DNS bindings by default to prevent leaks. 
-          Use <code class="inline-code">-KeepIPv6</code> flag if needed. Chrome/Edge have separate "Secure DNS" 
-          settings that may override system DNS—either point them to the same DoH URL or turn them off.
+          <strong>Windows SmartScreen:</strong> The installer is unsigned (v1). If SmartScreen blocks it, 
+          click <strong>More info</strong> → <strong>Run anyway</strong>. Works on Windows 10 and 11.
+        </p>
+        <p class="note">
+          <strong>To uninstall:</strong> Settings → Apps → Cutline DNS → Uninstall
         </p>
       </div>
     </div>
@@ -177,8 +179,10 @@ import Layout from '../layouts/Layout.astro';
   <section id="windows">
     <h2>Windows 10/11</h2>
     <p>
-      <strong>Recommended:</strong> Use the <a href="#encrypted">PowerShell setup script</a> above 
-      for encrypted DNS (DoH) with proper configuration.
+      <strong>Recommended:</strong> Use the <a href="#encrypted">one-click installer</a> above 
+      for encrypted DNS (DoH) with proper configuration. It covers all network adapters, 
+      disables IPv6 to prevent leaks, and automatically configures new adapters when you 
+      connect to a new network.
     </p>
     <p>
       <strong>Alternative (unencrypted):</strong> Manually configure DNS servers.
@@ -195,42 +199,10 @@ import Layout from '../layouts/Layout.astro';
       <li>Set Alternate DNS to <code>149.28.79.49</code></li>
       <li>Click <strong>Save</strong></li>
     </ol>
-
-    <div class="warning-box">
-      <h3>IPv6 DNS Leak (Common Issue)</h3>
-      <p>
-        After setting the IPv4 DNS servers above, open PowerShell or Command Prompt and run:
-      </p>
-      <pre><code>ipconfig /all</code></pre>
-      <p>
-        Look at the DNS Servers list for your connection. If you see an <strong>IPv6 address</strong> 
-        (especially first in the list), Windows is using that IPv6 resolver and <strong>skipping Cutline</strong>.
-      </p>
-      <p>
-        The Settings app "IPv6 DNS Off" toggle does <strong>not</strong> remove IPv6 resolvers delivered 
-        by your router via Router Advertisement or DHCPv6.
-      </p>
-      <p><strong>Fix:</strong> Disable IPv6 on your network adapter.</p>
-      <p><strong>GUI method:</strong></p>
-      <ol>
-        <li>Press <kbd>Win+R</kbd>, type <code>ncpa.cpl</code>, press Enter</li>
-        <li>Right-click your connection (Wi-Fi or Ethernet), select <strong>Properties</strong></li>
-        <li>Uncheck <strong>Internet Protocol Version 6 (TCP/IPv6)</strong></li>
-        <li>Click <strong>OK</strong></li>
-      </ol>
-      <p><strong>PowerShell method</strong> (requires Administrator):</p>
-      <pre><code>Disable-NetAdapterBinding -Name 'Wi-Fi' -ComponentID ms_tcpip6</code></pre>
-      <p class="note-small">
-        (Replace <code>'Wi-Fi'</code> with <code>'Ethernet'</code> if using a wired connection.)
-      </p>
-      <p>
-        After disabling IPv6, flush the DNS cache and test:
-      </p>
-      <pre><code>ipconfig /flushdns</code></pre>
-      <p>
-        Then visit <a href="/verify">thecutline.org/verify</a> to confirm you're on the cut path.
-      </p>
-    </div>
+    <p class="note">
+      <strong>Note:</strong> Manual configuration only affects the current adapter. 
+      The one-click installer handles all adapters and prevents IPv6 leaks automatically.
+    </p>
   </section>
 
   <section id="android">
@@ -455,54 +427,6 @@ import Layout from '../layouts/Layout.astro';
 
   .details-grid small {
     color: var(--color-text-muted);
-  }
-
-  .warning-box {
-    background: #fff3cd;
-    border: 2px solid #ffc107;
-    border-radius: var(--radius);
-    padding: var(--spacing-lg);
-    margin-top: var(--spacing-xl);
-  }
-
-  .warning-box h3 {
-    margin-top: 0;
-    color: #856404;
-  }
-
-  .warning-box pre {
-    background: var(--color-text);
-    color: #f8f8f2;
-    padding: var(--spacing-sm) var(--spacing-md);
-    border-radius: 4px;
-    overflow-x: auto;
-    margin: var(--spacing-sm) 0;
-  }
-
-  .warning-box code {
-    background: rgba(0, 0, 0, 0.05);
-    padding: 0.125rem 0.375rem;
-    border-radius: 3px;
-    font-size: 0.9em;
-  }
-
-  .warning-box pre code {
-    background: transparent;
-    padding: 0;
-    color: #f8f8f2;
-  }
-
-  .warning-box kbd {
-    background: var(--color-text);
-    color: white;
-    padding: 0.125rem 0.375rem;
-    border-radius: 3px;
-    font-family: var(--font-mono);
-    font-size: 0.9em;
-  }
-
-  .warning-box ol {
-    margin: var(--spacing-sm) 0;
   }
 
   .note-small {

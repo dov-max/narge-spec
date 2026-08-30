@@ -30,11 +30,15 @@ Never ask: "Should we block it?"
 
 If a host's purpose is arousal and it meets the [Narge definition](README.md#definition), it fits. If not, it doesn't.
 
-### Rare Adds
+### Adds
 
-Most weeks: zero adds.
+Most weeks: zero adds. Add path is quarterly (see below) or GitHub issues only.
 
-Famous Type 1–2 launches (covered in news, app stores, payment providers) are the rare add:
+Never search for new Narge. Never use Cutline user volume as an add signal. Famous hosts may lag behind reality. Malware bar: incomplete coverage is expected.
+
+When adding a name, record the type in the commit message and in a simple `core/TYPES.md` or a third column later:
+
+**Type 1–2 default in** if the host's purpose is arousal:
 - Type 1: Watch — streaming or gallery
 - Type 2: Paid creator — subscription or tip platform
 
@@ -48,7 +52,7 @@ Famous Type 1–2 launches (covered in news, app stores, payment providers) are 
 - Type 6: Toy / wellness shop — product sale
 - Type 7: Editorial — news, magazine, review
 
-For new names being added, record the type in the commit message and in a simple `core/TYPES.md` or a third column later. Do not invent types for the existing seed names from StevenBlack.
+Do not invent types for the existing seed names from StevenBlack.
 
 ### Rebuild
 
@@ -56,7 +60,13 @@ Rebuild `dist/` via the existing GitHub Action after changes.
 
 ## Quarterly Maintenance (optional)
 
-Diff a noisy third-party list against `core/`, keep only names also in Tranco top 50,000 (https://tranco-list.eu/), review that filtered pile as the add queue. Never auto-merge.
+The add path:
+
+1. Take a noisy third-party list
+2. Intersect with Tranco top 50,000 (https://tranco-list.eu/)
+3. Drop names already in `core/`
+4. Review the remaining hostnames (names only, do not visit)
+5. Never auto-merge
 
 Do not re-run `seed_from_stevenblack.py`.
 

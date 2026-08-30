@@ -2,6 +2,8 @@
 
 This process sits next to the [Narge specification](README.md). It produces a hostname list a DNS resolver can load.
 
+**Maintenance**: See [MAINTENANCE.md](MAINTENANCE.md) for the weekly maintenance SOP.
+
 ## Subscribe URL
 
 The stable Narge list is available at:

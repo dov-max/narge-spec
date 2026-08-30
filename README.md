@@ -37,7 +37,7 @@ Do not number it. There is no Narge-1. The bare word means the definition above.
 
 ## Host list process
 
-See [LIST.md](LIST.md) for the open process that produces a hostname list based on this definition.
+See [LIST.md](LIST.md) for the open process that produces a hostname list based on this definition. Maintenance: [MAINTENANCE.md](MAINTENANCE.md).
 
 ## Copyright
 

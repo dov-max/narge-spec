@@ -1,6 +1,5 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import JoinCard from '../components/JoinCard.astro';
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -23,51 +22,69 @@ const jsonLd = {
   <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   
   <div class="hero">
-    <h1>Cutline</h1>
-    <p class="tagline">A cut path DNS resolver</p>
+    <h1>Narge</h1>
+    <p class="tagline">A subscribeable content class</p>
   </div>
 
   <section class="intro">
     <p class="lead">
-      Cutline provides <strong>a cut path</strong>—an internet path that does not resolve the Narge content class. 
-      It is a public DNS resolver service you can use right now.
+      Narge is a <strong>subscribeable content class</strong>—a stable hostname feed that software can fetch and use. 
+      Success is a maintainable, publicly accessible list other services can consume.
     </p>
     <p>
-      A cut path is not the only path. Anyone may run one. Cutline is one operator. The goal is ordinary 
-      internet routing that does not make Narge easy to reach, while keeping everything else reachable.
+      Cutline is a reference consumer: a cut path DNS resolver that uses Narge. 
+      The goal is a clean technical class definition and distribution system, not a movement or brand.
     </p>
   </section>
 
-  <section class="what-is-cut-path">
-    <h2>What is a Cut Path?</h2>
+  <section class="subscribe">
+    <h2>Subscribe</h2>
+    <p>The Narge hostname list is publicly available:</p>
+    <div class="url-box">
+      <code class="subscribe-url">https://raw.githubusercontent.com/dov-max/narge-spec/main/dist/narge.txt</code>
+      <button class="copy-btn" data-url="https://raw.githubusercontent.com/dov-max/narge-spec/main/dist/narge.txt">Copy</button>
+    </div>
+    <p class="subscribe-note">
+      This is a machine-readable hostname list. Software can fetch and apply it. 
+      Cutline is one consumer; anyone can build another.
+    </p>
+  </section>
+
+  <section class="what-is-narge">
+    <h2>What is Narge?</h2>
     <p>
-      A <strong>cut path</strong> is an internet connection that does not resolve the <a href="/spec">Narge content class</a>. 
-      It is not a full filter, a safety product, or a trust brand. It addresses one narrow technical class.
+      Narge is a defined content class—a technical specification for one category of internet sites. 
+      See the <a href="/spec">specification</a> for the formal definition.
     </p>
     <p>
-      When you use a cut path DNS resolver like Cutline:
+      The Narge list is:
     </p>
     <ul>
-      <li>Domains identified as Narge-purpose do not resolve (return NXDOMAIN)</li>
-      <li>All other domains resolve normally through upstream DNS</li>
-      <li>Your traffic does not transit the resolver—only DNS queries</li>
-      <li>This is extra protection, not a replacement for other security</li>
+      <li>A hostname feed published at a stable URL</li>
+      <li>Machine-readable and subscribeable</li>
+      <li>Open source—anyone can read the spec and verify the classification</li>
+      <li>Purpose-based, not content-scanning</li>
     </ul>
   </section>
 
   <section class="what-cutline-is">
-    <h2>What Cutline Is</h2>
+    <h2>Cutline: One Consumer</h2>
+    <p>
+      Cutline is a DNS resolver that consumes the Narge list. It demonstrates how the class can be used:
+    </p>
     <ul>
-      <li><strong>One operator</strong> providing a cut path DNS service</li>
       <li><strong>No signup, no tokens, no accounts</strong></li>
       <li><strong>Open source</strong> configuration and specification</li>
       <li><strong>No charge</strong> to use</li>
       <li>Run by <a href="https://github.com/dov-max" target="_blank" rel="noopener">Dov Allison</a></li>
     </ul>
+    <p>
+      Cutline is not the movement or the metric. The success metric is other software adopting Narge as a feed.
+    </p>
   </section>
 
   <section class="what-cutline-is-not">
-    <h2>What Cutline Is Not</h2>
+    <h2>What This Is Not</h2>
     <ul>
       <li><strong>Not a house filter, hechsher, government, or kids product</strong></li>
       <li><strong>Not a "safe/clean/trusted" brand</strong>—no shield, guard, or family language</li>
@@ -76,8 +93,6 @@ const jsonLd = {
       <li><strong>Not an addiction treatment or complete filtering solution</strong></li>
     </ul>
   </section>
-
-  <JoinCard />
 
   <section class="next-steps">
     <h2>Learn More</h2>
@@ -145,7 +160,70 @@ const jsonLd = {
     margin-bottom: var(--spacing-lg);
   }
 
-  .what-is-cut-path,
+  .subscribe {
+    background: var(--color-card-bg);
+    border: 2px solid var(--color-accent);
+    border-radius: var(--radius);
+    padding: var(--spacing-xl);
+    margin: var(--spacing-2xl) 0;
+  }
+
+  .subscribe h2 {
+    margin-top: 0;
+  }
+
+  .url-box {
+    background: var(--color-bg);
+    border: 2px solid var(--color-accent);
+    border-radius: var(--radius);
+    padding: var(--spacing-md);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-md);
+    margin: var(--spacing-md) 0;
+    flex-wrap: wrap;
+  }
+
+  .subscribe-url {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-accent);
+    background: none;
+    word-break: break-all;
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .copy-btn {
+    background: var(--color-accent);
+    color: white;
+    border: none;
+    padding: var(--spacing-xs) var(--spacing-md);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: background 0.2s;
+    white-space: nowrap;
+  }
+
+  .copy-btn:hover {
+    background: var(--color-accent-hover);
+  }
+
+  .copy-btn:active {
+    transform: scale(0.95);
+  }
+
+  .subscribe-note {
+    color: var(--color-text-muted);
+    font-size: 0.95rem;
+    margin-top: var(--spacing-md);
+    margin-bottom: 0;
+  }
+
+  .what-is-narge,
   .what-cutline-is,
   .what-cutline-is-not {
     margin: var(--spacing-2xl) 0;
@@ -214,5 +292,38 @@ const jsonLd = {
     .card-grid {
       grid-template-columns: 1fr;
     }
+
+    .url-box {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .copy-btn {
+      width: 100%;
+    }
   }
 </style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const copyButton = document.querySelector('.copy-btn');
+    
+    if (copyButton) {
+      copyButton.addEventListener('click', async () => {
+        const url = copyButton.getAttribute('data-url');
+        if (url) {
+          try {
+            await navigator.clipboard.writeText(url);
+            const originalText = copyButton.textContent;
+            copyButton.textContent = 'Copied!';
+            setTimeout(() => {
+              copyButton.textContent = originalText;
+            }, 2000);
+          } catch (err) {
+            console.error('Failed to copy:', err);
+          }
+        }
+      });
+    }
+  });
+</script>

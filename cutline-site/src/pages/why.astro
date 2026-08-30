@@ -16,11 +16,14 @@ import Layout from '../layouts/Layout.astro';
     <h2>The Problem</h2>
     <p>
       The current internet makes Narge content trivially accessible. A single typo, search result, 
-      or link can expose anyone—including children using family devices—to content 
-      from the <a href="/spec">Narge class</a>.
+      or link can expose anyone to content from the <a href="/spec">Narge class</a>.
     </p>
     <p>
       This is not about prohibition. It's about routing. The internet can work differently.
+    </p>
+    <p>
+      <strong>This is not a kids product.</strong> It is not family-device scare messaging. 
+      It is a technical routing choice for anyone who prefers that Narge not be the default.
     </p>
   </section>
 
@@ -73,21 +76,8 @@ import Layout from '../layouts/Layout.astro';
       It's infrastructure anyone can run.
     </p>
     <p>
-      The goal: make it normal for ISPs and carriers to offer a cut path option. Show demand 
-      with usage numbers. Let users choose their own routing.
-    </p>
-  </section>
-
-  <section>
-    <h2>Who This Is For</h2>
-    <ul>
-      <li><strong>Parents</strong> who want baseline protection without full filtering</li>
-      <li><strong>Individuals</strong> who prefer a default path that doesn't serve Narge</li>
-      <li><strong>Organizations</strong> that want a secular, technical option</li>
-      <li><strong>Anyone</strong> who believes Narge should not be the default internet</li>
-    </ul>
-    <p>
-      This is not a religious product. It's not a political statement. It's a routing choice.
+      The goal: make it normal for ISPs and carriers to offer a cut path option. 
+      Let users choose their own routing.
     </p>
   </section>
 
@@ -98,18 +88,18 @@ import Layout from '../layouts/Layout.astro';
       or habit. If you need stronger protection, use additional tools.
     </p>
     <p>
-      The block list is an approximation. It uses the 
-      <a href="https://github.com/StevenBlack/hosts" target="_blank" rel="noopener">StevenBlack hosts list</a> 
-      plus overlay corrections until a public host registry exists. Some sites will be misclassified. That is expected.
+      The hostname list is an approximation maintained at 
+      <code>dist/narge.txt</code> in the public repository. 
+      Some sites will be misclassified. That is expected.
     </p>
   </section>
 
   <section class="cta">
-    <h2>Try It</h2>
+    <h2>Using Narge</h2>
     <p>
-      Cutline is live. No signup, no charge. Configure your device to use the resolvers and see how it works.
+      The Narge hostname list is publicly available. Cutline is one consumer. 
+      See <a href="/get-on">Get On</a> if you want to use Cutline as your resolver.
     </p>
-    <a href="/get-on" class="cta-button">Get Started →</a>
   </section>
 </Layout>
 
@@ -146,7 +136,6 @@ import Layout from '../layouts/Layout.astro';
     background: var(--color-card-bg);
     border-radius: var(--radius);
     padding: var(--spacing-xl);
-    text-align: center;
     margin-top: var(--spacing-2xl);
   }
 
@@ -154,21 +143,7 @@ import Layout from '../layouts/Layout.astro';
     margin-top: 0;
   }
 
-  .cta-button {
-    display: inline-block;
-    background: var(--color-accent);
-    color: white;
-    padding: var(--spacing-md) var(--spacing-xl);
-    border-radius: var(--radius);
-    font-size: 1.1rem;
-    font-weight: 600;
-    text-decoration: none;
-    transition: background 0.2s, transform 0.2s;
-  }
-
-  .cta-button:hover {
-    background: var(--color-accent-hover);
-    text-decoration: none;
-    transform: translateY(-2px);
+  .cta p {
+    margin-bottom: 0;
   }
 </style>

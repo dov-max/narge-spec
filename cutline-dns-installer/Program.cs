@@ -460,7 +460,8 @@ namespace CutlineDnsInstaller
         static string GetExecutablePath()
         {
             return Process.GetCurrentProcess().MainModule?.FileName ?? 
-                   System.Reflection.Assembly.GetExecutingAssembly().Location;
+                   AppContext.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar) + 
+                   Path.DirectorySeparatorChar + "cutline-dns-setup.exe";
         }
 
         static void RunPowerShell(string command)

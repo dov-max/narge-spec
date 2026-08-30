@@ -1,21 +1,22 @@
 #!/bin/bash
 # Query Logger for IP Tracking
-# Reads DNS query logs (source IP only) and feeds them to the collector
-# This script should tail the DNS server logs and extract source IPs
+# Reads source IPs from stdin and feeds them to the collector
+# Sources: nginx DoH logs ($remote_addr) or nftables packet headers (SRC= field)
 #
 # PRIVACY: Query names are NEVER extracted or stored
+# Only source IPs from packet headers or HTTP access logs
 
 set -euo pipefail
 
 COLLECTOR="/opt/cutline/collector/collect-stats.sh"
 
 # Read from stdin (expected format: one IP per line)
-# In production, pipe filtered logs here:
-#   tail -f /var/log/dns.log | extract-ip.sh | query-logger.sh
-
 while read -r ip; do
-    # Validate IP format (basic check)
+    # Validate IPv4 format
     if [[ "$ip" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+        "$COLLECTOR" record "$ip"
+    # Validate IPv6 format (simplified check)
+    elif [[ "$ip" =~ ^[0-9a-fA-F:]+$ ]] && [[ "$ip" == *:* ]]; then
         "$COLLECTOR" record "$ip"
     fi
 done

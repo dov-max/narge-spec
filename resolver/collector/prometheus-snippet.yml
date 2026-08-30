@@ -1,0 +1,13 @@
+# Prometheus metrics snippet for Blocky config.yml
+# Add this to your live Blocky configuration to enable stats collection.
+#
+# IMPORTANT: Bind to localhost only for security.
+# The collector script queries http://localhost:4000/metrics locally.
+
+ports:
+  dns: 53
+  http: 127.0.0.1:4000  # Localhost only, never public
+
+prometheus:
+  enable: true
+  path: /metrics

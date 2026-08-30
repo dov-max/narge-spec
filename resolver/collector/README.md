@@ -20,9 +20,17 @@ This directory contains the stats collection system for Cutline DNS resolvers.
 ### Prerequisites
 
 Both resolver VMs (EWR and LAX) must have:
-- Blocky running with Prometheus metrics enabled (port 4000)
-- Nginx serving on `dns.thecutline.org`
+- Blocky running with Prometheus metrics enabled (localhost:4000)
+- Nginx serving on per-site hostnames:
+  - EWR: `ewr.dns.thecutline.org` → 64.176.200.99
+  - LAX: `lax.dns.thecutline.org` → 149.28.79.49
 - Write access to `/var/cutline/stats/`
+
+**DNS A Records Required** (Path to configure):
+```
+ewr.dns.thecutline.org  A  64.176.200.99
+lax.dns.thecutline.org  A  149.28.79.49
+```
 
 ### Installation Steps
 
@@ -58,16 +66,18 @@ Both resolver VMs (EWR and LAX) must have:
    (Replace `ewr` with `lax` on the LAX VM)
 
 5. **Update Blocky config:**
-   Ensure `resolver/config.yml` has Prometheus enabled:
+   Add the Prometheus snippet to your live Blocky config (see `prometheus-snippet.yml`):
    ```yaml
    ports:
      dns: 53
-     http: 4000
+     http: 127.0.0.1:4000  # Localhost only, never public
    
    prometheus:
      enable: true
      path: /metrics
    ```
+   
+   **IMPORTANT:** Bind Prometheus to 127.0.0.1 only. The collector queries locally.
    
    Restart Blocky:
    ```bash
@@ -79,11 +89,22 @@ Both resolver VMs (EWR and LAX) must have:
    sudo cp nginx-stats.conf /etc/nginx/snippets/cutline-stats.conf
    ```
    
-   Add to your nginx server block for `dns.thecutline.org`:
+   Add to your nginx server block:
    ```nginx
+   # On EWR VM:
    server {
        listen 443 ssl;
-       server_name dns.thecutline.org;
+       server_name ewr.dns.thecutline.org;
+       
+       # ... existing SSL config ...
+       
+       include snippets/cutline-stats.conf;
+   }
+   
+   # On LAX VM:
+   server {
+       listen 443 ssl;
+       server_name lax.dns.thecutline.org;
        
        # ... existing SSL config ...
        
@@ -105,8 +126,9 @@ Both resolver VMs (EWR and LAX) must have:
    # Check stats JSON was created
    cat /var/cutline/stats/stats.json
    
-   # Test from web
-   curl https://dns.thecutline.org/stats.json
+   # Test from web (use the correct hostname per site)
+   curl https://ewr.dns.thecutline.org/stats.json  # On EWR
+   curl https://lax.dns.thecutline.org/stats.json  # On LAX
    ```
 
 ## IP Tracking
@@ -118,12 +140,35 @@ unix_timestamp|ip_address
 
 **Automatic 7-day pruning**: The `collect-stats.sh` script prunes entries older than 7 days on every run.
 
-**Recording IPs**: Currently manual/placeholder. In production, you would:
-1. Configure your DNS server to log source IPs (query names excluded)
-2. Pipe logs to `query-logger.sh`:
-   ```bash
-   tail -f /var/log/dns.log | grep -oP '\d+\.\d+\.\d+\.\d+' | /opt/cutline/collector/query-logger.sh
-   ```
+**IPv6 Handling**: Both IPv4 and IPv6 addresses are tracked and counted equally. The distinct IP count includes both address families.
+
+**Recording IPs**: Source IPs must be collected without query names. Two sources:
+
+### 1. DoH (nginx access log)
+Extract `$remote_addr` from nginx DoH access logs:
+```bash
+# Tail nginx DoH access log and extract client IPs
+tail -F /var/log/nginx/doh-access.log | \
+  awk '{print $1}' | \
+  /opt/cutline/collector/query-logger.sh
+```
+
+### 2. UDP/TCP DNS (packet headers only)
+Use nftables with ulog to capture source IPs from DNS packets (port 53) without QNAME:
+
+```bash
+# Add nftables rule to log DNS packets (source IP only, no payload)
+nft add rule inet filter input udp dport 53 log prefix \"DNS-IP: \" level info
+nft add rule inet filter input tcp dport 53 log prefix \"DNS-IP: \" level info
+
+# Extract IPs from kernel log
+tail -F /var/log/kern.log | \
+  grep 'DNS-IP:' | \
+  grep -oP 'SRC=\K[\da-f.:]+' | \
+  /opt/cutline/collector/query-logger.sh
+```
+
+**CRITICAL**: Never log QNAME. Only packet headers (source IP). Blocky `queryLog` is forbidden.
 
 ## Metrics
 

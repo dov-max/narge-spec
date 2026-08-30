@@ -134,12 +134,27 @@ collect_stats() {
 }
 EOF
     
-    # Append to daily history (one entry per day)
+    # Update today's row in daily history (or append if not exists)
     local today=$(date -u +%Y-%m-%d)
-    if [[ ! -f "$HISTORY_JSON" ]] || ! grep -q "\"date\":\"$today\"" "$HISTORY_JSON"; then
-        cat >> "$HISTORY_JSON" << EOF
-{"date":"$today","site":"$SITE","distinct_ips_7d":$distinct_ips,"latency":$latency}
-EOF
+    local temp_history=$(mktemp)
+    local updated=false
+    
+    if [[ -f "$HISTORY_JSON" ]]; then
+        while IFS= read -r line; do
+            if echo "$line" | grep -q "\"date\":\"$today\""; then
+                # Update today's row
+                echo "{\"date\":\"$today\",\"site\":\"$SITE\",\"distinct_ips_7d\":$distinct_ips,\"latency\":$latency}" >> "$temp_history"
+                updated=true
+            else
+                echo "$line" >> "$temp_history"
+            fi
+        done < "$HISTORY_JSON"
+        mv "$temp_history" "$HISTORY_JSON"
+    fi
+    
+    # Append if today's row didn't exist
+    if [[ "$updated" == "false" ]]; then
+        echo "{\"date\":\"$today\",\"site\":\"$SITE\",\"distinct_ips_7d\":$distinct_ips,\"latency\":$latency}" >> "$HISTORY_JSON"
     fi
 }
 

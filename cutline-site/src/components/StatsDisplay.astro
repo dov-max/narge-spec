@@ -88,12 +88,19 @@
   </div>
 </div>
 
+<div class="history-section">
+  <h3>History (Last 30 Days)</h3>
+  <div id="history-chart">
+    <p class="loading">Loading historical data...</p>
+  </div>
+</div>
+
 <script>
-  // Fetch live stats from both resolvers
+  // Fetch live stats from both resolvers using separate hostnames
   async function fetchStats() {
     const endpoints = [
-      { site: 'ewr', url: 'https://dns.thecutline.org/stats.json' },
-      { site: 'lax', url: 'https://dns.thecutline.org/stats.json' }  // Same endpoint, different data
+      { site: 'ewr', url: 'https://ewr.dns.thecutline.org/stats.json' },
+      { site: 'lax', url: 'https://lax.dns.thecutline.org/stats.json' }
     ];
 
     for (const endpoint of endpoints) {
@@ -105,9 +112,6 @@
         if (!response.ok) throw new Error('Fetch failed');
         
         const data = await response.json();
-        
-        // Verify this is the correct site
-        if (data.site !== endpoint.site) continue;
         
         // Update health
         const healthEl = document.querySelector(`[data-stat="health-${endpoint.site}"]`);
@@ -142,11 +146,93 @@
     }
   }
 
+  // Fetch and display history from both resolvers
+  async function fetchHistory() {
+    const endpoints = [
+      { site: 'ewr', url: 'https://ewr.dns.thecutline.org/history.jsonl' },
+      { site: 'lax', url: 'https://lax.dns.thecutline.org/history.jsonl' }
+    ];
+
+    const historyData = { ewr: [], lax: [] };
+
+    for (const endpoint of endpoints) {
+      try {
+        const response = await fetch(endpoint.url, {
+          signal: AbortSignal.timeout(5000)
+        });
+        
+        if (!response.ok) throw new Error('Fetch failed');
+        
+        const text = await response.text();
+        const lines = text.trim().split('\n').filter(line => line.length > 0);
+        
+        for (const line of lines) {
+          try {
+            const entry = JSON.parse(line);
+            historyData[endpoint.site].push(entry);
+          } catch (e) {
+            console.error('Failed to parse history line:', e);
+          }
+        }
+      } catch (error) {
+        console.error(`Failed to fetch history for ${endpoint.site}:`, error);
+      }
+    }
+
+    // Display history table (last 30 days)
+    displayHistory(historyData);
+  }
+
+  function displayHistory(data) {
+    const container = document.getElementById('history-chart');
+    if (!container) return;
+
+    // Combine and sort all dates
+    const allDates = new Set();
+    data.ewr.forEach(e => allDates.add(e.date));
+    data.lax.forEach(e => allDates.add(e.date));
+    const sortedDates = Array.from(allDates).sort().reverse().slice(0, 30);
+
+    if (sortedDates.length === 0) {
+      container.innerHTML = '<p class="no-data">No historical data available yet.</p>';
+      return;
+    }
+
+    // Build history maps
+    const ewrMap = new Map(data.ewr.map(e => [e.date, e]));
+    const laxMap = new Map(data.lax.map(e => [e.date, e]));
+
+    // Create table
+    let html = '<table class="history-table"><thead><tr>';
+    html += '<th>Date</th>';
+    html += '<th>EWR IPs</th><th>EWR p50</th>';
+    html += '<th>LAX IPs</th><th>LAX p50</th>';
+    html += '</tr></thead><tbody>';
+
+    for (const date of sortedDates) {
+      const ewr = ewrMap.get(date);
+      const lax = laxMap.get(date);
+
+      html += '<tr>';
+      html += `<td>${date}</td>`;
+      html += `<td>${ewr ? ewr.distinct_ips_7d.toLocaleString() : '—'}</td>`;
+      html += `<td>${ewr?.latency ? ewr.latency.p50_ms.toFixed(1) + ' ms' : '—'}</td>`;
+      html += `<td>${lax ? lax.distinct_ips_7d.toLocaleString() : '—'}</td>`;
+      html += `<td>${lax?.latency ? lax.latency.p50_ms.toFixed(1) + ' ms' : '—'}</td>`;
+      html += '</tr>';
+    }
+
+    html += '</tbody></table>';
+    container.innerHTML = html;
+  }
+
   // Fetch on page load
   fetchStats();
+  fetchHistory();
   
   // Refresh every 60 seconds
   setInterval(fetchStats, 60000);
+  setInterval(fetchHistory, 300000); // Refresh history every 5 minutes
 </script>
 
 <style>
@@ -226,6 +312,48 @@
     word-break: break-all;
   }
 
+  .history-section {
+    margin-top: var(--spacing-xl);
+    background: var(--color-card-bg);
+    border-radius: var(--radius);
+    padding: var(--spacing-xl);
+  }
+
+  .history-section h3 {
+    margin-top: 0;
+    margin-bottom: var(--spacing-md);
+    font-size: 1.2rem;
+  }
+
+  .history-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+
+  .history-table th {
+    background: var(--color-bg);
+    padding: var(--spacing-sm);
+    text-align: left;
+    border-bottom: 2px solid var(--color-border);
+    font-weight: 600;
+  }
+
+  .history-table td {
+    padding: var(--spacing-sm);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .history-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .loading, .no-data {
+    color: var(--color-text-muted);
+    font-style: italic;
+    padding: var(--spacing-md);
+  }
+
   @media (max-width: 640px) {
     .stats-grid {
       grid-template-columns: 1fr;
@@ -233,6 +361,15 @@
 
     .stat-card {
       padding: var(--spacing-md);
+    }
+
+    .history-table {
+      font-size: 0.8rem;
+    }
+
+    .history-table th,
+    .history-table td {
+      padding: var(--spacing-xs);
     }
   }
 </style>

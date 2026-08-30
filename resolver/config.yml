@@ -34,6 +34,12 @@ blocking:
 # DNS port 53 only
 ports:
   dns: 53
+  http: 4000
+
+# Prometheus metrics for stats collection
+prometheus:
+  enable: true
+  path: /metrics
 
 # No query logging by name
 # queryLog section is omitted to disable query logging

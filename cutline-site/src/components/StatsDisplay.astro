@@ -1,73 +1,162 @@
 ---
-// Stats display with example data banner
-const isLiveData = false; // Set to true when live stats API exists
+// Live stats display with fail-closed behavior
+// Never shows stale/example data - displays em-dash if unavailable
 ---
 
 <div class="stats-section">
-  {!isLiveData && (
-    <div class="example-banner">
-      <strong>⚠️ Example Data</strong> — This is not live data. Live stats will be available soon.
-    </div>
-  )}
-  
   <div class="stats-grid">
     <div class="stat-card">
-      <div class="stat-icon">✓</div>
-      <div class="stat-value">Healthy</div>
-      <div class="stat-label">Service Status</div>
+      <div class="stat-icon">📍</div>
+      <div class="stat-value">US EWR, LAX</div>
+      <div class="stat-label">Resolver Locations</div>
     </div>
 
     <div class="stat-card">
-      <div class="stat-icon">⚡</div>
-      <div class="stat-value">2.4 Gbps</div>
-      <div class="stat-label">Capacity / Bandwidth</div>
+      <div class="stat-icon">✓</div>
+      <div class="stat-value" data-stat="health-ewr">—</div>
+      <div class="stat-label">EWR Health</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">✓</div>
+      <div class="stat-value" data-stat="health-lax">—</div>
+      <div class="stat-label">LAX Health</div>
     </div>
 
     <div class="stat-card">
       <div class="stat-icon">👥</div>
-      <div class="stat-value">847</div>
-      <div class="stat-label">Distinct Source IPs (7 days)</div>
+      <div class="stat-value" data-stat="ips-ewr">—</div>
+      <div class="stat-label">EWR IPs (7 days)</div>
     </div>
 
     <div class="stat-card">
-      <div class="stat-icon">📍</div>
-      <div class="stat-value">US EWR, LAX</div>
-      <div class="stat-label">Locations</div>
+      <div class="stat-icon">👥</div>
+      <div class="stat-value" data-stat="ips-lax">—</div>
+      <div class="stat-label">LAX IPs (7 days)</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">⚡</div>
+      <div class="stat-value" data-stat="latency-ewr-p50">—</div>
+      <div class="stat-label">EWR Latency (p50)</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">⚡</div>
+      <div class="stat-value" data-stat="latency-lax-p50">—</div>
+      <div class="stat-label">LAX Latency (p50)</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">📊</div>
+      <div class="stat-value" data-stat="latency-ewr-p95">—</div>
+      <div class="stat-label">EWR Latency (p95)</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">📊</div>
+      <div class="stat-value" data-stat="latency-lax-p95">—</div>
+      <div class="stat-label">LAX Latency (p95)</div>
     </div>
   </div>
 
   <div class="stats-notes">
-    <h3>Privacy</h3>
-    <p><strong>No query-name logging.</strong> We do not log which domains you request. Source IPs are counted for capacity planning only.</p>
+    <h3>About These Numbers</h3>
+    <p>
+      <strong>IPs:</strong> Count of distinct source IP addresses that queried each resolver in the last 7 days. 
+      This is not households. A single device may appear in both EWR and LAX counts if it queried both resolvers.
+    </p>
+    <p>
+      <strong>Latency:</strong> Average (p50) and 95th percentile (p95) resolver processing time for the last 24 hours. 
+      This measures query-in to answer-out time at the resolver, NOT last-mile network latency or browser Secure DNS overhead.
+      See <a href="/spec">the specification</a> for details.
+    </p>
     
-    <h3>Technical Details</h3>
-    <ul>
-      <li><strong>DNS Software:</strong> Blocky</li>
-      <li><strong>Block List:</strong> StevenBlack hosts (porn-only) + overlay corrections</li>
-      <li><strong>Upstream:</strong> Cloudflare 1.1.1.1</li>
-      <li><strong>Locations:</strong> US East (Newark) and US West (Los Angeles)</li>
-    </ul>
+    <h3>Privacy</h3>
+    <p>
+      The resolver reads a query name to answer it, then does not store it. After the query is over, the operator 
+      cannot look up what was asked. Source IPs are kept for 7 days for rate limits and the public distinct-IP count, 
+      then deleted. The retained data cannot reconstruct query names.
+    </p>
+    
+    <h3>List Source</h3>
+    <p>
+      Resolvers subscribe to the Narge hostname feed at 
+      <code>https://raw.githubusercontent.com/dov-max/narge-spec/main/dist/narge.txt</code>. 
+      Cutline is a reference consumer of this feed. The list updates automatically every 24 hours.
+    </p>
   </div>
 </div>
+
+<script>
+  // Fetch live stats from both resolvers
+  async function fetchStats() {
+    const endpoints = [
+      { site: 'ewr', url: 'https://dns.thecutline.org/stats.json' },
+      { site: 'lax', url: 'https://dns.thecutline.org/stats.json' }  // Same endpoint, different data
+    ];
+
+    for (const endpoint of endpoints) {
+      try {
+        const response = await fetch(endpoint.url, {
+          signal: AbortSignal.timeout(5000)
+        });
+        
+        if (!response.ok) throw new Error('Fetch failed');
+        
+        const data = await response.json();
+        
+        // Verify this is the correct site
+        if (data.site !== endpoint.site) continue;
+        
+        // Update health
+        const healthEl = document.querySelector(`[data-stat="health-${endpoint.site}"]`);
+        if (healthEl) {
+          healthEl.textContent = data.health === 'healthy' ? 'Healthy' : 'Unhealthy';
+          healthEl.classList.toggle('healthy', data.health === 'healthy');
+          healthEl.classList.toggle('unhealthy', data.health !== 'healthy');
+        }
+        
+        // Update IP count
+        const ipsEl = document.querySelector(`[data-stat="ips-${endpoint.site}"]`);
+        if (ipsEl) {
+          ipsEl.textContent = data.distinct_ips_7d.toLocaleString();
+        }
+        
+        // Update latency
+        if (data.latency && typeof data.latency === 'object') {
+          const p50El = document.querySelector(`[data-stat="latency-${endpoint.site}-p50"]`);
+          const p95El = document.querySelector(`[data-stat="latency-${endpoint.site}-p95"]`);
+          
+          if (p50El) {
+            p50El.textContent = `${data.latency.p50_ms.toFixed(1)} ms`;
+          }
+          if (p95El) {
+            p95El.textContent = `${data.latency.p95_ms.toFixed(1)} ms`;
+          }
+        }
+      } catch (error) {
+        console.error(`Failed to fetch stats for ${endpoint.site}:`, error);
+        // Fail closed - leave em-dash in place
+      }
+    }
+  }
+
+  // Fetch on page load
+  fetchStats();
+  
+  // Refresh every 60 seconds
+  setInterval(fetchStats, 60000);
+</script>
 
 <style>
   .stats-section {
     margin: var(--spacing-xl) 0;
   }
 
-  .example-banner {
-    background: #fff3cd;
-    border: 2px solid #ffc107;
-    border-radius: var(--radius);
-    padding: var(--spacing-md);
-    margin-bottom: var(--spacing-lg);
-    text-align: center;
-    color: #856404;
-  }
-
   .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: var(--spacing-md);
     margin-bottom: var(--spacing-xl);
   }
@@ -92,14 +181,23 @@ const isLiveData = false; // Set to true when live stats API exists
   }
 
   .stat-value {
-    font-size: 1.75rem;
+    font-size: 1.5rem;
     font-weight: 700;
     color: var(--color-accent);
     margin-bottom: var(--spacing-xs);
+    min-height: 2rem;
+  }
+
+  .stat-value.healthy {
+    color: #2ecc71;
+  }
+
+  .stat-value.unhealthy {
+    color: #e74c3c;
   }
 
   .stat-label {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     color: var(--color-text-muted);
   }
 
@@ -118,13 +216,14 @@ const isLiveData = false; // Set to true when live stats API exists
     margin-top: 0;
   }
 
-  .stats-notes ul {
-    padding-left: var(--spacing-lg);
-    color: var(--color-text-muted);
+  .stats-notes p {
+    margin-bottom: var(--spacing-md);
+    line-height: 1.7;
   }
 
-  .stats-notes li {
-    margin-bottom: var(--spacing-xs);
+  .stats-notes code {
+    font-size: 0.85rem;
+    word-break: break-all;
   }
 
   @media (max-width: 640px) {

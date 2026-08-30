@@ -1,0 +1,48 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Cutline Resolver History Entry",
+  "description": "Daily aggregate stats entry (one per line in JSONL)",
+  "type": "object",
+  "required": ["date", "site", "distinct_ips_7d"],
+  "properties": {
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date in YYYY-MM-DD format (UTC)"
+    },
+    "site": {
+      "type": "string",
+      "enum": ["ewr", "lax"],
+      "description": "Resolver site identifier"
+    },
+    "distinct_ips_7d": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Count of distinct source IPs on this date"
+    },
+    "latency": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["p50_ms", "p95_ms"],
+          "properties": {
+            "p50_ms": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Median query processing time (ms)"
+            },
+            "p95_ms": {
+              "type": "number",
+              "minimum": 0,
+              "description": "95th percentile query processing time (ms)"
+            }
+          }
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Latency metrics for this date (null if unavailable)"
+    }
+  }
+}

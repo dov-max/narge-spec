@@ -95,6 +95,49 @@ import Layout from '../layouts/Layout.astro';
   </section>
 
   <section>
+    <h2>Resolver Performance Metrics</h2>
+    <p>
+      Cutline DNS resolvers publish standardized latency metrics to measure resolver performance.
+    </p>
+
+    <h3>Latency Definition</h3>
+    <p>
+      <strong>Resolver Latency</strong> measures the time from when a DNS query is received by the resolver 
+      to when the answer is sent back. This is the resolver's processing time only.
+    </p>
+    <p>
+      <strong>What is included:</strong> Query parsing, blocklist lookup, upstream resolution (if not blocked), 
+      response assembly, and transmission.
+    </p>
+    <p>
+      <strong>What is NOT included:</strong>
+    </p>
+    <ul>
+      <li>Last-mile network latency between the client and resolver</li>
+      <li>Client operating system DNS delays</li>
+      <li>Browser Secure DNS (DoH) connection overhead</li>
+      <li>Client-side caching</li>
+    </ul>
+
+    <h3>Published Metrics</h3>
+    <p>
+      Cutline publishes two latency percentiles, updated continuously:
+    </p>
+    <ul>
+      <li><strong>p50 (median):</strong> The middle value — 50% of queries are faster, 50% are slower</li>
+      <li><strong>p95 (95th percentile):</strong> 95% of queries complete faster than this value</li>
+    </ul>
+    <p>
+      <strong>Measurement window:</strong> Last 24 hours<br>
+      <strong>Granularity:</strong> Per resolver site (EWR and LAX reported separately)<br>
+      <strong>Units:</strong> Milliseconds (ms)
+    </p>
+    <p>
+      See live metrics on the <a href="/stats">Stats page</a>.
+    </p>
+  </section>
+
+  <section>
     <h2>Copyright</h2>
     <p>
       This document is dedicated to the public domain under 

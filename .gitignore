@@ -1,2 +1,8 @@
 # Do not commit the full census import
 candidates/from-import.txt
+
+# Stats collector - NEVER commit IP logs or raw data
+/resolver/collector/ip_log.txt
+/resolver/collector/stats.json
+/resolver/collector/history.jsonl
+**/var/cutline/

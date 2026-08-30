@@ -1,0 +1,62 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Cutline Resolver Live Stats",
+  "description": "Current snapshot of resolver health and metrics",
+  "type": "object",
+  "required": ["site", "timestamp", "health", "distinct_ips_7d", "version"],
+  "properties": {
+    "site": {
+      "type": "string",
+      "enum": ["ewr", "lax"],
+      "description": "Resolver site identifier"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of this snapshot (UTC)"
+    },
+    "health": {
+      "type": "string",
+      "enum": ["healthy", "unhealthy"],
+      "description": "Resolver health status"
+    },
+    "distinct_ips_7d": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Count of distinct source IPs in last 7 days"
+    },
+    "latency": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["p50_ms", "p95_ms"],
+          "properties": {
+            "p50_ms": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Median (p50) query processing time in milliseconds, last 24 hours"
+            },
+            "p95_ms": {
+              "type": "number",
+              "minimum": 0,
+              "description": "95th percentile query processing time in milliseconds, last 24 hours"
+            }
+          }
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Latency metrics (null if unavailable)"
+    },
+    "capacity_gbps": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Network capacity in Gbps (optional, omit if unknown)"
+    },
+    "version": {
+      "type": "string",
+      "description": "Stats JSON schema version"
+    }
+  }
+}

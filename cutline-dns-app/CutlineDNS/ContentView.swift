@@ -33,7 +33,7 @@ struct ContentView: View {
             }
             .padding()
             .frame(maxWidth: .infinity)
-            .background(Color(uiColor: .secondarySystemBackground))
+            .background(Color.secondary.opacity(0.1))
             .cornerRadius(12)
             .padding(.horizontal)
             

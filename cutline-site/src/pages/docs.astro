@@ -75,9 +75,9 @@ import Layout from '../layouts/Layout.astro';
 
     <h3>What Gets Blocked</h3>
     <p>
-      Cutline uses the <a href="https://github.com/StevenBlack/hosts" target="_blank" rel="noopener">StevenBlack hosts list</a> 
-      (MIT license) as a temporary approximation of Narge, plus overlay corrections maintained in the 
-      <a href="https://github.com/dov-max/narge-spec/tree/main/overlay" target="_blank" rel="noopener">narge-spec repository</a>.
+      Cutline uses the Narge hostname list published at <a href="https://github.com/dov-max/narge-spec" target="_blank" rel="noopener">dov-max/narge-spec</a>. 
+      The list was seeded once from the <a href="https://github.com/StevenBlack/hosts" target="_blank" rel="noopener">StevenBlack hosts porn-only list</a> 
+      (MIT license) and is now maintained as a curated hostname feed.
     </p>
 
     <h3>Your Traffic</h3>
@@ -128,15 +128,15 @@ import Layout from '../layouts/Layout.astro';
 
     <h3>List Quality</h3>
     <p>
-      The block list is an approximation. It uses StevenBlack's hosts list, which is:
+      The block list is a curated hostname feed maintained by one steward. It is:
     </p>
     <ul>
-      <li>Community-maintained (quality varies)</li>
-      <li>A proxy for Narge (not exact)</li>
+      <li>Purpose-based, not content-scanning</li>
       <li>Subject to false positives and false negatives</li>
+      <li>Manually maintained with a malware bar (incomplete coverage is expected)</li>
     </ul>
     <p>
-      A more accurate, community-judged host registry is a future goal.
+      Report false positives via <a href="https://github.com/dov-max/narge-spec/issues" target="_blank" rel="noopener">GitHub issues</a>.
     </p>
 
     <h3>HTTPS Cannot Be Categorized</h3>
@@ -202,11 +202,10 @@ Secondary: 149.28.79.49</code></pre>
 
     <h3>List Refresh</h3>
     <p>
-      Block lists automatically refresh every 24 hours from:
+      The block list automatically refreshes every 24 hours from:
     </p>
     <ul>
-      <li><a href="https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/porn-only/hosts" target="_blank" rel="noopener">StevenBlack hosts</a></li>
-      <li><a href="https://github.com/dov-max/narge-spec/tree/main/overlay" target="_blank" rel="noopener">Overlay files</a> (block.txt, allow.txt)</li>
+      <li><a href="https://raw.githubusercontent.com/dov-max/narge-spec/main/dist/narge.txt" target="_blank" rel="noopener">Narge hostname list</a></li>
     </ul>
 
     <h3>Response for Blocked Domains</h3>

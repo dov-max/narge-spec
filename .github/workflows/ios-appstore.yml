@@ -24,6 +24,7 @@ jobs:
         run: |
           KEYCHAIN_PATH=$RUNNER_TEMP/build.keychain
           KEYCHAIN_PASSWORD=$(openssl rand -base64 32)
+          echo "$KEYCHAIN_PASSWORD" > "$RUNNER_TEMP/keychain.pass"
           
           security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
           security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
@@ -43,8 +44,8 @@ jobs:
           MAC_INSTALLER_P12_PASSWORD: ${{ secrets.MAC_INSTALLER_P12_PASSWORD }}
         run: |
           KEYCHAIN_PATH=$RUNNER_TEMP/build.keychain
-          KEYCHAIN_PASSWORD=$(security find-generic-password -w -s "build_keychain_password" -a "$USER" 2>/dev/null || openssl rand -base64 32)
-          echo "$KEYCHAIN_PASSWORD" | security unlock-keychain -p stdin "$KEYCHAIN_PATH" 2>/dev/null || true
+          KEYCHAIN_PASSWORD=$(cat "$RUNNER_TEMP/keychain.pass")
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
           
           CERT_PATH=$RUNNER_TEMP/mac_installer.p12
           echo "$MAC_INSTALLER_P12_BASE64" | base64 --decode > "$CERT_PATH"
@@ -251,15 +252,17 @@ jobs:
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
         run: |
-          API_KEY_PATH=$RUNNER_TEMP/AuthKey.p8
+          API_KEY_DIR="$HOME/.appstoreconnect/private_keys"
+          mkdir -p "$API_KEY_DIR"
+          API_KEY_PATH="$API_KEY_DIR/AuthKey_${APP_STORE_CONNECT_KEY_ID}.p8"
           echo "$APP_STORE_CONNECT_API_KEY" > "$API_KEY_PATH"
+          chmod 600 "$API_KEY_PATH"
           
           xcrun altool --upload-app \
             --type ios \
             --file "$RUNNER_TEMP/export-ios/CutlineDNS.ipa" \
             --apiKey "$APP_STORE_CONNECT_KEY_ID" \
-            --apiIssuer "$APP_STORE_CONNECT_ISSUER_ID" \
-            --apple-id "$API_KEY_PATH"
+            --apiIssuer "$APP_STORE_CONNECT_ISSUER_ID"
           
           echo "iOS uploaded to App Store Connect"
           rm "$API_KEY_PATH"
@@ -270,15 +273,17 @@ jobs:
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
         run: |
-          API_KEY_PATH=$RUNNER_TEMP/AuthKey.p8
+          API_KEY_DIR="$HOME/.appstoreconnect/private_keys"
+          mkdir -p "$API_KEY_DIR"
+          API_KEY_PATH="$API_KEY_DIR/AuthKey_${APP_STORE_CONNECT_KEY_ID}.p8"
           echo "$APP_STORE_CONNECT_API_KEY" > "$API_KEY_PATH"
+          chmod 600 "$API_KEY_PATH"
           
           xcrun altool --upload-app \
-            --type macos \
+            --type osx \
             --file "$RUNNER_TEMP/export-macos/CutlineDNS.pkg" \
             --apiKey "$APP_STORE_CONNECT_KEY_ID" \
-            --apiIssuer "$APP_STORE_CONNECT_ISSUER_ID" \
-            --apple-id "$API_KEY_PATH"
+            --apiIssuer "$APP_STORE_CONNECT_ISSUER_ID"
           
           echo "macOS uploaded to App Store Connect"
           rm "$API_KEY_PATH"
@@ -289,15 +294,17 @@ jobs:
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
         run: |
-          API_KEY_PATH=$RUNNER_TEMP/AuthKey.p8
+          API_KEY_DIR="$HOME/.appstoreconnect/private_keys"
+          mkdir -p "$API_KEY_DIR"
+          API_KEY_PATH="$API_KEY_DIR/AuthKey_${APP_STORE_CONNECT_KEY_ID}.p8"
           echo "$APP_STORE_CONNECT_API_KEY" > "$API_KEY_PATH"
+          chmod 600 "$API_KEY_PATH"
           
           xcrun altool --upload-app \
             --type visionos \
             --file "$RUNNER_TEMP/export-visionos/CutlineDNS.ipa" \
             --apiKey "$APP_STORE_CONNECT_KEY_ID" \
-            --apiIssuer "$APP_STORE_CONNECT_ISSUER_ID" \
-            --apple-id "$API_KEY_PATH"
+            --apiIssuer "$APP_STORE_CONNECT_ISSUER_ID"
           
           echo "visionOS uploaded to App Store Connect"
           rm "$API_KEY_PATH"

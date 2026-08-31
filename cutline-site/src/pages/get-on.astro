@@ -82,7 +82,6 @@ import Layout from '../layouts/Layout.astro';
         <ol>
           <li>Download the installer using the button below</li>
           <li>Double-click <strong>cutline-dns-setup.exe</strong></li>
-          <li>If SmartScreen blocks, click <strong>More info</strong> → <strong>Run anyway</strong></li>
           <li>Approve the UAC prompt (User Account Control)</li>
           <li>Click <strong>Install</strong> in the Setup wizard</li>
           <li>Wait while it configures all network adapters</li>
@@ -92,8 +91,8 @@ import Layout from '../layouts/Layout.astro';
           Download Windows Installer
         </a>
         <p class="note">
-          <strong>Windows SmartScreen:</strong> The installer is unsigned (v1). If SmartScreen blocks it, 
-          click <strong>More info</strong> → <strong>Run anyway</strong>. Works on Windows 10 and 11.
+          <strong>Windows SmartScreen:</strong> The installer is signed. SmartScreen may show a warning while the publisher builds reputation. 
+          If blocked, click <strong>More info</strong> → <strong>Run anyway</strong>. Works on Windows 10 and 11.
         </p>
         <p class="note">
           <strong>To uninstall:</strong> Settings → Apps → Cutline DNS → Uninstall

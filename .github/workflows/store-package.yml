@@ -1,0 +1,177 @@
+name: Update Store package (Cutline DNS)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+
+jobs:
+  update-package:
+    runs-on: ubuntu-latest
+    environment: cutline-sign
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Get GitHub OIDC token
+        id: oidc
+        run: |
+          OIDC_TOKEN=$(curl -sS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=api://AzureADTokenExchange" | jq -r .value)
+          echo "::add-mask::$OIDC_TOKEN"
+          echo "token=$OIDC_TOKEN" >> $GITHUB_OUTPUT
+      
+      - name: Get Azure AD access token
+        id: azure_token
+        run: |
+          RESPONSE=$(curl -sS -X POST \
+            "https://login.microsoftonline.com/${{ secrets.AZURE_TENANT_ID }}/oauth2/v2.0/token" \
+            -H "Content-Type: application/x-www-form-urlencoded" \
+            -d "grant_type=client_credentials" \
+            -d "client_id=${{ secrets.AZURE_CLIENT_ID }}" \
+            -d "client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer" \
+            -d "client_assertion=${{ steps.oidc.outputs.token }}" \
+            -d "scope=https://api.store.microsoft.com/.default")
+          
+          ACCESS_TOKEN=$(echo "$RESPONSE" | jq -r '.access_token')
+          
+          if [ "$ACCESS_TOKEN" = "null" ] || [ -z "$ACCESS_TOKEN" ]; then
+            echo "Failed to get access token"
+            echo "$RESPONSE" | jq .
+            exit 1
+          fi
+          
+          echo "::add-mask::$ACCESS_TOKEN"
+          echo "token=$ACCESS_TOKEN" >> $GITHUB_OUTPUT
+          echo "Successfully obtained access token"
+      
+      - name: Get current package configuration
+        id: get_packages
+        run: |
+          RESPONSE=$(curl -sS -X GET \
+            "https://api.store.microsoft.com/submission/v1/product/e48fd99c-5864-41f2-ad26-89cbed33de78/packages" \
+            -H "Authorization: Bearer ${{ steps.azure_token.outputs.token }}" \
+            -H "X-Seller-Account-Id: 92788120")
+          
+          echo "Current package configuration:"
+          echo "$RESPONSE" | jq .
+      
+      - name: Update package configuration
+        id: update_packages
+        run: |
+          PAYLOAD=$(cat <<'EOF'
+          {
+            "packageUrl": "https://ewr.dns.thecutline.org/cutline/1.1.0/cutline-dns-setup.exe",
+            "languages": ["en-us"],
+            "architectures": ["X64"],
+            "packageType": "exe",
+            "isSilentInstall": false,
+            "installerParameters": "/silent",
+            "genericDocUrl": "https://github.com/dov-max/narge-spec/blob/main/cutline-dns-installer/README.md",
+            "errorDetails": {
+              "1602": {
+                "errorCode": "installationCancelledByUser",
+                "errorUrl": "https://github.com/dov-max/narge-spec/blob/main/cutline-dns-installer/README.md#return-codes"
+              },
+              "1638": {
+                "errorCode": "applicationAlreadyExists",
+                "errorUrl": "https://github.com/dov-max/narge-spec/blob/main/cutline-dns-installer/README.md#return-codes"
+              },
+              "1618": {
+                "errorCode": "installationAlreadyInProgress",
+                "errorUrl": "https://github.com/dov-max/narge-spec/blob/main/cutline-dns-installer/README.md#return-codes"
+              },
+              "112": {
+                "errorCode": "diskSpaceIsFull",
+                "errorUrl": "https://github.com/dov-max/narge-spec/blob/main/cutline-dns-installer/README.md#return-codes"
+              },
+              "3010": {
+                "errorCode": "rebootRequired",
+                "errorUrl": "https://github.com/dov-max/narge-spec/blob/main/cutline-dns-installer/README.md#return-codes"
+              },
+              "12029": {
+                "errorCode": "networkFailure",
+                "errorUrl": "https://github.com/dov-max/narge-spec/blob/main/cutline-dns-installer/README.md#return-codes"
+              },
+              "1625": {
+                "errorCode": "packageRejectedDuringInstallation",
+                "errorUrl": "https://github.com/dov-max/narge-spec/blob/main/cutline-dns-installer/README.md#return-codes"
+              },
+              "0": {
+                "errorCode": "installationSuccessful",
+                "errorUrl": "https://github.com/dov-max/narge-spec/blob/main/cutline-dns-installer/README.md#return-codes"
+              },
+              "1": {
+                "errorCode": "miscellaneous",
+                "errorUrl": "https://github.com/dov-max/narge-spec/blob/main/cutline-dns-installer/README.md#return-codes"
+              }
+            }
+          }
+          EOF
+          )
+          
+          RESPONSE=$(curl -sS -X PUT \
+            "https://api.store.microsoft.com/submission/v1/product/e48fd99c-5864-41f2-ad26-89cbed33de78/packages" \
+            -H "Authorization: Bearer ${{ steps.azure_token.outputs.token }}" \
+            -H "X-Seller-Account-Id: 92788120" \
+            -H "Content-Type: application/json" \
+            -d "$PAYLOAD")
+          
+          echo "Package update response:"
+          echo "$RESPONSE" | jq .
+      
+      - name: Commit package changes
+        run: |
+          RESPONSE=$(curl -sS -X POST \
+            "https://api.store.microsoft.com/submission/v1/product/e48fd99c-5864-41f2-ad26-89cbed33de78/packages/commit" \
+            -H "Authorization: Bearer ${{ steps.azure_token.outputs.token }}" \
+            -H "X-Seller-Account-Id: 92788120")
+          
+          echo "Commit response:"
+          echo "$RESPONSE" | jq .
+      
+      - name: Poll submission status
+        run: |
+          MAX_WAIT_SECONDS=600
+          SLEEP_INTERVAL=15
+          ELAPSED=0
+          
+          echo "Polling submission status (max ${MAX_WAIT_SECONDS}s)..."
+          
+          while [ $ELAPSED -lt $MAX_WAIT_SECONDS ]; do
+            RESPONSE=$(curl -sS -X GET \
+              "https://api.store.microsoft.com/submission/v1/product/e48fd99c-5864-41f2-ad26-89cbed33de78/status" \
+              -H "Authorization: Bearer ${{ steps.azure_token.outputs.token }}" \
+              -H "X-Seller-Account-Id: 92788120")
+            
+            echo "Status response (${ELAPSED}s elapsed):"
+            echo "$RESPONSE" | jq .
+            
+            IS_READY=$(echo "$RESPONSE" | jq -r '.isReady // false')
+            IS_SUCCESS=$(echo "$RESPONSE" | jq -r '.isSuccess // false')
+            STATUS=$(echo "$RESPONSE" | jq -r '.status // "unknown"')
+            
+            # Check for package uploader error
+            if echo "$STATUS" | grep -qi "packageuploaderror"; then
+              echo "Error: Package upload failed with status: $STATUS"
+              exit 1
+            fi
+            
+            # Check if ready
+            if [ "$IS_READY" = "true" ]; then
+              if [ "$IS_SUCCESS" = "false" ]; then
+                echo "Error: Submission completed but isSuccess is false"
+                exit 1
+              fi
+              echo "Package update completed successfully!"
+              exit 0
+            fi
+            
+            echo "Not ready yet, waiting ${SLEEP_INTERVAL}s..."
+            sleep $SLEEP_INTERVAL
+            ELAPSED=$((ELAPSED + SLEEP_INTERVAL))
+          done
+          
+          echo "Error: Timed out waiting for submission to complete after ${MAX_WAIT_SECONDS}s"
+          exit 1

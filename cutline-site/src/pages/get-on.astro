@@ -78,13 +78,15 @@ import Layout from '../layouts/Layout.astro';
 
       <div class="encrypted-card">
         <h3>🪟 Windows</h3>
-        <p>Download and run the one-click installer (requires Administrator).</p>
+        <p>Download and run the Setup wizard (requires Administrator).</p>
         <ol>
           <li>Download the installer using the button below</li>
           <li>Double-click <strong>cutline-dns-setup.exe</strong></li>
+          <li>If SmartScreen blocks, click <strong>More info</strong> → <strong>Run anyway</strong></li>
           <li>Approve the UAC prompt (User Account Control)</li>
-          <li>The installer configures encrypted DNS on all network adapters</li>
-          <li>Done! Visit <a href="/verify">/verify</a> to confirm</li>
+          <li>Click <strong>Install</strong> in the Setup wizard</li>
+          <li>Wait while it configures all network adapters</li>
+          <li>Click <strong>Close</strong> when done</li>
         </ol>
         <a href="/cutline-dns-setup.exe" class="download-button" download>
           Download Windows Installer

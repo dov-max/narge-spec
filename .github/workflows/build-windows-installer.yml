@@ -18,7 +18,7 @@ permissions:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     
     steps:
       - name: Checkout repository
@@ -37,13 +37,15 @@ jobs:
         working-directory: cutline-dns-installer
         run: |
           dotnet publish -c Release -r win-x64 --self-contained -o output
-          ls -lh output/
+          dir output
+        shell: pwsh
       
       - name: Copy executable to cutline-site/public
         run: |
-          mkdir -p cutline-site/public
-          cp cutline-dns-installer/output/cutline-dns-setup.exe cutline-site/public/
-          ls -lh cutline-site/public/cutline-dns-setup.exe
+          New-Item -ItemType Directory -Force -Path cutline-site/public
+          Copy-Item cutline-dns-installer/output/cutline-dns-setup.exe cutline-site/public/
+          dir cutline-site/public/cutline-dns-setup.exe
+        shell: pwsh
       
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -58,5 +60,9 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add cutline-site/public/cutline-dns-setup.exe
-          git diff --staged --quiet || git commit -m "Build: Update cutline-dns-setup.exe"
-          git push
+          git diff --staged --quiet
+          if ($LASTEXITCODE -ne 0) {
+            git commit -m "Build: Update cutline-dns-setup.exe"
+            git push
+          }
+        shell: pwsh

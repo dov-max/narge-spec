@@ -71,14 +71,13 @@ cd narge-spec</code></pre>
 
     <h3>Block Lists</h3>
     <p>
-      The default configuration loads:
+      The default configuration loads the Narge hostname list from:
     </p>
     <ul>
-      <li>StevenBlack hosts list (temporary Narge approximation)</li>
-      <li>GitHub overlay files (<code>overlay/block.txt</code>, <code>overlay/allow.txt</code>)</li>
+      <li><a href="https://raw.githubusercontent.com/dov-max/narge-spec/main/dist/narge.txt" target="_blank" rel="noopener">Narge hostname feed</a></li>
     </ul>
     <p>
-      Lists refresh automatically every 24 hours. Edit the overlay files to add corrections.
+      The list refreshes automatically every 24 hours from the stable subscribe URL.
     </p>
 
     <h3>Upstream DNS</h3>
@@ -90,10 +89,10 @@ cd narge-spec</code></pre>
     - 1.1.1.1
     - 1.0.0.1</code></pre>
 
-    <h3>Custom Overlay Files</h3>
+    <h3>Local Canaries</h3>
     <p>
-      You can maintain your own overlay files instead of using the GitHub URLs. Mount them as local files 
-      or host them on your own server.
+      Add local test domains (like <code>off.thecutline.org</code> and <code>on.thecutline.org</code>) directly in your 
+      <code>config.yml</code> to verify blocking behavior without modifying the public list.
     </p>
   </section>
 
@@ -145,8 +144,7 @@ keyFile: /path/to/key.pem</code></pre>
     <pre><code>blocking:
   denylists:
     narge:
-      - https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/porn-only/hosts
-      - https://raw.githubusercontent.com/dov-max/narge-spec/main/overlay/block.txt
+      - https://raw.githubusercontent.com/dov-max/narge-spec/main/dist/narge.txt
     malware:
       - https://malware-blocklist.example.com/hosts
     ads:

@@ -13,19 +13,17 @@ blocking:
   
   denylists:
     narge:
-      # Narge production list
+      # Narge production list (includes all sources)
       - https://raw.githubusercontent.com/dov-max/narge-spec/main/dist/narge.txt
-      # GitHub overlay: extra hosts to block
-      - https://raw.githubusercontent.com/dov-max/narge-spec/main/overlay/block.txt
-  
-  allowlists:
-    narge:
-      # GitHub overlay: exceptions (takes precedence over denylist)
-      - https://raw.githubusercontent.com/dov-max/narge-spec/main/overlay/allow.txt
+    canaries:
+      # Local test domains
+      - |
+        off.thecutline.org
   
   clientGroupsBlock:
     default:
       - narge
+      - canaries
   
   loading:
     refreshPeriod: 24h

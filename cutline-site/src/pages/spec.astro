@@ -74,23 +74,25 @@ import Layout from '../layouts/Layout.astro';
       in the repository.
     </p>
 
-    <h3>Temporary Feed</h3>
+    <h3>Hostname Feed</h3>
     <p>
-      Until a public host registry exists, the list pulls from the 
-      <a href="https://github.com/StevenBlack/hosts" target="_blank" rel="noopener">StevenBlack hosts list</a> 
-      (MIT license, attributed). This is an approximation of Narge, not Narge. It is pulled on a timer.
+      The Narge hostname list is published at a stable URL and rebuilt daily from curated sources. 
+      The list was seeded once from the <a href="https://github.com/StevenBlack/hosts" target="_blank" rel="noopener">StevenBlack hosts porn-only list</a> 
+      (MIT license, attributed) and is now maintained as a curated feed.
     </p>
 
-    <h3>Overlay Files</h3>
+    <h3>Maintenance</h3>
     <p>
-      Two small public files add corrections:
+      The list is maintained through:
     </p>
     <ul>
-      <li><code>overlay/block.txt</code> — extra hosts to block</li>
-      <li><code>overlay/allow.txt</code> — StevenBlack entries to unblock</li>
+      <li><code>core/</code> — owned hostname sources</li>
+      <li><code>overlay/allow.txt</code> — false positive corrections</li>
+      <li><code>overlay/block.txt</code> — additional denials</li>
     </ul>
     <p>
-      These files exist to refine the temporary feed until a later public host registry exists.
+      See <a href="https://github.com/dov-max/narge-spec/blob/main/MAINTENANCE.md" target="_blank" rel="noopener">MAINTENANCE.md</a> 
+      for the weekly maintenance process.
     </p>
   </section>
 

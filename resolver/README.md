@@ -9,13 +9,12 @@ This is a **configuration file** for the Blocky DNS resolver. We do not fork or 
 ## What It Does
 
 The resolver loads:
-- **Narge production list** from the stable subscribe URL
-- **`overlay/block.txt`** from GitHub for extra denials
-- **`overlay/allow.txt`** from GitHub for exceptions (takes precedence)
+- **Narge production list** from the stable subscribe URL (includes all curated sources and overlays)
+- **Local canaries** (off.thecutline.org) for testing
 
 Blocked domains return `NXDOMAIN`. Upstream DNS: Cloudflare (1.1.1.1, 1.0.0.1).
 
-**List updates:** Blocky automatically refreshes all lists every 24 hours from their sources (including the GitHub overlay URLs). To update the overlay lists, edit the files in the `overlay/` directory on GitHub; you do not need to SSH to the VPS or restart the service. Changes will be picked up on the next refresh cycle.
+**List updates:** Blocky automatically refreshes the Narge list every 24 hours. The list is rebuilt daily from `core/` and `overlay/` sources in the narge-spec repository, so changes to those files will be picked up on the next refresh cycle.
 
 **Note:** Blocky the program itself does not auto-update. Only the domain lists auto-refresh.
 
@@ -29,7 +28,6 @@ From the repository root:
 docker run -d \
   --name blocky \
   -v "$(pwd)/resolver/config.yml:/app/config.yml:ro" \
-  -v "$(pwd)/overlay:/overlay:ro" \
   -p 53:53/udp \
   -p 53:53/tcp \
   ghcr.io/0xerr0r/blocky
@@ -41,7 +39,6 @@ Or use the alternative image:
 docker run -d \
   --name blocky \
   -v "$(pwd)/resolver/config.yml:/app/config.yml:ro" \
-  -v "$(pwd)/overlay:/overlay:ro" \
   -p 53:53/udp \
   -p 53:53/tcp \
   spx01/blocky
@@ -67,11 +64,8 @@ dig @127.0.0.1 example.com
 
 ## What to Edit
 
-- **`overlay/block.txt`**: Edit this file on GitHub to add hostnames (one per line) to block beyond the core Narge list. Blocky will fetch the updated file automatically within 24 hours.
-- **`overlay/allow.txt`**: Edit this file on GitHub to add hostnames (one per line) to unblock from the Narge list. Blocky will fetch the updated file automatically within 24 hours.
-- **`config.yml`**: Change upstream DNS servers, refresh period, or other Blocky settings
-
-**Optional:** You can still mount local overlay files as a fallback if you need offline operation or want to override the GitHub sources. The docker commands show how to mount the local `overlay/` directory, though this is not required since the config now loads from GitHub URLs.
+- **`config.yml`**: Change upstream DNS servers, refresh period, local canaries, or other Blocky settings
+- **Narge list sources**: Edit `core/` or `overlay/` files in the narge-spec repository on GitHub. Changes will be included in the next daily build and picked up by the resolver within 24 hours.
 
 See the [Blocky configuration documentation](https://0xerr0r.github.io/blocky/latest/configuration/) for all options.
 
@@ -85,6 +79,6 @@ See the [Blocky configuration documentation](https://0xerr0r.github.io/blocky/la
 ## Attribution
 
 - **Blocky** DNS resolver: Apache-2.0 license, by Dimitri Herzog ([0xERR0R](https://github.com/0xERR0R/blocky))
-- **Narge list seed**: Initial core domains sourced from StevenBlack hosts porn-only list (MIT license, by Steven Black, [StevenBlack/hosts](https://github.com/StevenBlack/hosts))
+- **Narge list**: Initial seed from StevenBlack hosts porn-only list (MIT license, by Steven Black, [StevenBlack/hosts](https://github.com/StevenBlack/hosts)). Now maintained as a curated feed.
 
-We run the Blocky software and consume the Narge list. The Narge list, overlay files, and this configuration are part of the Narge specification repository (CC0 1.0).
+We run the Blocky software and consume the Narge list. The Narge list and this configuration are part of the Narge specification repository (CC0 1.0).

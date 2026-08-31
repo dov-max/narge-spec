@@ -1,0 +1,99 @@
+name: Sign Cutline DNS Installer
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Release tag containing the installer to sign'
+        required: true
+        default: 'cutline-dns-v1.1.0'
+      asset_name:
+        description: 'Release asset filename to sign'
+        required: true
+        default: 'cutline-dns-setup.exe'
+
+permissions:
+  id-token: write
+  contents: write
+
+jobs:
+  sign:
+    runs-on: windows-latest
+    environment: cutline-sign
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Download release asset
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $RELEASE_TAG = "${{ github.event.inputs.release_tag }}"
+          $ASSET_NAME = "${{ github.event.inputs.asset_name }}"
+          
+          Write-Host "Downloading $ASSET_NAME from release $RELEASE_TAG..."
+          gh release download $RELEASE_TAG --pattern $ASSET_NAME
+          
+          if (-not (Test-Path $ASSET_NAME)) {
+            Write-Error "Failed to download $ASSET_NAME"
+            exit 1
+          }
+          
+          Write-Host "Downloaded successfully"
+          dir $ASSET_NAME
+        shell: pwsh
+      
+      - name: Azure Login (OIDC)
+        uses: azure/login@v3
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      
+      - name: Sign installer with Azure Artifact Signing
+        uses: azure/artifact-signing-action@v2
+        with:
+          azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          endpoint: https://eus.codesigning.azure.net/
+          signing-account-name: cutlinesign
+          certificate-profile-name: cutline
+          files: ${{ github.workspace }}\${{ github.event.inputs.asset_name }}
+          file-digest: SHA256
+          timestamp-rfc3161: http://timestamp.acs.microsoft.com
+          timestamp-digest: SHA256
+          exclude-azure-cli-credential: false
+          exclude-interactive-browser-credential: true
+      
+      - name: Verify signature
+        run: |
+          $ASSET_NAME = "${{ github.event.inputs.asset_name }}"
+          
+          Write-Host "Verifying Authenticode signature on $ASSET_NAME..."
+          $sig = Get-AuthenticodeSignature $ASSET_NAME
+          
+          Write-Host "Status: $($sig.Status)"
+          Write-Host "SignerCertificate Subject: $($sig.SignerCertificate.Subject)"
+          Write-Host "TimeStamperCertificate Subject: $($sig.TimeStamperCertificate.Subject)"
+          
+          if ($sig.Status -ne 'Valid') {
+            Write-Error "Signature verification failed! Status: $($sig.Status)"
+            exit 1
+          }
+          
+          Write-Host "Signature is Valid!"
+        shell: pwsh
+      
+      - name: Upload signed installer to release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $RELEASE_TAG = "${{ github.event.inputs.release_tag }}"
+          $ASSET_NAME = "${{ github.event.inputs.asset_name }}"
+          
+          Write-Host "Uploading signed $ASSET_NAME to release $RELEASE_TAG..."
+          gh release upload $RELEASE_TAG $ASSET_NAME --clobber
+          
+          Write-Host "Upload complete!"
+        shell: pwsh

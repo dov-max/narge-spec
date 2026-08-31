@@ -14,13 +14,11 @@ on:
   workflow_dispatch:
 
 permissions:
-  id-token: write
-  contents: write
+  contents: read
 
 jobs:
   build:
     runs-on: windows-latest
-    environment: cutline-sign
     
     steps:
       - name: Checkout repository
@@ -48,69 +46,3 @@ jobs:
           name: cutline-dns-setup
           path: cutline-dns-installer/output/cutline-dns-setup.exe
           if-no-files-found: error
-      
-      - name: Azure Login (OIDC)
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push' && secrets.AZURE_CLIENT_ID != ''
-        uses: azure/login@v3
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      
-      - name: Sign installer with Azure Artifact Signing
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push' && secrets.AZURE_CLIENT_ID != ''
-        uses: azure/artifact-signing-action@v2
-        with:
-          azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          endpoint: https://eus.codesigning.azure.net/
-          signing-account-name: cutlinesign
-          certificate-profile-name: cutline
-          files: ${{ github.workspace }}\cutline-dns-installer\output\cutline-dns-setup.exe
-          file-digest: SHA256
-          timestamp-rfc3161: http://timestamp.acs.microsoft.com
-          timestamp-digest: SHA256
-          exclude-azure-cli-credential: false
-          exclude-interactive-browser-credential: true
-      
-      - name: Verify signature
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push' && secrets.AZURE_CLIENT_ID != ''
-        run: |
-          Write-Host "Verifying Authenticode signature on cutline-dns-setup.exe..."
-          $sig = Get-AuthenticodeSignature cutline-dns-installer/output/cutline-dns-setup.exe
-          
-          Write-Host "Status: $($sig.Status)"
-          Write-Host "SignerCertificate Subject: $($sig.SignerCertificate.Subject)"
-          Write-Host "TimeStamperCertificate Subject: $($sig.TimeStamperCertificate.Subject)"
-          
-          if ($sig.Status -ne 'Valid') {
-            Write-Error "Signature verification failed! Status: $($sig.Status)"
-            exit 1
-          }
-          
-          Write-Host "Signature is Valid!"
-        shell: pwsh
-      
-      - name: Create or update GitHub Release (on main branch only)
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          $RELEASE_TAG = "cutline-dns-v1.1.0"
-          $RELEASE_NAME = "Cutline DNS Installer v1.1.0"
-          
-          # Check if release exists
-          gh release view $RELEASE_TAG 2>$null
-          if ($LASTEXITCODE -eq 0) {
-            Write-Host "Release $RELEASE_TAG already exists, deleting asset if present..."
-            gh release delete-asset $RELEASE_TAG cutline-dns-setup.exe --yes 2>$null
-          } else {
-            Write-Host "Creating new release $RELEASE_TAG..."
-            gh release create $RELEASE_TAG `
-              --title $RELEASE_NAME `
-              --notes "Windows installer for Cutline DNS with encrypted DNS support (DoH). Self-contained WinForms wizard with /silent and /uninstall support."
-          }
-          
-          Write-Host "Uploading cutline-dns-setup.exe to release..."
-          gh release upload $RELEASE_TAG cutline-dns-installer/output/cutline-dns-setup.exe --clobber
-        shell: pwsh

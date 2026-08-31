@@ -252,6 +252,59 @@ jobs:
           
           ls -lh "$RUNNER_TEMP/export-visionos/"
       
+      - name: Validate visionOS app icon in built archive
+        run: |
+          echo "Validating visionOS app icon assets..."
+          
+          # Extract and inspect the IPA
+          unzip -q "$RUNNER_TEMP/export-visionos/CutlineDNS.ipa" -d "$RUNNER_TEMP/visionos-validation"
+          
+          # Check if app bundle exists
+          APP_BUNDLE="$RUNNER_TEMP/visionos-validation/Payload/CutlineDNS.app"
+          if [ ! -d "$APP_BUNDLE" ]; then
+            echo "❌ Error: App bundle not found in IPA"
+            exit 1
+          fi
+          
+          # Look for compiled asset catalog (Assets.car)
+          ASSETS_CAR="$APP_BUNDLE/Assets.car"
+          if [ ! -f "$ASSETS_CAR" ]; then
+            echo "❌ Error: Assets.car not found in app bundle"
+            exit 1
+          fi
+          
+          echo "✅ Assets.car found at: $ASSETS_CAR"
+          ls -lh "$ASSETS_CAR"
+          
+          # Extract asset catalog contents using assetutil (if available)
+          if command -v assetutil &> /dev/null; then
+            echo "Extracting asset catalog contents..."
+            assetutil --info "$ASSETS_CAR" > "$RUNNER_TEMP/assets-info.txt" || true
+            
+            # Check for visionOS app icon entries
+            if grep -q "AppIcon" "$RUNNER_TEMP/assets-info.txt"; then
+              echo "✅ AppIcon found in asset catalog"
+              grep "AppIcon" "$RUNNER_TEMP/assets-info.txt" | head -20
+            else
+              echo "⚠️  Warning: Could not verify AppIcon in asset catalog dump"
+            fi
+          else
+            echo "ℹ️  assetutil not available, skipping detailed asset inspection"
+          fi
+          
+          # Check for Info.plist CFBundleIcons key
+          INFO_PLIST="$APP_BUNDLE/Info.plist"
+          if [ -f "$INFO_PLIST" ]; then
+            echo "Checking Info.plist for CFBundleIcons..."
+            if plutil -extract CFBundleIcons xml1 -o - "$INFO_PLIST" 2>/dev/null; then
+              echo "✅ CFBundleIcons key found in Info.plist"
+            else
+              echo "⚠️  CFBundleIcons key not found in Info.plist (may be normal)"
+            fi
+          fi
+          
+          echo "✅ visionOS app validation completed"
+      
       - name: Upload iOS to App Store Connect
         if: false
         id: upload-ios

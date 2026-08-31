@@ -62,6 +62,20 @@
         <div class="stat-value" data-stat="ewr-latency-p95">—</div>
         <div class="stat-label">Latency (p95)</div>
       </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">📥</div>
+        <div class="stat-value" data-stat="ewr-bandwidth-in">—</div>
+        <div class="stat-label">In (24h)</div>
+        <div class="stat-month" data-stat="ewr-bandwidth-in-month"></div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">📤</div>
+        <div class="stat-value" data-stat="ewr-bandwidth-out">—</div>
+        <div class="stat-label">Out (24h)</div>
+        <div class="stat-month" data-stat="ewr-bandwidth-out-month"></div>
+      </div>
     </div>
 
     <div class="stats-grid location-grid" data-location-content="lax" style="display: none;">
@@ -88,6 +102,20 @@
         <div class="stat-value" data-stat="lax-latency-p95">—</div>
         <div class="stat-label">Latency (p95)</div>
       </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">📥</div>
+        <div class="stat-value" data-stat="lax-bandwidth-in">—</div>
+        <div class="stat-label">In (24h)</div>
+        <div class="stat-month" data-stat="lax-bandwidth-in-month"></div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">📤</div>
+        <div class="stat-value" data-stat="lax-bandwidth-out">—</div>
+        <div class="stat-label">Out (24h)</div>
+        <div class="stat-month" data-stat="lax-bandwidth-out-month"></div>
+      </div>
     </div>
   </div>
 
@@ -102,6 +130,9 @@
       <strong>Latency:</strong> Median (p50) resolver processing time for the last 24 hours, from whichever resolver is busier. 
       This measures query-in to answer-out time at the resolver, NOT last-mile network latency or browser Secure DNS overhead.
       See <a href="/spec">the specification</a> for details.
+    </p>
+    <p>
+      <strong>Bandwidth:</strong> NIC traffic on that resolver (all ports), not query-name volume. DNS packets are small.
     </p>
     
     <h3>Privacy</h3>
@@ -128,6 +159,67 @@
 </div>
 
 <script>
+  // Humanize bytes with one decimal
+  function humanizeBytes(bytes) {
+    if (bytes === null || bytes === undefined) return '—';
+    
+    const kb = 1024;
+    const mb = kb * 1024;
+    const gb = mb * 1024;
+    
+    if (bytes >= gb) {
+      return `${(bytes / gb).toFixed(1)} GB`;
+    } else if (bytes >= mb) {
+      return `${(bytes / mb).toFixed(1)} MB`;
+    } else if (bytes >= kb) {
+      return `${(bytes / kb).toFixed(1)} KB`;
+    } else {
+      return `${bytes} B`;
+    }
+  }
+
+  // Extract bandwidth from data (handles both flat and nested formats)
+  function extractBandwidth(data) {
+    const result = {
+      rx_24h: null,
+      tx_24h: null,
+      rx_month: null,
+      tx_month: null
+    };
+
+    // Try flat format first
+    if (data.bandwidth_rx_bytes_24h !== null && data.bandwidth_rx_bytes_24h !== undefined) {
+      result.rx_24h = data.bandwidth_rx_bytes_24h;
+    }
+    if (data.bandwidth_tx_bytes_24h !== null && data.bandwidth_tx_bytes_24h !== undefined) {
+      result.tx_24h = data.bandwidth_tx_bytes_24h;
+    }
+    if (data.bandwidth_rx_bytes_month !== null && data.bandwidth_rx_bytes_month !== undefined) {
+      result.rx_month = data.bandwidth_rx_bytes_month;
+    }
+    if (data.bandwidth_tx_bytes_month !== null && data.bandwidth_tx_bytes_month !== undefined) {
+      result.tx_month = data.bandwidth_tx_bytes_month;
+    }
+
+    // Try nested format
+    if (data.bandwidth && typeof data.bandwidth === 'object') {
+      if (data.bandwidth.rx_bytes_24h !== null && data.bandwidth.rx_bytes_24h !== undefined) {
+        result.rx_24h = data.bandwidth.rx_bytes_24h;
+      }
+      if (data.bandwidth.tx_bytes_24h !== null && data.bandwidth.tx_bytes_24h !== undefined) {
+        result.tx_24h = data.bandwidth.tx_bytes_24h;
+      }
+      if (data.bandwidth.rx_bytes_month !== null && data.bandwidth.rx_bytes_month !== undefined) {
+        result.rx_month = data.bandwidth.rx_bytes_month;
+      }
+      if (data.bandwidth.tx_bytes_month !== null && data.bandwidth.tx_bytes_month !== undefined) {
+        result.tx_month = data.bandwidth.tx_bytes_month;
+      }
+    }
+
+    return result;
+  }
+
   // Normalize JSON: support both combined fields and nested latency
   function normalizeStats(data) {
     const normalized = { ...data };
@@ -221,6 +313,32 @@
       const p95El = document.querySelector(`[data-stat="${location}-latency-p95"]`);
       if (p95El && data.latency_p95_ms !== null && data.latency_p95_ms !== undefined) {
         p95El.textContent = `${data.latency_p95_ms.toFixed(1)} ms`;
+      }
+
+      // Update bandwidth
+      const bandwidth = extractBandwidth(data);
+      
+      const bandwidthInEl = document.querySelector(`[data-stat="${location}-bandwidth-in"]`);
+      if (bandwidthInEl) {
+        bandwidthInEl.textContent = humanizeBytes(bandwidth.rx_24h);
+      }
+      
+      const bandwidthOutEl = document.querySelector(`[data-stat="${location}-bandwidth-out"]`);
+      if (bandwidthOutEl) {
+        bandwidthOutEl.textContent = humanizeBytes(bandwidth.tx_24h);
+      }
+
+      // Monthly bandwidth (quiet second line)
+      const bandwidthInMonthEl = document.querySelector(`[data-stat="${location}-bandwidth-in-month"]`);
+      if (bandwidthInMonthEl && bandwidth.rx_month !== null) {
+        bandwidthInMonthEl.textContent = `${humanizeBytes(bandwidth.rx_month)} this month`;
+        bandwidthInMonthEl.style.display = 'block';
+      }
+
+      const bandwidthOutMonthEl = document.querySelector(`[data-stat="${location}-bandwidth-out-month"]`);
+      if (bandwidthOutMonthEl && bandwidth.tx_month !== null) {
+        bandwidthOutMonthEl.textContent = `${humanizeBytes(bandwidth.tx_month)} this month`;
+        bandwidthOutMonthEl.style.display = 'block';
       }
     } catch (error) {
       console.error(`Failed to fetch ${location} stats:`, error);
@@ -459,6 +577,14 @@
   .stat-label {
     font-size: 0.85rem;
     color: var(--color-text-muted);
+  }
+
+  .stat-month {
+    display: none;
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    margin-top: var(--spacing-xs);
+    opacity: 0.7;
   }
 
   .stats-notes {

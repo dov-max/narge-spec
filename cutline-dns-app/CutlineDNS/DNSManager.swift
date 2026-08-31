@@ -49,6 +49,7 @@ class DNSManager: ObservableObject {
             let dnsSettings = NEDNSOverHTTPSSettings(servers: self.bootstrapServers)
             dnsSettings.serverURL = URL(string: self.serverURL)
             
+            NEDNSSettingsManager.shared().localizedDescription = "Cutline DNS"
             NEDNSSettingsManager.shared().dnsSettings = dnsSettings
             
             let connectRule = NEOnDemandRuleConnect()

@@ -8,7 +8,7 @@ struct ContentView: View {
         VStack(spacing: 30) {
             Image(systemName: "network")
                 .font(.system(size: 60))
-                .foregroundColor(.brown)
+                .foregroundColor(Color(red: 0.0, green: 0.4, blue: 0.8))
                 .padding(.top, 40)
             
             Text("Cutline DNS")
@@ -49,7 +49,7 @@ struct ContentView: View {
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(Color.brown)
+                    .background(Color(red: 0.0, green: 0.4, blue: 0.8))
                     .cornerRadius(12)
             }
             .padding(.horizontal)
@@ -69,19 +69,17 @@ struct ContentView: View {
                 .padding(.horizontal)
             }
             
-            if isPrivateRelayLikelyEnabled() {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("⚠️ iCloud Private Relay")
-                        .font(.headline)
-                    Text("Private Relay bypasses Cutline DNS and the cut will not work. To use Cutline, turn off Private Relay in Settings.")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                }
-                .padding()
-                .background(Color.orange.opacity(0.2))
-                .cornerRadius(12)
-                .padding(.horizontal)
+            VStack(alignment: .leading, spacing: 8) {
+                Text("ℹ️ iCloud Private Relay")
+                    .font(.headline)
+                Text("If iCloud Private Relay is on, the cut will not work.")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
             }
+            .padding()
+            .background(Color.blue.opacity(0.1))
+            .cornerRadius(12)
+            .padding(.horizontal)
             
             if let error = dnsManager.errorMessage {
                 Text(error)
@@ -104,14 +102,6 @@ struct ContentView: View {
         .onAppear {
             dnsManager.checkStatus()
         }
-    }
-    
-    private func isPrivateRelayLikelyEnabled() -> Bool {
-        #if os(iOS)
-        return false
-        #else
-        return false
-        #endif
     }
 }
 

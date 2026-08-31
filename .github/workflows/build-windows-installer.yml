@@ -14,11 +14,13 @@ on:
   workflow_dispatch:
 
 permissions:
+  id-token: write
   contents: write
 
 jobs:
   build:
     runs-on: windows-latest
+    environment: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' && 'cutline-sign' || '' }}
     
     steps:
       - name: Checkout repository
@@ -46,6 +48,45 @@ jobs:
           name: cutline-dns-setup
           path: cutline-dns-installer/output/cutline-dns-setup.exe
           if-no-files-found: error
+      
+      - name: Azure Login with OIDC (optional)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push' && secrets.AZURE_CLIENT_ID != ''
+        uses: azure/login@v3
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      
+      - name: Sign with Azure Artifact Signing (optional)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push' && secrets.AZURE_CLIENT_ID != ''
+        uses: azure/artifact-signing-action@v2
+        with:
+          azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+          endpoint: https://eus.codesigning.azure.net/
+          code-signing-account-name: cutlinesign
+          certificate-profile-name: cutline
+          files-folder: ${{ github.workspace }}/cutline-dns-installer/output
+          files-folder-filter: exe
+          file-digest: SHA256
+          timestamp-rfc3161: http://timestamp.acs.microsoft.com
+          timestamp-digest: SHA256
+      
+      - name: Verify signed exe (optional)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push' && secrets.AZURE_CLIENT_ID != ''
+        run: |
+          $sig = Get-AuthenticodeSignature cutline-dns-installer/output/cutline-dns-setup.exe
+          Write-Host "Signature status: $($sig.Status)"
+          if ($sig.Status -eq "Valid") {
+            Write-Host "✓ Authenticode signature is valid!"
+            Write-Host "  Subject: $($sig.SignerCertificate.Subject)"
+            Write-Host "  Issuer: $($sig.SignerCertificate.Issuer)"
+            Write-Host "  Thumbprint: $($sig.SignerCertificate.Thumbprint)"
+          } else {
+            Write-Warning "Signature status: $($sig.Status)"
+          }
+        shell: pwsh
       
       - name: Create or update GitHub Release (on main branch only)
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'

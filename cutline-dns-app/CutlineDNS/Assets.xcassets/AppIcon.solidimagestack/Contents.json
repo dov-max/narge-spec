@@ -13,5 +13,11 @@
     {
       "filename" : "Back.solidimagestacklayer"
     }
-  ]
+  ],
+  "properties" : {
+    "canvasSize" : {
+      "width" : 512,
+      "height" : 512
+    }
+  }
 }

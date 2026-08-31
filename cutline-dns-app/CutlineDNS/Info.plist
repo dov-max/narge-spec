@@ -43,5 +43,10 @@
 	<string>Cutline uses DNS configuration to provide encrypted DNS resolution for all your network connections.</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<key>CFBundleIcons</key>
+	<dict>
+		<key>CFBundlePrimaryIcon</key>
+		<string>AppIcon</string>
+	</dict>
 </dict>
 </plist>

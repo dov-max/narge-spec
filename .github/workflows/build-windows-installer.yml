@@ -40,29 +40,33 @@ jobs:
           dir output
         shell: pwsh
       
-      - name: Copy executable to cutline-site/public
-        run: |
-          New-Item -ItemType Directory -Force -Path cutline-site/public
-          Copy-Item cutline-dns-installer/output/cutline-dns-setup.exe cutline-site/public/
-          dir cutline-site/public/cutline-dns-setup.exe
-        shell: pwsh
-      
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: cutline-dns-setup
-          path: cutline-site/public/cutline-dns-setup.exe
+          path: cutline-dns-installer/output/cutline-dns-setup.exe
           if-no-files-found: error
       
-      - name: Commit executable to repository (on main branch only)
+      - name: Create or update GitHub Release (on main branch only)
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git add cutline-site/public/cutline-dns-setup.exe
-          git diff --staged --quiet
-          if ($LASTEXITCODE -ne 0) {
-            git commit -m "Build: Update cutline-dns-setup.exe"
-            git push
+          $RELEASE_TAG = "cutline-dns-v1.1.0"
+          $RELEASE_NAME = "Cutline DNS Installer v1.1.0"
+          
+          # Check if release exists
+          gh release view $RELEASE_TAG 2>$null
+          if ($LASTEXITCODE -eq 0) {
+            Write-Host "Release $RELEASE_TAG already exists, deleting asset if present..."
+            gh release delete-asset $RELEASE_TAG cutline-dns-setup.exe --yes 2>$null
+          } else {
+            Write-Host "Creating new release $RELEASE_TAG..."
+            gh release create $RELEASE_TAG `
+              --title $RELEASE_NAME `
+              --notes "Windows installer for Cutline DNS with encrypted DNS support (DoH). Self-contained WinForms wizard with /silent and /uninstall support."
           }
+          
+          Write-Host "Uploading cutline-dns-setup.exe to release..."
+          gh release upload $RELEASE_TAG cutline-dns-installer/output/cutline-dns-setup.exe --clobber
         shell: pwsh

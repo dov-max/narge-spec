@@ -1,0 +1,163 @@
+name: Update Store Package (Cutline DNS)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  update-store-package:
+    name: Update Microsoft Store Draft Package
+    runs-on: ubuntu-latest
+    environment: cutline-sign
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Get GitHub OIDC token
+        id: idtoken
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const token = await core.getIDToken('api://AzureADTokenExchange');
+            core.setSecret(token);
+            core.setOutput('token', token);
+      
+      - name: Get Azure AD access token
+        id: azuretoken
+        run: |
+          RESPONSE=$(curl -s -X POST \
+            "https://login.microsoftonline.com/${{ secrets.AZURE_TENANT_ID }}/oauth2/v2.0/token" \
+            -H "Content-Type: application/x-www-form-urlencoded" \
+            -d "grant_type=client_credentials" \
+            -d "client_id=${{ secrets.AZURE_CLIENT_ID }}" \
+            -d "client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer" \
+            -d "client_assertion=${{ steps.idtoken.outputs.token }}" \
+            -d "scope=https://api.store.microsoft.com/.default")
+          
+          ACCESS_TOKEN=$(echo "$RESPONSE" | jq -r '.access_token')
+          
+          if [ "$ACCESS_TOKEN" == "null" ] || [ -z "$ACCESS_TOKEN" ]; then
+            echo "Failed to get access token"
+            echo "$RESPONSE" | jq .
+            exit 1
+          fi
+          
+          echo "::add-mask::$ACCESS_TOKEN"
+          echo "access_token=$ACCESS_TOKEN" >> $GITHUB_OUTPUT
+          echo "Successfully obtained access token"
+      
+      - name: Get current packages
+        run: |
+          echo "Fetching current packages..."
+          curl -s -X GET \
+            "https://api.store.microsoft.com/submission/v1/product/e48fd99c-5864-41f2-ad26-89cbed33de78/packages" \
+            -H "Authorization: Bearer ${{ steps.azuretoken.outputs.access_token }}" \
+            -H "X-Seller-Account-Id: 92788120" | jq .
+      
+      - name: Update package
+        run: |
+          echo "Updating package..."
+          RESPONSE=$(curl -s -X PUT \
+            "https://api.store.microsoft.com/submission/v1/product/e48fd99c-5864-41f2-ad26-89cbed33de78/packages" \
+            -H "Authorization: Bearer ${{ steps.azuretoken.outputs.access_token }}" \
+            -H "X-Seller-Account-Id: 92788120" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "packages": [{
+                "packageUrl": "https://ewr.dns.thecutline.org/cutline/1.1.0/cutline-dns-setup.exe",
+                "languages": ["en-us"],
+                "architectures": ["X64"],
+                "isSilentInstall": false,
+                "installerParameters": "/silent",
+                "genericDocUrl": "https://github.com/dov-max/narge-spec/blob/main/cutline-dns-installer/README.md",
+                "errorDetails": [
+                  {"errorScenario": "installationCancelledByUser", "errorScenarioDetails": [{"errorValue": "1602", "errorUrl": "https://github.com/dov-max/narge-spec/blob/main/cutline-dns-installer/README.md#return-codes"}]},
+                  {"errorScenario": "applicationAlreadyExists", "errorScenarioDetails": [{"errorValue": "1638", "errorUrl": "https://github.com/dov-max/narge-spec/blob/main/cutline-dns-installer/README.md#return-codes"}]},
+                  {"errorScenario": "installationAlreadyInProgress", "errorScenarioDetails": [{"errorValue": "1618", "errorUrl": "https://github.com/dov-max/narge-spec/blob/main/cutline-dns-installer/README.md#return-codes"}]},
+                  {"errorScenario": "diskSpaceIsFull", "errorScenarioDetails": [{"errorValue": "112", "errorUrl": "https://github.com/dov-max/narge-spec/blob/main/cutline-dns-installer/README.md#return-codes"}]},
+                  {"errorScenario": "rebootRequired", "errorScenarioDetails": [{"errorValue": "3010", "errorUrl": "https://github.com/dov-max/narge-spec/blob/main/cutline-dns-installer/README.md#return-codes"}]},
+                  {"errorScenario": "networkFailure", "errorScenarioDetails": [{"errorValue": "12029", "errorUrl": "https://github.com/dov-max/narge-spec/blob/main/cutline-dns-installer/README.md#return-codes"}]},
+                  {"errorScenario": "packageRejectedDuringInstallation", "errorScenarioDetails": [{"errorValue": "1625", "errorUrl": "https://github.com/dov-max/narge-spec/blob/main/cutline-dns-installer/README.md#return-codes"}]},
+                  {"errorScenario": "installationSuccessful", "errorScenarioDetails": [{"errorValue": "0", "errorUrl": "https://github.com/dov-max/narge-spec/blob/main/cutline-dns-installer/README.md#return-codes"}]},
+                  {"errorScenario": "miscellaneous", "errorScenarioDetails": [{"errorValue": "1", "errorUrl": "https://github.com/dov-max/narge-spec/blob/main/cutline-dns-installer/README.md#return-codes"}]}
+                ],
+                "packageType": "exe"
+              }]
+            }')
+          
+          echo "$RESPONSE" | jq .
+          
+          IS_SUCCESS=$(echo "$RESPONSE" | jq -r '.isSuccess // false')
+          if [ "$IS_SUCCESS" != "true" ]; then
+            echo "Package update failed"
+            exit 1
+          fi
+          
+          echo "Package updated successfully"
+      
+      - name: Commit package update
+        run: |
+          echo "Committing package update..."
+          curl -s -X POST \
+            "https://api.store.microsoft.com/submission/v1/product/e48fd99c-5864-41f2-ad26-89cbed33de78/packages/commit" \
+            -H "Authorization: Bearer ${{ steps.azuretoken.outputs.access_token }}" \
+            -H "X-Seller-Account-Id: 92788120" | jq .
+          
+          echo "Commit initiated"
+      
+      - name: Poll for completion
+        run: |
+          echo "Polling for package processing status..."
+          MAX_WAIT=600
+          ELAPSED=0
+          SLEEP_INTERVAL=15
+          
+          while [ $ELAPSED -lt $MAX_WAIT ]; do
+            RESPONSE=$(curl -s -X GET \
+              "https://api.store.microsoft.com/submission/v1/product/e48fd99c-5864-41f2-ad26-89cbed33de78/status" \
+              -H "Authorization: Bearer ${{ steps.azuretoken.outputs.access_token }}" \
+              -H "X-Seller-Account-Id: 92788120")
+            
+            echo "Status response:"
+            echo "$RESPONSE" | jq .
+            
+            IS_READY=$(echo "$RESPONSE" | jq -r '.responseData.isReady // false')
+            IS_SUCCESS=$(echo "$RESPONSE" | jq -r '.isSuccess // false')
+            
+            HAS_UPLOAD_ERROR=$(echo "$RESPONSE" | jq -r '[.errors[]? | select(.code == "packageuploaderror")] | length > 0')
+            if [ "$HAS_UPLOAD_ERROR" == "true" ]; then
+              echo "Package upload error detected in errors array"
+              exit 1
+            fi
+            
+            if [ "$IS_SUCCESS" == "false" ]; then
+              ERROR_COUNT=$(echo "$RESPONSE" | jq -r '.errors | length')
+              if [ "$ERROR_COUNT" != "0" ] && [ "$ERROR_COUNT" != "null" ]; then
+                echo "Request failed with errors"
+                exit 1
+              fi
+            fi
+            
+            if [ "$IS_READY" == "true" ]; then
+              if [ "$IS_SUCCESS" == "true" ]; then
+                echo "Package processing completed successfully"
+                exit 0
+              else
+                echo "Package processing completed but isSuccess is false"
+                exit 1
+              fi
+            fi
+            
+            echo "Not ready yet, waiting ${SLEEP_INTERVAL}s..."
+            sleep $SLEEP_INTERVAL
+            ELAPSED=$((ELAPSED + SLEEP_INTERVAL))
+          done
+          
+          echo "Timeout after ${MAX_WAIT}s - package still processing"
+          echo "Final status:"
+          echo "$RESPONSE" | jq .
+          exit 1

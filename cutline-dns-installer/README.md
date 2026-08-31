@@ -40,6 +40,15 @@ Or uninstall via Settings → Apps → Cutline DNS
 cutline-dns-setup.exe /silent
 ```
 
+## Return codes
+
+| Code | Meaning |
+|------|---------|
+| 0    | Success: wizard finished, or silent install/uninstall succeeded. Re-running when already installed also returns 0 (re-applies DNS). Cancel on the Welcome screen currently returns 0. |
+| 1    | Failure: not running as Administrator, or any exception during wizard/silent install. |
+
+This executable does not return Windows Installer codes. Partner Center standard-scenario boxes are filled with unused MSI codes (1602 cancelled, 1638 already exists, 1618 in progress, 112 disk full, 3010 reboot, 1625 package rejected) which this EXE does not emit. Miscellaneous failures return 1.
+
 ## What it does
 
 1. Configures DNS servers (64.176.200.99, 149.28.79.49) on all physical network adapters

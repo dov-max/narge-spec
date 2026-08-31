@@ -5,15 +5,21 @@ on:
 
 jobs:
   build-and-submit:
-    runs-on: xcode-27
+    runs-on: macos-26
     
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
       
-      - name: Verify Xcode version and SDKs
+      - name: Verify build environment and Xcode
         run: |
+          sw_vers
+          echo "---"
+          sw_vers -buildVersion
+          echo "---"
           xcodebuild -version
+          echo "---"
+          xcode-select -p
           echo "---"
           xcodebuild -showsdks
       

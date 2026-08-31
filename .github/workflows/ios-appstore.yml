@@ -253,7 +253,7 @@ jobs:
           ls -lh "$RUNNER_TEMP/export-visionos/"
       
       - name: Upload iOS to App Store Connect
-        if: always()
+        if: false
         id: upload-ios
         env:
           APP_STORE_CONNECT_API_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
@@ -276,7 +276,7 @@ jobs:
           rm "$API_KEY_PATH"
       
       - name: Upload macOS to App Store Connect
-        if: always()
+        if: false
         id: upload-macos
         continue-on-error: true
         env:
@@ -336,19 +336,9 @@ jobs:
         run: |
           FAILED=0
           
-          if [ "${{ steps.upload-ios.outcome }}" != "success" ]; then
-            echo "❌ iOS upload failed"
-            FAILED=1
-          else
-            echo "✅ iOS upload succeeded"
-          fi
-          
-          if [ "${{ steps.upload-macos.outcome }}" != "success" ]; then
-            echo "❌ macOS upload failed"
-            FAILED=1
-          else
-            echo "✅ macOS upload succeeded"
-          fi
+          # iOS and macOS uploads skipped (builds 4 already WAITING_FOR_REVIEW)
+          echo "ℹ️  iOS upload skipped (build 4 already in review)"
+          echo "ℹ️  macOS upload skipped (build 4 already in review)"
           
           if [ "${{ steps.upload-visionos.outcome }}" != "success" ]; then
             echo "❌ visionOS upload failed"
@@ -358,11 +348,11 @@ jobs:
           fi
           
           if [ $FAILED -eq 1 ]; then
-            echo "One or more uploads failed"
+            echo "visionOS upload failed"
             exit 1
           fi
           
-          echo "All uploads succeeded"
+          echo "visionOS upload succeeded (iOS/macOS skipped)"
       
       - name: Clean up keychain
         if: always()

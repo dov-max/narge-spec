@@ -89,7 +89,7 @@
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		AA0000200000000000000001 /* Project object */ = {
+		AA0000260000000000000001 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
@@ -101,7 +101,7 @@
 					};
 				};
 			};
-			buildConfigurationList = AA0000210000000000000001 /* Build configuration list for PBXProject "CutlineDNS" */;
+			buildConfigurationList = AA0000270000000000000001 /* Build configuration list for PBXProject "CutlineDNS" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -347,7 +347,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		AA0000210000000000000001 /* Build configuration list for PBXProject "CutlineDNS" */ = {
+		AA0000270000000000000001 /* Build configuration list for PBXProject "CutlineDNS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				AA0000220000000000000001 /* Debug */,
@@ -358,5 +358,5 @@
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = AA0000200000000000000001 /* Project object */;
+	rootObject = AA0000260000000000000001 /* Project object */;
 }

@@ -125,13 +125,21 @@ jobs:
             echo "Status response:"
             echo "$RESPONSE" | jq .
             
-            IS_READY=$(echo "$RESPONSE" | jq -r '.isReady // false')
+            IS_READY=$(echo "$RESPONSE" | jq -r '.responseData.isReady // false')
             IS_SUCCESS=$(echo "$RESPONSE" | jq -r '.isSuccess // false')
-            STATUS=$(echo "$RESPONSE" | jq -r '.status // "unknown"')
             
-            if echo "$STATUS" | grep -qi "packageuploaderror"; then
-              echo "Package upload error detected"
+            HAS_UPLOAD_ERROR=$(echo "$RESPONSE" | jq -r '[.errors[]? | select(.code == "packageuploaderror")] | length > 0')
+            if [ "$HAS_UPLOAD_ERROR" == "true" ]; then
+              echo "Package upload error detected in errors array"
               exit 1
+            fi
+            
+            if [ "$IS_SUCCESS" == "false" ]; then
+              ERROR_COUNT=$(echo "$RESPONSE" | jq -r '.errors | length')
+              if [ "$ERROR_COUNT" != "0" ] && [ "$ERROR_COUNT" != "null" ]; then
+                echo "Request failed with errors"
+                exit 1
+              fi
             fi
             
             if [ "$IS_READY" == "true" ]; then
@@ -139,7 +147,7 @@ jobs:
                 echo "Package processing completed successfully"
                 exit 0
               else
-                echo "Package processing completed with errors"
+                echo "Package processing completed but isSuccess is false"
                 exit 1
               fi
             fi

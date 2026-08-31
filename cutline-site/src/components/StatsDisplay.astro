@@ -4,6 +4,7 @@
 ---
 
 <div class="stats-section">
+  <h2 class="tier-heading">Cutline (Combined)</h2>
   <div class="stats-grid">
     <div class="stat-card">
       <div class="stat-icon">✓</div>
@@ -24,12 +25,78 @@
     </div>
   </div>
 
+  <div class="about-stats">
+    <p class="about-text">
+      The headline shows combined health and statistics from whichever resolver is busier.
+      The tabs below show each resolver individually. Someone can appear on both lists.
+    </p>
+  </div>
+
+  <div class="location-tabs">
+    <button class="tab-button active" data-location="ewr">EWR</button>
+    <button class="tab-button" data-location="lax">LAX</button>
+  </div>
+
+  <div class="location-stats">
+    <div class="stats-grid location-grid" data-location-content="ewr">
+      <div class="stat-card">
+        <div class="stat-icon">✓</div>
+        <div class="stat-value" data-stat="ewr-health">—</div>
+        <div class="stat-label">Health</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">👥</div>
+        <div class="stat-value" data-stat="ewr-distinct-ips">—</div>
+        <div class="stat-label">Distinct IPs (7 days)</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">⚡</div>
+        <div class="stat-value" data-stat="ewr-latency-p50">—</div>
+        <div class="stat-label">Latency (p50)</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">📊</div>
+        <div class="stat-value" data-stat="ewr-latency-p95">—</div>
+        <div class="stat-label">Latency (p95)</div>
+      </div>
+    </div>
+
+    <div class="stats-grid location-grid" data-location-content="lax" style="display: none;">
+      <div class="stat-card">
+        <div class="stat-icon">✓</div>
+        <div class="stat-value" data-stat="lax-health">—</div>
+        <div class="stat-label">Health</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">👥</div>
+        <div class="stat-value" data-stat="lax-distinct-ips">—</div>
+        <div class="stat-label">Distinct IPs (7 days)</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">⚡</div>
+        <div class="stat-value" data-stat="lax-latency-p50">—</div>
+        <div class="stat-label">Latency (p50)</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">📊</div>
+        <div class="stat-value" data-stat="lax-latency-p95">—</div>
+        <div class="stat-label">Latency (p95)</div>
+      </div>
+    </div>
+  </div>
+
   <div class="stats-notes">
     <h3>About These Numbers</h3>
     <p>
       <strong>Distinct IPs:</strong> Count of distinct source IP addresses that queried the resolver in the last 7 days. 
       This is not households. A household can query multiple resolvers, so this is not a unique-across-both count. 
-      The number shown is from whichever resolver is busier.
+      The headline number shown is from whichever resolver is busier.
     </p>
     <p>
       <strong>Latency:</strong> Median (p50) resolver processing time for the last 24 hours, from whichever resolver is busier. 
@@ -61,6 +128,23 @@
 </div>
 
 <script>
+  // Normalize JSON: support both combined fields and nested latency
+  function normalizeStats(data) {
+    const normalized = { ...data };
+    
+    // Handle nested latency if present
+    if (data.latency && typeof data.latency === 'object') {
+      if (data.latency.p50_ms !== undefined) {
+        normalized.latency_p50_ms = data.latency.p50_ms;
+      }
+      if (data.latency.p95_ms !== undefined) {
+        normalized.latency_p95_ms = data.latency.p95_ms;
+      }
+    }
+    
+    return normalized;
+  }
+
   // Fetch live stats from unified endpoint
   async function fetchStats() {
     try {
@@ -70,14 +154,16 @@
       
       if (!response.ok) throw new Error('Fetch failed');
       
-      const data = await response.json();
+      const rawData = await response.json();
+      const data = normalizeStats(rawData);
       
-      // Update health
+      // Update health (support "ok" or "healthy")
       const healthEl = document.querySelector('[data-stat="health"]');
       if (healthEl && data.health !== null && data.health !== undefined) {
-        healthEl.textContent = data.health === 'ok' ? 'OK' : 'Down';
-        healthEl.classList.toggle('healthy', data.health === 'ok');
-        healthEl.classList.toggle('unhealthy', data.health !== 'ok');
+        const isHealthy = data.health === 'ok' || data.health === 'healthy';
+        healthEl.textContent = isHealthy ? 'OK' : 'Down';
+        healthEl.classList.toggle('healthy', isHealthy);
+        healthEl.classList.toggle('unhealthy', !isHealthy);
       }
       
       // Update distinct IPs
@@ -97,10 +183,62 @@
     }
   }
 
-  // Fetch and display history from unified endpoint
-  async function fetchHistory() {
+  // Fetch per-location stats
+  async function fetchLocationStats(location) {
     try {
-      const response = await fetch('https://dns.thecutline.org/history.jsonl', {
+      const url = `https://${location}.dns.thecutline.org/stats.json`;
+      const response = await fetch(url, {
+        signal: AbortSignal.timeout(5000)
+      });
+      
+      if (!response.ok) throw new Error('Fetch failed');
+      
+      const rawData = await response.json();
+      const data = normalizeStats(rawData);
+      
+      // Update health
+      const healthEl = document.querySelector(`[data-stat="${location}-health"]`);
+      if (healthEl && data.health !== null && data.health !== undefined) {
+        const isHealthy = data.health === 'ok' || data.health === 'healthy';
+        healthEl.textContent = isHealthy ? 'OK' : 'Down';
+        healthEl.classList.toggle('healthy', isHealthy);
+        healthEl.classList.toggle('unhealthy', !isHealthy);
+      }
+      
+      // Update distinct IPs
+      const ipsEl = document.querySelector(`[data-stat="${location}-distinct-ips"]`);
+      if (ipsEl && data.distinct_ips_7d !== null && data.distinct_ips_7d !== undefined) {
+        ipsEl.textContent = data.distinct_ips_7d.toLocaleString();
+      }
+      
+      // Update p50 latency
+      const p50El = document.querySelector(`[data-stat="${location}-latency-p50"]`);
+      if (p50El && data.latency_p50_ms !== null && data.latency_p50_ms !== undefined) {
+        p50El.textContent = `${data.latency_p50_ms.toFixed(1)} ms`;
+      }
+      
+      // Update p95 latency
+      const p95El = document.querySelector(`[data-stat="${location}-latency-p95"]`);
+      if (p95El && data.latency_p95_ms !== null && data.latency_p95_ms !== undefined) {
+        p95El.textContent = `${data.latency_p95_ms.toFixed(1)} ms`;
+      }
+    } catch (error) {
+      console.error(`Failed to fetch ${location} stats:`, error);
+      // Fail closed - leave em-dashes in place
+    }
+  }
+
+  // Track current location for history
+  let currentLocation = null;
+
+  // Fetch and display history from unified or per-location endpoint
+  async function fetchHistory(location = null) {
+    try {
+      const url = location 
+        ? `https://${location}.dns.thecutline.org/history.jsonl`
+        : 'https://dns.thecutline.org/history.jsonl';
+      
+      const response = await fetch(url, {
         signal: AbortSignal.timeout(5000)
       });
       
@@ -120,17 +258,18 @@
       }
       
       // Display history table (last 30 days)
-      displayHistory(historyData);
+      displayHistory(historyData, location);
     } catch (error) {
-      console.error('Failed to fetch history:', error);
+      console.error(`Failed to fetch history${location ? ' for ' + location : ''}:`, error);
       const container = document.getElementById('history-chart');
       if (container) {
-        container.innerHTML = '<p class="no-data">Unable to load historical data.</p>';
+        const locationText = location ? ` for ${location.toUpperCase()}` : '';
+        container.innerHTML = `<p class="no-data">Unable to load historical data${locationText}.</p>`;
       }
     }
   }
 
-  function displayHistory(data) {
+  function displayHistory(data, location = null) {
     const container = document.getElementById('history-chart');
     if (!container) return;
 
@@ -141,7 +280,8 @@
       .slice(0, 30);
 
     if (sortedData.length === 0) {
-      container.innerHTML = '<p class="no-data">No historical data available yet.</p>';
+      const locationText = location ? ` for ${location.toUpperCase()}` : '';
+      container.innerHTML = `<p class="no-data">No historical data available yet${locationText}.</p>`;
       return;
     }
 
@@ -164,13 +304,51 @@
     container.innerHTML = html;
   }
 
+  // Tab switching
+  function setupTabs() {
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const locationContents = document.querySelectorAll('[data-location-content]');
+    
+    tabButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const location = button.getAttribute('data-location');
+        
+        // Update active tab
+        tabButtons.forEach(btn => btn.classList.remove('active'));
+        button.classList.add('active');
+        
+        // Show corresponding content
+        locationContents.forEach(content => {
+          content.style.display = 'none';
+        });
+        const activeContent = document.querySelector(`[data-location-content="${location}"]`);
+        if (activeContent) {
+          activeContent.style.display = 'grid';
+        }
+        
+        // Update history for location if available
+        currentLocation = location;
+        fetchHistory(location);
+      });
+    });
+  }
+
   // Fetch on page load
   fetchStats();
+  fetchLocationStats('ewr');
+  fetchLocationStats('lax');
   fetchHistory();
+  setupTabs();
   
   // Refresh every 60 seconds
   setInterval(fetchStats, 60000);
-  setInterval(fetchHistory, 300000); // Refresh history every 5 minutes
+  setInterval(() => {
+    fetchLocationStats('ewr');
+    fetchLocationStats('lax');
+  }, 60000);
+  setInterval(() => {
+    fetchHistory(currentLocation);
+  }, 300000); // Refresh history every 5 minutes
 </script>
 
 <style>
@@ -178,11 +356,69 @@
     margin: var(--spacing-xl) 0;
   }
 
+  .tier-heading {
+    margin-top: 0;
+    margin-bottom: var(--spacing-lg);
+    font-size: 1.5rem;
+    color: var(--color-accent);
+  }
+
   .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .about-stats {
+    background: var(--color-card-bg);
+    border-radius: var(--radius);
+    padding: var(--spacing-md);
     margin-bottom: var(--spacing-xl);
+  }
+
+  .about-text {
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--color-text-muted);
+  }
+
+  .location-tabs {
+    display: flex;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-lg);
+    border-bottom: 2px solid var(--color-border);
+  }
+
+  .tab-button {
+    background: none;
+    border: none;
+    padding: var(--spacing-md) var(--spacing-lg);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    transition: color 0.2s, border-color 0.2s;
+  }
+
+  .tab-button:hover {
+    color: var(--color-text);
+  }
+
+  .tab-button.active {
+    color: var(--color-accent);
+    border-bottom-color: var(--color-accent);
+  }
+
+  .location-stats {
+    margin-bottom: var(--spacing-xl);
+  }
+
+  .location-grid {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   }
 
   .stat-card {

@@ -3,8 +3,32 @@ import NetworkExtension
 
 struct ContentView: View {
     @StateObject private var dnsManager = DNSManager()
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     
     var body: some View {
+        adaptiveContainer {
+            contentStack
+        }
+        .onAppear {
+            dnsManager.checkStatus()
+        }
+    }
+    
+    @ViewBuilder
+    private func adaptiveContainer<Content: View>(@ViewBuilder content: () -> Content) -> some View {
+        if horizontalSizeClass == .regular {
+            ScrollView {
+                content()
+                    .frame(maxWidth: 460)
+                    .padding(.horizontal)
+            }
+            .frame(maxWidth: .infinity)
+        } else {
+            content()
+        }
+    }
+    
+    private var contentStack: some View {
         VStack(spacing: 30) {
             Image(systemName: "network")
                 .font(.system(size: 60))
@@ -98,9 +122,6 @@ struct ContentView: View {
                     .font(.subheadline)
             }
             .padding(.bottom, 30)
-        }
-        .onAppear {
-            dnsManager.checkStatus()
         }
     }
 }

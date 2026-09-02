@@ -78,20 +78,19 @@ import Layout from '../layouts/Layout.astro';
 
       <div class="encrypted-card">
         <h3>🪟 Windows</h3>
-        <p>Download and run the Setup wizard (requires Administrator).</p>
+        <p>Get Cutline DNS from the Microsoft Store. Same installer as the direct download. Requires Administrator.</p>
         <ol>
-          <li>Download the installer using the button below</li>
-          <li>Double-click <strong>cutline-dns-setup.exe</strong></li>
+          <li>Open the Microsoft Store listing using the button below</li>
+          <li>Click <strong>Get</strong></li>
           <li>Approve the UAC prompt (User Account Control)</li>
-          <li>Click <strong>Install</strong> in the Setup wizard</li>
           <li>Wait while it configures all network adapters</li>
-          <li>Click <strong>Close</strong> when done</li>
         </ol>
-        <a href="https://github.com/dov-max/narge-spec/releases/download/cutline-dns-v1.1.0/cutline-dns-setup.exe" class="download-button" download>
-          Download Windows Installer
+        <a href="https://apps.microsoft.com/detail/xp8c6qgsd3g2l0" class="download-button">
+          Get on Microsoft Store
         </a>
         <p class="note">
-          <strong>Windows SmartScreen:</strong> The installer is signed. SmartScreen may show a warning while the publisher builds reputation. 
+          <strong>Or just download it here:</strong> <a href="https://github.com/dov-max/narge-spec/releases/download/cutline-dns-v1.1.0/cutline-dns-setup.exe">Direct download link</a>. 
+          The installer is signed. SmartScreen may show a warning while the publisher builds reputation. 
           If blocked, click <strong>More info</strong> → <strong>Run anyway</strong>. Works on Windows 10 and 11.
         </p>
         <p class="note">
@@ -180,7 +179,7 @@ import Layout from '../layouts/Layout.astro';
   <section id="windows">
     <h2>Windows 10/11</h2>
     <p>
-      <strong>Recommended:</strong> Use the <a href="#encrypted">one-click installer</a> above 
+      <strong>Recommended:</strong> Use the <a href="#encrypted">Microsoft Store or one-click installer</a> above 
       for encrypted DNS (DoH) with proper configuration. It covers all network adapters, 
       disables IPv6 to prevent leaks, and automatically configures new adapters when you 
       connect to a new network.

@@ -423,9 +423,9 @@ class DNSManager: ObservableObject {
                 return
             }
             
-            // Check if dnsSettings is non-nil (the row exists)
+            // Check if dnsSettings is non-nil (filter installed in API)
             if NEDNSSettingsManager.shared().dnsSettings != nil {
-                // Row exists, step 1 complete
+                // Filter installed, step 1 complete
                 DispatchQueue.main.async {
                     self.isLoading = false
                     self.stepMessage = "Filter installed."
@@ -434,12 +434,12 @@ class DNSManager: ObservableObject {
                     // After a brief delay, move to step 2
                     DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                         self.wizardStep = .needsEnabling
-                        // Now open Filters
-                        self.openSystemSettings()
+                        // Now open Filters pane
+                        self.openFiltersPane()
                     }
                 }
             } else if attempt < maxAttempts {
-                // Row doesn't exist yet, retry after a short delay
+                // Filter not ready yet, retry after a short delay
                 DispatchQueue.global().asyncAfter(deadline: .now() + 0.25) {
                     self.waitForDNSRow(attempt: attempt + 1)
                 }
@@ -481,7 +481,11 @@ class DNSManager: ObservableObject {
                         self.stepMessage = "Still Disabled."
                         self.wizardStep = .needsEnabling
                         // Open Filters again
+                        #if os(macOS)
+                        self.openFiltersPane()
+                        #else
                         self.openSystemSettings()
+                        #endif
                     } else {
                         // Enabled! Show message then verify
                         self.stepMessage = "Enabled. Checking..."
@@ -679,17 +683,7 @@ class DNSManager: ObservableObject {
     
     func openSystemSettings() {
         #if os(macOS)
-        // Try to open VPN & Filters pane first (where Cutline DNS Enabled lives)
-        if let url = URL(string: "x-apple.systempreferences:com.apple.NetworkExtensionSettingsUI.NESettingsUIExtension") {
-            let opened = NSWorkspace.shared.open(url)
-            
-            // If that fails, fallback to Network settings
-            if !opened {
-                if let fallbackUrl = URL(string: "x-apple.systempreferences:com.apple.Network-Settings.extension") {
-                    NSWorkspace.shared.open(fallbackUrl)
-                }
-            }
-        }
+        openFiltersPane()
         #elseif os(iOS)
         // Open the app's Settings page (not the DNS pane, as there's no public URL for that)
         if let url = URL(string: UIApplication.openSettingsURLString) {
@@ -702,6 +696,226 @@ class DNSManager: ObservableObject {
         }
         #endif
     }
+    
+    #if os(macOS)
+    private func openFiltersPane() {
+        // Step a: Check if already on Filters detail pane
+        if isOnFiltersDetailPane() {
+            // Already there, just activate Settings
+            activateSystemSettings()
+            return
+        }
+        
+        // Step b/c: Open or navigate to Network pane, then poll for Filters row
+        let settingsRunning = NSWorkspace.shared.runningApplications.contains { app in
+            app.bundleIdentifier == "com.apple.systempreferences"
+        }
+        
+        if !settingsRunning {
+            // Settings not running, open Network pane
+            if let url = URL(string: "x-apple.systempreferences:com.apple.Network-Settings.extension") {
+                let config = NSWorkspace.OpenConfiguration()
+                config.activates = false  // Keep Cutline front until click succeeds
+                NSWorkspace.shared.open(url, configuration: config) { _, _ in
+                    // Start polling after a brief delay
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        self.pollForFiltersRowAndClick(attempt: 0)
+                    }
+                }
+            }
+        } else {
+            // Settings running, check if we need to navigate to Network
+            if !isOnNetworkPane() {
+                // Not on Network pane, open it
+                if let url = URL(string: "x-apple.systempreferences:com.apple.Network-Settings.extension") {
+                    NSWorkspace.shared.open(url)
+                }
+            }
+            activateSystemSettings()
+            
+            // Start polling after a brief delay
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                self.pollForFiltersRowAndClick(attempt: 0)
+            }
+        }
+    }
+    
+    private func isOnFiltersDetailPane() -> Bool {
+        let script = """
+        tell application "System Settings"
+            try
+                set frontWindow to window 1
+                tell frontWindow
+                    -- Check for "Filters & Proxies" static text
+                    if exists (static text "Filters & Proxies") then
+                        return true
+                    end if
+                    -- Check for "Cutline DNS" UI element
+                    if exists (UI element "Cutline DNS") then
+                        return true
+                    end if
+                end tell
+                return false
+            on error
+                return false
+            end try
+        end tell
+        """
+        
+        var error: NSDictionary?
+        if let scriptObject = NSAppleScript(source: script) {
+            let result = scriptObject.executeAndReturnError(&error)
+            if error == nil, let boolValue = result.booleanValue {
+                return boolValue
+            }
+        }
+        return false
+    }
+    
+    private func isOnNetworkPane() -> Bool {
+        let script = """
+        tell application "System Settings"
+            try
+                set frontWindow to window 1
+                tell frontWindow
+                    -- Check if Network UI elements exist (Wi-Fi, etc.)
+                    if exists (UI element "Wi-Fi") then
+                        return true
+                    end if
+                    if exists (UI element "Network") then
+                        return true
+                    end if
+                end tell
+                return false
+            on error
+                return false
+            end try
+        end tell
+        """
+        
+        var error: NSDictionary?
+        if let scriptObject = NSAppleScript(source: script) {
+            let result = scriptObject.executeAndReturnError(&error)
+            if error == nil, let boolValue = result.booleanValue {
+                return boolValue
+            }
+        }
+        return false
+    }
+    
+    private func activateSystemSettings() {
+        NSWorkspace.shared.runningApplications.first { app in
+            app.bundleIdentifier == "com.apple.systempreferences"
+        }?.activate()
+    }
+    
+    private func pollForFiltersRowAndClick(attempt: Int) {
+        let maxAttempts = 20  // ~8 seconds with 0.4s intervals
+        
+        // Check if Filters row exists (not the back button)
+        if filtersRowExists() {
+            // Found it, click once
+            clickFiltersRow()
+            
+            // Poll for success
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                self.pollForFiltersPaneSuccess(attempt: 0)
+            }
+        } else if attempt < maxAttempts {
+            // Not found yet, retry
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                self.pollForFiltersRowAndClick(attempt: attempt + 1)
+            }
+        } else {
+            // Max retries reached, give up
+            NSLog("Cutline DNS: Filters row not found after polling")
+        }
+    }
+    
+    private func filtersRowExists() -> Bool {
+        let script = """
+        tell application "System Settings"
+            try
+                set frontWindow to window 1
+                tell frontWindow
+                    -- Look for Filters UI element in the Network list (not back button)
+                    if exists (UI element "Filters") then
+                        -- Make sure it's in a list, not a title bar
+                        set filtersElement to UI element "Filters"
+                        set parentElement to container of filtersElement
+                        set grandparent to container of parentElement
+                        -- Check if it's in a scroll area or list (Network service list)
+                        if class of grandparent is scroll area or class of parentElement is scroll area then
+                            return true
+                        end if
+                    end if
+                end tell
+                return false
+            on error
+                return false
+            end try
+        end tell
+        """
+        
+        var error: NSDictionary?
+        if let scriptObject = NSAppleScript(source: script) {
+            let result = scriptObject.executeAndReturnError(&error)
+            if error == nil, let boolValue = result.booleanValue {
+                return boolValue
+            }
+        }
+        return false
+    }
+    
+    private func clickFiltersRow() {
+        let script = """
+        tell application "System Settings"
+            try
+                activate
+                set frontWindow to window 1
+                tell frontWindow
+                    -- Click the Filters row in the Network list
+                    set filtersElement to UI element "Filters"
+                    set parentElement to container of filtersElement
+                    set grandparent to container of parentElement
+                    -- Verify it's in the list before clicking
+                    if class of grandparent is scroll area or class of parentElement is scroll area then
+                        click filtersElement
+                        return true
+                    end if
+                end tell
+                return false
+            on error errMsg
+                return false
+            end try
+        end tell
+        """
+        
+        var error: NSDictionary?
+        if let scriptObject = NSAppleScript(source: script) {
+            scriptObject.executeAndReturnError(&error)
+        }
+    }
+    
+    private func pollForFiltersPaneSuccess(attempt: Int) {
+        let maxAttempts = 10  // ~5 seconds
+        
+        // Check if we're on Filters detail pane
+        if isOnFiltersDetailPane() {
+            // Success! Stop polling
+            NSLog("Cutline DNS: Successfully navigated to Filters pane")
+            return
+        } else if attempt < maxAttempts {
+            // Not there yet, keep polling
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                self.pollForFiltersPaneSuccess(attempt: attempt + 1)
+            }
+        } else {
+            // Failed to navigate
+            NSLog("Cutline DNS: Failed to navigate to Filters pane")
+        }
+    }
+    #endif
     
     func isCutlineServer(_ server: String) -> Bool {
         return cutlineServers.contains(server)

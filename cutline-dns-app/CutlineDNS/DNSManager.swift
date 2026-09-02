@@ -8,6 +8,15 @@ import AppKit
 import UIKit
 #endif
 
+enum WizardStep {
+    case notStarted
+    case installingFilter
+    case filterInstalled
+    case needsEnabling
+    case confirming
+    case working
+}
+
 enum VerificationResult {
     case notTested
     case testing
@@ -56,15 +65,13 @@ class DNSManager: ObservableObject {
     @Published var isEnabled = false
     @Published var isLoading = false
     @Published var errorMessage: String?
-    @Published var requiresUserApproval = false
     @Published var verificationResult: VerificationResult = .notTested
     @Published var onTestResult: String?
     @Published var offTestResult: String?
     @Published var diagnosticInfo = DiagnosticInfo()
     @Published var networkStats: NetworkStats?
-    @Published var stillDisabledAfterEnable = false
-    @Published var needsUserAction = false
-    @Published var isPreparingSettings = false
+    @Published var wizardStep: WizardStep = .notStarted
+    @Published var stepMessage: String = ""
     
     private let serverURL = "https://dns.thecutline.org/dns-query"
     private let bootstrapServers = ["64.176.200.99", "149.28.79.49"]
@@ -91,10 +98,25 @@ class DNSManager: ObservableObject {
                 if let error = error {
                     self?.errorMessage = "Failed to load DNS settings: \(error.localizedDescription)"
                     self?.isEnabled = false
+                    self?.wizardStep = .notStarted
                     return
                 }
                 
                 self?.isEnabled = NEDNSSettingsManager.shared().isEnabled
+                
+                // Determine wizard step based on current state
+                if self?.isEnabled == true {
+                    // Already enabled, skip to confirm/verify
+                    self?.wizardStep = .working
+                    self?.verifyDNS()
+                } else if NEDNSSettingsManager.shared().dnsSettings != nil {
+                    // Filter exists but disabled, skip to step 2
+                    self?.wizardStep = .needsEnabling
+                } else {
+                    // No filter, need to start from beginning
+                    self?.wizardStep = .notStarted
+                }
+                
                 self?.gatherDiagnostics()
             }
         }
@@ -325,12 +347,11 @@ class DNSManager: ObservableObject {
     #endif
     
     func enableDNS() {
+        // Step 1: Install the filter
         isLoading = true
         errorMessage = nil
-        requiresUserApproval = false
-        needsUserAction = false
-        isPreparingSettings = false
-        stillDisabledAfterEnable = false
+        wizardStep = .installingFilter
+        stepMessage = "Installing..."
         
         NEDNSSettingsManager.shared().loadFromPreferences { [weak self] error in
             guard let self = self else { return }
@@ -339,6 +360,7 @@ class DNSManager: ObservableObject {
                 DispatchQueue.main.async {
                     self.isLoading = false
                     self.errorMessage = "Failed to load preferences: \(error.localizedDescription)"
+                    self.wizardStep = .notStarted
                 }
                 return
             }
@@ -360,30 +382,21 @@ class DNSManager: ObservableObject {
                 if let error = error {
                     DispatchQueue.main.async {
                         self.isLoading = false
-                        let nsError = error as NSError
-                        if nsError.domain == "NEConfigurationErrorDomain" && nsError.code == 10 {
-                            self.requiresUserApproval = true
-                        }
                         self.errorMessage = "Failed to save DNS settings: \(error.localizedDescription)"
+                        self.wizardStep = .notStarted
                     }
                     return
                 }
                 
                 // Configuration saved (unchanged = success)
-                // Now verify the DNS row exists before opening Settings
-                self.waitForDNSRowAndOpenSettings()
+                // Now wait for the DNS row to exist
+                self.waitForDNSRow()
             }
         }
     }
     
-    private func waitForDNSRowAndOpenSettings(attempt: Int = 0) {
+    private func waitForDNSRow(attempt: Int = 0) {
         let maxAttempts = 8
-        
-        if attempt == 0 {
-            DispatchQueue.main.async {
-                self.isPreparingSettings = true
-            }
-        }
         
         NEDNSSettingsManager.shared().loadFromPreferences { [weak self] error in
             guard let self = self else { return }
@@ -391,65 +404,77 @@ class DNSManager: ObservableObject {
             if let error = error {
                 DispatchQueue.main.async {
                     self.isLoading = false
-                    self.isPreparingSettings = false
                     self.errorMessage = "Failed to verify DNS settings: \(error.localizedDescription)"
+                    self.wizardStep = .notStarted
                 }
                 return
             }
             
             // Check if dnsSettings is non-nil (the row exists)
             if NEDNSSettingsManager.shared().dnsSettings != nil {
-                // Row exists, we can open Settings now
+                // Row exists, step 1 complete
                 DispatchQueue.main.async {
                     self.isLoading = false
-                    self.isPreparingSettings = false
-                    self.isEnabled = NEDNSSettingsManager.shared().isEnabled
-                    self.needsUserAction = !self.isEnabled
+                    self.stepMessage = "Filter installed."
+                    self.wizardStep = .filterInstalled
                     
-                    if !self.isEnabled {
-                        // Open Filters pane
+                    // After a brief delay, move to step 2
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                        self.wizardStep = .needsEnabling
+                        // Now open Filters
                         self.openSystemSettings()
                     }
                 }
             } else if attempt < maxAttempts {
                 // Row doesn't exist yet, retry after a short delay
                 DispatchQueue.global().asyncAfter(deadline: .now() + 0.25) {
-                    self.waitForDNSRowAndOpenSettings(attempt: attempt + 1)
+                    self.waitForDNSRow(attempt: attempt + 1)
                 }
             } else {
-                // Max retries reached, give up
+                // Max retries reached
                 DispatchQueue.main.async {
                     self.isLoading = false
-                    self.isPreparingSettings = false
                     self.errorMessage = "DNS configuration not ready. Please try again."
+                    self.wizardStep = .notStarted
                 }
             }
         }
     }
     
     func checkAfterUserEnabled() {
+        // Step 3: Confirm
         isLoading = true
-        stillDisabledAfterEnable = false
+        wizardStep = .confirming
+        stepMessage = "Checking..."
         
         // Check after a short delay to give the system time to update
         DispatchQueue.global().asyncAfter(deadline: .now() + 1.0) { [weak self] in
-            self?.loadFromPreferences()
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            NEDNSSettingsManager.shared().loadFromPreferences { [weak self] error in
                 guard let self = self else { return }
                 
-                self.isLoading = false
-                
-                if !self.isEnabled {
-                    // Still disabled after user claimed to enable it
-                    self.stillDisabledAfterEnable = true
-                    self.needsUserAction = true
-                    self.openSystemSettings()
-                } else {
-                    // Successfully enabled, run verification
-                    self.stillDisabledAfterEnable = false
-                    self.needsUserAction = false
-                    self.verifyDNS()
+                DispatchQueue.main.async {
+                    if let error = error {
+                        self.isLoading = false
+                        self.errorMessage = "Failed to verify: \(error.localizedDescription)"
+                        self.wizardStep = .needsEnabling
+                        return
+                    }
+                    
+                    self.isEnabled = NEDNSSettingsManager.shared().isEnabled
+                    
+                    if !self.isEnabled {
+                        // Still disabled
+                        self.isLoading = false
+                        self.stepMessage = "Still Disabled."
+                        self.wizardStep = .needsEnabling
+                        // Open Filters again
+                        self.openSystemSettings()
+                    } else {
+                        // Enabled! Show message then verify
+                        self.stepMessage = "Enabled. Checking..."
+                        // Run fail-closed verify
+                        self.verifyDNS()
+                    }
                 }
             }
         }
@@ -458,7 +483,6 @@ class DNSManager: ObservableObject {
     func disableDNS() {
         isLoading = true
         errorMessage = nil
-        requiresUserApproval = false
         
         NEDNSSettingsManager.shared().loadFromPreferences { [weak self] error in
             guard let self = self else { return }
@@ -479,6 +503,8 @@ class DNSManager: ObservableObject {
                         self?.errorMessage = "Failed to remove DNS settings: \(error.localizedDescription)"
                     } else {
                         self?.isEnabled = false
+                        self?.wizardStep = .notStarted
+                        self?.verificationResult = .notTested
                     }
                 }
             }
@@ -551,8 +577,9 @@ class DNSManager: ObservableObject {
             let testPassed = onSuccess && offFailed
             
             if testPassed {
-                // Test passed
+                // Test passed - Step 4: Working
                 self.verificationResult = .passed
+                self.wizardStep = .working
             } else if self.diagnosticInfo.encryptedDNSEnabled && retryAttempt < self.maxVerificationRetries {
                 // DNS is enabled but test failed - retry after a delay (DNS cache may need to clear)
                 self.verificationResult = .waitingForDNS(attempt: retryAttempt + 1, maxAttempts: self.maxVerificationRetries)
@@ -588,6 +615,9 @@ class DNSManager: ObservableObject {
                 } else {
                     self.verificationResult = .failed(reason: "Verification failed.")
                 }
+                
+                // Stay on working step even if verify failed
+                self.wizardStep = .working
             }
         }
     }

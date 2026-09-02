@@ -679,14 +679,30 @@ class DNSManager: ObservableObject {
     
     func openSystemSettings() {
         #if os(macOS)
-        // Try to open VPN & Filters pane first (where Cutline DNS Enabled lives)
-        if let url = URL(string: "x-apple.systempreferences:com.apple.NetworkExtensionSettingsUI.NESettingsUIExtension") {
-            let opened = NSWorkspace.shared.open(url)
+        // Open Filters pane (where Cutline DNS Enabled lives)
+        if let url = URL(string: "x-apple.systempreferences:com.apple.Network-Settings.extension?Filters") {
+            NSWorkspace.shared.open(url)
             
-            // If that fails, fallback to Network settings
-            if !opened {
-                if let fallbackUrl = URL(string: "x-apple.systempreferences:com.apple.Network-Settings.extension") {
-                    NSWorkspace.shared.open(fallbackUrl)
+            // Belt-and-suspenders: try to click the Filters sidebar item via AppleScript
+            // This is optional and fails closed if System Settings isn't frontmost or no Accessibility permission
+            DispatchQueue.global().asyncAfter(deadline: .now() + 0.5) {
+                let script = """
+                tell application "System Settings"
+                    if frontmost then
+                        try
+                            tell application "System Events"
+                                tell process "System Settings"
+                                    click UI element "Filters" of outline 1 of scroll area 1 of group 1 of splitter group 1 of window 1
+                                end tell
+                            end tell
+                        end try
+                    end if
+                end tell
+                """
+                if let appleScript = NSAppleScript(source: script) {
+                    var error: NSDictionary?
+                    appleScript.executeAndReturnError(&error)
+                    // Ignore errors - the URL open is the primary mechanism
                 }
             }
         }
@@ -709,7 +725,7 @@ class DNSManager: ObservableObject {
     
     func getPlatformSettingsInstructions() -> String {
         #if os(macOS)
-        return "System Settings → Network → VPN & Filters → Cutline DNS"
+        return "System Settings → Network → Filters → Cutline DNS"
         #elseif os(iOS)
         return "Settings → General → VPN & Device Management → DNS → Cutline DNS"
         #elseif os(visionOS)

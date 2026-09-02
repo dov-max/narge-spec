@@ -42,7 +42,7 @@
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>Cutline uses DNS configuration to provide encrypted DNS resolution for all your network connections.</string>
 	<key>NSAppleEventsUsageDescription</key>
-	<string>Cutline needs to control System Settings to help you enable the DNS filter.</string>
+	<string>Cutline DNS opens System Settings so you can enable the filter.</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>CFBundleIcons</key>

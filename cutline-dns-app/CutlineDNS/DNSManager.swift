@@ -742,31 +742,31 @@ class DNSManager: ObservableObject {
     
     private func isOnFiltersDetailPane() -> Bool {
         let script = """
-        tell application "System Settings"
-            try
-                set frontWindow to window 1
-                tell frontWindow
+        tell application "System Events"
+            tell process "System Settings"
+                try
+                    set frontWindow to front window
                     -- Check for "Filters & Proxies" static text
-                    if exists (static text "Filters & Proxies") then
-                        return true
+                    if exists (static text "Filters & Proxies" of frontWindow) then
+                        return "true"
                     end if
-                    -- Check for "Cutline DNS" UI element
-                    if exists (UI element "Cutline DNS") then
-                        return true
+                    -- Check for "Cutline DNS" UI element (row in the Filters list)
+                    if exists (UI element "Cutline DNS" of frontWindow) then
+                        return "true"
                     end if
-                end tell
-                return false
-            on error
-                return false
-            end try
+                    return "false"
+                on error
+                    return "false"
+                end try
+            end tell
         end tell
         """
         
         var error: NSDictionary?
         if let scriptObject = NSAppleScript(source: script) {
             let result = scriptObject.executeAndReturnError(&error)
-            if error == nil, let boolValue = result.booleanValue {
-                return boolValue
+            if error == nil {
+                return result.stringValue == "true"
             }
         }
         return false
@@ -774,30 +774,30 @@ class DNSManager: ObservableObject {
     
     private func isOnNetworkPane() -> Bool {
         let script = """
-        tell application "System Settings"
-            try
-                set frontWindow to window 1
-                tell frontWindow
-                    -- Check if Network UI elements exist (Wi-Fi, etc.)
-                    if exists (UI element "Wi-Fi") then
-                        return true
+        tell application "System Events"
+            tell process "System Settings"
+                try
+                    set frontWindow to front window
+                    -- Check if Network UI elements exist (Wi-Fi, Filters, etc.)
+                    if exists (UI element "Wi-Fi" of frontWindow) then
+                        return "true"
                     end if
-                    if exists (UI element "Network") then
-                        return true
+                    if exists (UI element "Filters" of frontWindow) then
+                        return "true"
                     end if
-                end tell
-                return false
-            on error
-                return false
-            end try
+                    return "false"
+                on error
+                    return "false"
+                end try
+            end tell
         end tell
         """
         
         var error: NSDictionary?
         if let scriptObject = NSAppleScript(source: script) {
             let result = scriptObject.executeAndReturnError(&error)
-            if error == nil, let boolValue = result.booleanValue {
-                return boolValue
+            if error == nil {
+                return result.stringValue == "true"
             }
         }
         return false
@@ -834,34 +834,38 @@ class DNSManager: ObservableObject {
     
     private func filtersRowExists() -> Bool {
         let script = """
-        tell application "System Settings"
-            try
-                set frontWindow to window 1
-                tell frontWindow
+        tell application "System Events"
+            tell process "System Settings"
+                try
+                    set frontWindow to front window
                     -- Look for Filters UI element in the Network list (not back button)
-                    if exists (UI element "Filters") then
-                        -- Make sure it's in a list, not a title bar
-                        set filtersElement to UI element "Filters"
-                        set parentElement to container of filtersElement
-                        set grandparent to container of parentElement
-                        -- Check if it's in a scroll area or list (Network service list)
-                        if class of grandparent is scroll area or class of parentElement is scroll area then
-                            return true
-                        end if
+                    if exists (UI element "Filters" of frontWindow) then
+                        -- Make sure it's in a scroll area (Network service list), not title bar
+                        set filtersElements to (every UI element of frontWindow whose name is "Filters")
+                        repeat with filtersElement in filtersElements
+                            try
+                                set parentElement to container of filtersElement
+                                set grandparent to container of parentElement
+                                -- Check if it's in a scroll area (Network service list)
+                                if class of grandparent is scroll area or class of parentElement is scroll area then
+                                    return "true"
+                                end if
+                            end try
+                        end repeat
                     end if
-                end tell
-                return false
-            on error
-                return false
-            end try
+                    return "false"
+                on error
+                    return "false"
+                end try
+            end tell
         end tell
         """
         
         var error: NSDictionary?
         if let scriptObject = NSAppleScript(source: script) {
             let result = scriptObject.executeAndReturnError(&error)
-            if error == nil, let boolValue = result.booleanValue {
-                return boolValue
+            if error == nil {
+                return result.stringValue == "true"
             }
         }
         return false
@@ -869,31 +873,40 @@ class DNSManager: ObservableObject {
     
     private func clickFiltersRow() {
         let script = """
-        tell application "System Settings"
-            try
-                activate
-                set frontWindow to window 1
-                tell frontWindow
-                    -- Click the Filters row in the Network list
-                    set filtersElement to UI element "Filters"
-                    set parentElement to container of filtersElement
-                    set grandparent to container of parentElement
-                    -- Verify it's in the list before clicking
-                    if class of grandparent is scroll area or class of parentElement is scroll area then
-                        click filtersElement
-                        return true
-                    end if
-                end tell
-                return false
-            on error errMsg
-                return false
-            end try
+        tell application "System Events"
+            tell process "System Settings"
+                try
+                    set frontWindow to front window
+                    -- Find the Filters row in the Network list (not back button)
+                    set filtersElements to (every UI element of frontWindow whose name is "Filters")
+                    repeat with filtersElement in filtersElements
+                        try
+                            set parentElement to container of filtersElement
+                            set grandparent to container of parentElement
+                            -- Verify it's in a scroll area (Network service list) before clicking
+                            if class of grandparent is scroll area or class of parentElement is scroll area then
+                                click filtersElement
+                                return "true"
+                            end if
+                        end try
+                    end repeat
+                    return "false"
+                on error errMsg
+                    return "false"
+                end try
+            end tell
         end tell
         """
         
         var error: NSDictionary?
         if let scriptObject = NSAppleScript(source: script) {
-            scriptObject.executeAndReturnError(&error)
+            let result = scriptObject.executeAndReturnError(&error)
+            if error == nil, result.stringValue == "true" {
+                // After successful click, activate Settings so user sees Filters & Proxies
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    self.activateSystemSettings()
+                }
+            }
         }
     }
     

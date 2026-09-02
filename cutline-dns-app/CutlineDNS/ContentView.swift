@@ -1,5 +1,8 @@
 import SwiftUI
 import NetworkExtension
+#if os(macOS)
+import AppKit
+#endif
 
 struct ContentView: View {
     @StateObject private var dnsManager = DNSManager()
@@ -10,12 +13,12 @@ struct ContentView: View {
             VStack(spacing: 24) {
                 headerView
                 
-                if dnsManager.isLoading && dnsManager.verificationResult == .notTested {
+                if dnsManager.isLoading && dnsManager.verificationResult == .notTested && !dnsManager.waitingForUserToEnable {
                     checkingView
-                } else if !dnsManager.isEnabled {
-                    offStateView
                 } else if dnsManager.waitingForUserToEnable {
                     waitingForEnableView
+                } else if !dnsManager.isEnabled {
+                    offStateView
                 } else {
                     switch dnsManager.verificationResult {
                     case .working:
@@ -46,8 +49,8 @@ struct ContentView: View {
             dnsManager.onAppear()
         }
         .onChange(of: scenePhase) { newPhase in
-            if newPhase == .active && dnsManager.waitingForUserToEnable {
-                dnsManager.loadStatus()
+            if newPhase == .active {
+                dnsManager.onSceneActive()
             }
         }
     }
@@ -286,6 +289,10 @@ struct ContentView: View {
     }
     
     private var problemDescription: String {
+        if dnsManager.diagnosticInfo.privateRelayStatus == .on {
+            return "iCloud Private Relay is on and may be interfering"
+        }
+        
         switch dnsManager.verificationResult {
         case .onNotReachable:
             return "Unable to connect to on.thecutline.org"
@@ -314,13 +321,79 @@ struct ContentView: View {
                     .font(.caption)
                     .foregroundColor(.secondary)
                 
-                Text("Probe: on.thecutline.org → should succeed")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                if let onResult = dnsManager.onTestResult {
+                    Text("on.thecutline.org: \(onResult)")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
                 
-                Text("Probe: off.thecutline.org → should fail")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                if let offResult = dnsManager.offTestResult {
+                    Text("off.thecutline.org: \(offResult)")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+            }
+            
+            #if os(macOS)
+            if !dnsManager.diagnosticInfo.services.isEmpty {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Per-Network DNS")
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                    
+                    ForEach(dnsManager.diagnosticInfo.services, id: \.name) { service in
+                        VStack(alignment: .leading, spacing: 4) {
+                            HStack {
+                                Text(service.name)
+                                    .font(.caption)
+                                    .fontWeight(.medium)
+                                if service.isCutline {
+                                    Text("✓ Cutline")
+                                        .font(.caption2)
+                                        .foregroundColor(.green)
+                                }
+                            }
+                            ForEach(service.dnsServers, id: \.self) { server in
+                                Text("  \(server)")
+                                    .font(.caption2)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                }
+            }
+            #endif
+            
+            if let stats = dnsManager.networkStats {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Network Stats")
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                    
+                    if let ips = stats.distinctIPs7d {
+                        Text("Distinct IPs (7d): \(ips)")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    if let latency = stats.latencyP50Ms {
+                        Text("Latency p50: \(String(format: "%.1f", latency))ms")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    if let ewr = stats.ewr, let ewrLatency = ewr.latencyP50Ms {
+                        Text("EWR p50: \(String(format: "%.1f", ewrLatency))ms")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    if let lax = stats.lax, let laxLatency = lax.latencyP50Ms {
+                        Text("LAX p50: \(String(format: "%.1f", laxLatency))ms")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                }
             }
             
             Link("GitHub Repository", destination: URL(string: "https://github.com/dov-max/narge-spec")!)

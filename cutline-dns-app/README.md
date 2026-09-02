@@ -12,12 +12,14 @@ This app configures your device to use Cutline's encrypted DNS resolvers. It ins
 
 ## Features
 
-- **Simple One-Screen UI:** Enable/disable Cutline DNS with one tap
+- **Clean State-Based UI:** Clear status with minimal clutter
+- **Guided Setup Flow:** Visual instructions with Settings screenshot (macOS)
+- **Fail-Closed Verification:** Only shows "working" when DNS is provably cutting
 - **Encrypted DNS-over-HTTPS:** All DNS queries encrypted using `https://dns.thecutline.org/dns-query`
-- **Multi-Platform:** iPhone, iPad, and Mac (native, not Catalyst)
+- **Multi-Platform:** iPhone, iPad, Mac (native), and visionOS
 - **System-Wide:** Works for all network connections (Wi-Fi and cellular)
 - **Privacy First:** No account required, no tracking
-- **iCloud Private Relay Warning:** Alerts users when Private Relay may bypass DNS settings
+- **Smart Problem Detection:** Live Private Relay detection, specific error messages
 
 ## Technical Details
 
@@ -41,8 +43,12 @@ This app configures your device to use Cutline's encrypted DNS resolvers. It ins
 ## Building
 
 1. Open `CutlineDNS.xcodeproj` in Xcode 15 or later
-2. Select your target device or simulator
-3. Build and run (⌘R)
+2. Add Settings screenshot images to `Assets.xcassets/SettingsFilters.imageset/`:
+   - `settings-filters.png` (1x resolution)
+   - `settings-filters@2x.png` (2x resolution)
+   - Should show System Settings → Network → Filters with Cutline DNS enabled
+3. Select your target device or simulator
+4. Build and run (⌘R)
 
 **Note:** DNS Settings configuration requires:
 - A physical device (does not work in simulators)
@@ -51,18 +57,32 @@ This app configures your device to use Cutline's encrypted DNS resolvers. It ins
 
 ## User Experience
 
-When the user enables Cutline DNS:
+### Turn-On Flow
 
-1. The app configures DNS-over-HTTPS settings
-2. **User must approve** the configuration in Settings → VPN & Device Management → DNS
-3. The app shows an "Action Required" message until approved
-4. Once approved, all DNS queries go through the encrypted Cutline resolver
+1. User taps "Turn on Cutline DNS"
+2. App saves DNS configuration (treating "unchanged" as success, not error)
+3. App automatically opens System Settings
+4. **macOS:** Shows screenshot of Settings → Network → Filters with instructions
+5. **iOS/visionOS:** Shows text instructions for Settings → General → VPN & Device Management → DNS
+6. User manually enables Cutline DNS in Settings (Apple requirement)
+7. User returns to app and taps "I've enabled it"
+8. App verifies DNS is working with fail-closed probes
+9. Shows green "Cutline is on" when both probes confirm cutting
+
+### States
+
+- **Off:** Minimal info, "Free and open source. No account."
+- **Waiting:** Shows Settings instructions and confirmation button
+- **Working:** Single green line, collapse Advanced by default
+- **Problem:** Shows specific issue (Private Relay, verification failure) with Retry
 
 ### Important Notes
 
-- **iCloud Private Relay:** When enabled, Private Relay bypasses custom DNS settings. The app warns users about this.
+- **Fail-Closed Verification:** Green status only when `on.thecutline.org/ok` succeeds AND `off.thecutline.org/ok` fails
+- **Live Private Relay Detection:** Checks CFNetwork proxy settings on macOS, shows problem only when detected and enabled
 - **Not a VPN:** This uses NEDNSSettingsManager, not a VPN profile. It only affects DNS resolution.
 - **User Approval Required:** Apple requires user approval in Settings for DNS configuration changes.
+- **Never Sets isEnabled Locally:** Always reads Apple's flag from NEDNSSettingsManager
 
 ## Privacy
 

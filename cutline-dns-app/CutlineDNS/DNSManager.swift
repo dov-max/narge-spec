@@ -3,6 +3,9 @@ import NetworkExtension
 import Network
 #if os(macOS)
 import SystemConfiguration
+import AppKit
+#else
+import UIKit
 #endif
 
 enum VerificationResult {
@@ -432,9 +435,9 @@ class DNSManager: ObservableObject {
         var dohSuccess = false
         var dohErrorMsg: String?
         
-        // Test DoH endpoint reachability
+        // Test DoH endpoint reachability (use /stats.json as /dns-query returns 400 without DNS body)
         group.enter()
-        testURL(urlString: "https://dns.thecutline.org/dns-query") { success, error in
+        testURL(urlString: "https://dns.thecutline.org/stats.json") { success, error in
             dohSuccess = success
             dohErrorMsg = error
             group.leave()

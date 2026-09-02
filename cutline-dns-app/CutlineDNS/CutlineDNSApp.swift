@@ -8,7 +8,7 @@ struct CutlineDNSApp: App {
         }
         #if os(macOS)
         .windowResizability(.contentSize)
-        .defaultSize(width: 520, height: 720)
+        .defaultSize(width: 400, height: 560)
         #endif
     }
 }

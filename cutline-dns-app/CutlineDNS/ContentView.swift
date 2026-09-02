@@ -1,362 +1,576 @@
 import SwiftUI
 import NetworkExtension
-#if os(macOS)
-import AppKit
-#endif
 
 struct ContentView: View {
     @StateObject private var dnsManager = DNSManager()
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.scenePhase) private var scenePhase
+    @State private var showAdvanced = false
     
     var body: some View {
-        ScrollView {
-            VStack(spacing: 24) {
-                headerView
-                
-                if dnsManager.isLoading && dnsManager.verificationResult == .notTested && !dnsManager.waitingForUserToEnable {
-                    checkingView
-                } else if dnsManager.waitingForUserToEnable {
-                    waitingForEnableView
-                } else if !dnsManager.isEnabled {
-                    offStateView
-                } else {
-                    switch dnsManager.verificationResult {
-                    case .working:
-                        workingView
-                    case .checking:
-                        checkingView
-                    case .privateRelayDetected:
-                        privateRelayView
-                    case .onNotReachable, .offNotBlocked, .networkError:
-                        problemView
-                    case .notTested:
-                        checkingView
-                    }
-                }
-                
-                if dnsManager.showAdvanced {
-                    advancedView
-                }
-                
-                Spacer(minLength: 40)
-            }
-            .padding(.horizontal, 32)
-            .padding(.vertical, 24)
-            .frame(maxWidth: .infinity)
+        adaptiveContainer {
+            contentStack
         }
-        .frame(minWidth: 480, idealWidth: 520, minHeight: 640, idealHeight: 720)
         .onAppear {
-            dnsManager.onAppear()
+            dnsManager.loadFromPreferences()
         }
         .onChange(of: scenePhase) { newPhase in
             if newPhase == .active {
-                dnsManager.onSceneActive()
+                dnsManager.loadFromPreferences()
             }
         }
     }
     
-    private var headerView: some View {
-        VStack(spacing: 12) {
+    @ViewBuilder
+    private func adaptiveContainer<Content: View>(@ViewBuilder content: () -> Content) -> some View {
+        if horizontalSizeClass == .regular {
+            ScrollView {
+                content()
+                    .frame(maxWidth: 460)
+                    .padding(.horizontal)
+            }
+            .frame(maxWidth: .infinity)
+        } else {
+            content()
+        }
+    }
+    
+    private var contentStack: some View {
+        VStack(spacing: 30) {
             Image(systemName: "network")
-                .font(.system(size: 48))
-                .foregroundColor(.blue)
+                .font(.system(size: 60))
+                .foregroundColor(Color(red: 0.0, green: 0.4, blue: 0.8))
+                .padding(.top, 40)
             
             Text("Cutline DNS")
-                .font(.title)
-                .fontWeight(.semibold)
-        }
-        .padding(.top, 16)
-    }
-    
-    private var checkingView: some View {
-        VStack(spacing: 16) {
-            ProgressView()
-                .controlSize(.large)
+                .font(.largeTitle)
+                .fontWeight(.bold)
+            
+            // Free and Open Source (quiet)
+            Text("Free & Open Source")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+            
+            // Network Stats (compact, always when we have data and in working step)
+            if let stats = dnsManager.networkStats, dnsManager.wizardStep == .working {
+                VStack(spacing: 8) {
+                    if let distinctIPs = stats.distinctIPs7d {
+                        HStack {
+                            Image(systemName: "person.2")
+                                .foregroundColor(Color(red: 0.0, green: 0.4, blue: 0.8))
+                            Text("\(distinctIPs) distinct IPs (7d)")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                    
+                    if let latency = stats.latencyP50Ms {
+                        HStack {
+                            Image(systemName: "speedometer")
+                                .foregroundColor(Color(red: 0.0, green: 0.4, blue: 0.8))
+                            Text("p50: \(String(format: "%.1f", latency))ms")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                    
+                    if let ewr = stats.ewr, let lax = stats.lax,
+                       let ewrLatency = ewr.latencyP50Ms,
+                       let laxLatency = lax.latencyP50Ms {
+                        HStack(spacing: 16) {
+                            Text("EWR \(String(format: "%.0f", ewrLatency))ms")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                            Text("LAX \(String(format: "%.0f", laxLatency))ms")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                }
                 .padding()
-        }
-    }
-    
-    private var offStateView: some View {
-        VStack(spacing: 20) {
-            Text("Free and open source. No account.")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-                .padding(.top, 8)
+                .frame(maxWidth: .infinity)
+                .background(Color.secondary.opacity(0.05))
+                .cornerRadius(12)
+                .padding(.horizontal)
+            }
             
-            Button(action: {
-                dnsManager.saveConfiguration()
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    dnsManager.openSystemSettings()
+            // Status pill
+            VStack(spacing: 12) {
+                HStack {
+                    Circle()
+                        .fill(dnsManager.isEnabled ? Color.green : Color.gray)
+                        .frame(width: 12, height: 12)
+                    
+                    Text(dnsManager.isEnabled ? "Enabled" : "Disabled")
+                        .font(.title2)
+                        .fontWeight(.medium)
                 }
-            }) {
-                Text("Turn on Cutline DNS")
-                    .font(.headline)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
-                    .background(Color.blue)
-                    .cornerRadius(10)
-            }
-            .buttonStyle(.plain)
-        }
-    }
-    
-    private var waitingForEnableView: some View {
-        VStack(spacing: 20) {
-            #if os(macOS)
-            if let image = NSImage(named: "SettingsFilters") {
-                Image(nsImage: image)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(maxWidth: 450)
-                    .cornerRadius(8)
-                    .shadow(radius: 2)
-            }
-            #endif
-            
-            Text("Apple requires you to set Cutline DNS to Enabled.")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal)
-            
-            #if os(macOS)
-            Text("In System Settings → Network → Filters, flip the switch, then return here.")
-                .font(.caption)
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal)
-            #elseif os(iOS) || os(visionOS)
-            Text("In Settings → General → VPN & Device Management → DNS → Cutline DNS, enable it, then return here.")
-                .font(.caption)
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal)
-            #endif
-            
-            Button(action: {
-                dnsManager.userConfirmedEnabled()
-            }) {
-                Text("I've enabled it")
-                    .font(.headline)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
-                    .background(Color.blue)
-                    .cornerRadius(10)
-            }
-            .buttonStyle(.plain)
-            .disabled(dnsManager.isLoading)
-        }
-        .padding(.vertical)
-    }
-    
-    private var workingView: some View {
-        VStack(spacing: 20) {
-            HStack(spacing: 10) {
-                Circle()
-                    .fill(Color.green)
-                    .frame(width: 10, height: 10)
                 
-                Text("Cutline is on")
-                    .font(.body)
-                    .foregroundColor(.primary)
-            }
-            .padding(.vertical, 8)
-            
-            Button(action: {
-                dnsManager.disableDNS()
-            }) {
-                Text("Disable")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-            }
-            .buttonStyle(.plain)
-            .disabled(dnsManager.isLoading)
-            
-            Button(action: {
-                dnsManager.showAdvanced.toggle()
-            }) {
-                HStack {
-                    Text("Advanced")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    Image(systemName: dnsManager.showAdvanced ? "chevron.up" : "chevron.down")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                if dnsManager.isLoading {
+                    ProgressView()
+                        .padding()
                 }
             }
-            .buttonStyle(.plain)
-        }
-    }
-    
-    private var privateRelayView: some View {
-        VStack(spacing: 20) {
-            Text("iCloud Private Relay is on")
-                .font(.body)
-                .foregroundColor(.primary)
+            .padding()
+            .frame(maxWidth: .infinity)
+            .background(Color.secondary.opacity(0.1))
+            .cornerRadius(12)
+            .padding(.horizontal)
             
-            Text("The cut will not work while Private Relay is enabled.")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
+            // Wizard steps - one visible at a time
+            wizardStepView
+            
+            // Private Relay warning (only if it's a problem)
+            if dnsManager.diagnosticInfo.privateRelayStatus == .on {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("ℹ️ iCloud Private Relay")
+                        .font(.headline)
+                    Text("If iCloud Private Relay is on, the cut will not work.")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+                .padding()
+                .background(Color.blue.opacity(0.1))
+                .cornerRadius(12)
                 .padding(.horizontal)
-            
-            Button(action: {
-                dnsManager.retryVerification()
-            }) {
-                Text("Retry")
-                    .font(.headline)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
-                    .background(Color.blue)
-                    .cornerRadius(10)
             }
-            .buttonStyle(.plain)
-            .disabled(dnsManager.isLoading)
             
-            Button(action: {
-                dnsManager.showAdvanced.toggle()
-            }) {
-                HStack {
-                    Text("Advanced")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    Image(systemName: dnsManager.showAdvanced ? "chevron.up" : "chevron.down")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+            // Advanced (collapsed)
+            if dnsManager.wizardStep == .working {
+                VStack(spacing: 0) {
+                    Button(action: {
+                        withAnimation {
+                            showAdvanced.toggle()
+                        }
+                    }) {
+                        HStack {
+                            Image(systemName: "waveform.path.ecg")
+                                .foregroundColor(Color(red: 0.0, green: 0.4, blue: 0.8))
+                            Text("Advanced")
+                                .font(.headline)
+                                .foregroundColor(.primary)
+                            Spacer()
+                            Image(systemName: showAdvanced ? "chevron.up" : "chevron.down")
+                                .foregroundColor(.secondary)
+                        }
+                        .padding()
+                        .background(Color.secondary.opacity(0.1))
+                        .cornerRadius(12)
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    .padding(.horizontal)
+                    
+                    if showAdvanced {
+                        advancedView
+                    }
                 }
             }
-            .buttonStyle(.plain)
-        }
-    }
-    
-    private var problemView: some View {
-        VStack(spacing: 20) {
-            Text(problemTitle)
-                .font(.body)
-                .foregroundColor(.primary)
-                .multilineTextAlignment(.center)
             
-            Text(problemDescription)
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal)
-            
-            Button(action: {
-                dnsManager.retryVerification()
-            }) {
-                Text("Retry")
-                    .font(.headline)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
-                    .background(Color.blue)
-                    .cornerRadius(10)
-            }
-            .buttonStyle(.plain)
-            .disabled(dnsManager.isLoading)
-            
-            Button(action: {
-                dnsManager.showAdvanced.toggle()
-            }) {
-                HStack {
-                    Text("Advanced")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    Image(systemName: dnsManager.showAdvanced ? "chevron.up" : "chevron.down")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-            }
-            .buttonStyle(.plain)
-        }
-    }
-    
-    private var problemTitle: String {
-        switch dnsManager.verificationResult {
-        case .onNotReachable:
-            return "Cannot reach verification server"
-        case .offNotBlocked:
-            return "DNS not cutting"
-        case .networkError:
-            return "Network error"
-        default:
-            return "Problem detected"
-        }
-    }
-    
-    private var problemDescription: String {
-        if dnsManager.diagnosticInfo.privateRelayStatus == .on {
-            return "iCloud Private Relay is on and may be interfering"
-        }
-        
-        switch dnsManager.verificationResult {
-        case .onNotReachable:
-            return "Unable to connect to on.thecutline.org"
-        case .offNotBlocked:
-            return "Verification shows DNS is not blocking as expected"
-        case .networkError(let message):
-            return message
-        default:
-            return "Please retry or check Advanced for details"
-        }
-    }
-    
-    private var advancedView: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Divider()
-            
-            Text("Advanced")
-                .font(.headline)
-            
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Verification Details")
+            if let error = dnsManager.errorMessage {
+                Text(error)
                     .font(.subheadline)
-                    .fontWeight(.medium)
-                
-                Text("Status: \(verificationStatusText)")
+                    .foregroundColor(.red)
+                    .padding(.horizontal)
+            }
+            
+            Spacer()
+            
+            VStack(spacing: 8) {
+                Link("How Verification Works", destination: URL(string: "https://thecutline.org/verify")!)
                     .font(.caption)
                     .foregroundColor(.secondary)
                 
-                if let onResult = dnsManager.onTestResult {
-                    Text("on.thecutline.org: \(onResult)")
-                        .font(.caption)
+                Link("Privacy Policy", destination: URL(string: "https://thecutline.org/privacy")!)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+            .padding(.bottom, 30)
+        }
+    }
+    
+    @ViewBuilder
+    private var wizardStepView: some View {
+        switch dnsManager.wizardStep {
+        case .notStarted:
+            // Show Turn On button
+            Button(action: {
+                dnsManager.enableDNS()
+            }) {
+                Text("Turn On Cutline DNS")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color(red: 0.0, green: 0.4, blue: 0.8))
+                    .cornerRadius(12)
+            }
+            .disabled(dnsManager.isLoading)
+            .padding(.horizontal)
+            
+        case .installingFilter:
+            // Step 1: Installing
+            VStack(spacing: 12) {
+                HStack {
+                    ProgressView()
+                    Text(dnsManager.stepMessage)
+                        .font(.subheadline)
                         .foregroundColor(.secondary)
                 }
+            }
+            .padding()
+            .frame(maxWidth: .infinity)
+            .background(Color.secondary.opacity(0.1))
+            .cornerRadius(12)
+            .padding(.horizontal)
+            
+        case .filterInstalled:
+            // Step 1 complete: Filter installed
+            VStack(spacing: 8) {
+                HStack {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundColor(.green)
+                    Text(dnsManager.stepMessage)
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                }
+            }
+            .padding()
+            .frame(maxWidth: .infinity)
+            .background(Color.green.opacity(0.1))
+            .cornerRadius(12)
+            .padding(.horizontal)
+            
+        case .needsEnabling:
+            // Step 2: Enable it
+            VStack(alignment: .leading, spacing: 12) {
+                if !dnsManager.stepMessage.isEmpty {
+                    HStack {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundColor(.orange)
+                        Text(dnsManager.stepMessage)
+                            .font(.headline)
+                    }
+                }
                 
-                if let offResult = dnsManager.offTestResult {
-                    Text("off.thecutline.org: \(offResult)")
-                        .font(.caption)
+                Text("Cutline DNS is Disabled. In Filters, set Cutline DNS to Enabled.")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                
+                #if os(macOS)
+                if let screenshot = NSImage(named: "SettingsFilters") {
+                    Image(nsImage: screenshot)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(maxWidth: .infinity)
+                        .cornerRadius(8)
+                }
+                #endif
+                
+                Button(action: {
+                    dnsManager.openSystemSettings()
+                }) {
+                    Text("Open Filters")
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 10)
+                        .background(Color(red: 0.0, green: 0.4, blue: 0.8))
+                        .cornerRadius(8)
+                }
+                
+                Button(action: {
+                    dnsManager.checkAfterUserEnabled()
+                }) {
+                    Text("I've Enabled It")
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                        .foregroundColor(Color(red: 0.0, green: 0.4, blue: 0.8))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 10)
+                        .background(Color(red: 0.0, green: 0.4, blue: 0.8).opacity(0.1))
+                        .cornerRadius(8)
+                }
+                .disabled(dnsManager.isLoading)
+            }
+            .padding()
+            .background(dnsManager.stepMessage.contains("Still") ? Color.orange.opacity(0.2) : Color.yellow.opacity(0.2))
+            .cornerRadius(12)
+            .padding(.horizontal)
+            
+        case .confirming:
+            // Step 3: Confirming
+            VStack(spacing: 12) {
+                HStack {
+                    ProgressView()
+                    Text(dnsManager.stepMessage)
+                        .font(.subheadline)
                         .foregroundColor(.secondary)
+                }
+            }
+            .padding()
+            .frame(maxWidth: .infinity)
+            .background(Color.secondary.opacity(0.1))
+            .cornerRadius(12)
+            .padding(.horizontal)
+            
+        case .working:
+            // Step 4: Working
+            VStack(spacing: 12) {
+                // Verify button
+                Button(action: {
+                    dnsManager.verifyDNS()
+                }) {
+                    Text("Verify It Works")
+                        .font(.headline)
+                        .foregroundColor(Color(red: 0.0, green: 0.4, blue: 0.8))
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color(red: 0.0, green: 0.4, blue: 0.8).opacity(0.1))
+                        .cornerRadius(12)
+                }
+                .disabled({
+                    switch dnsManager.verificationResult {
+                    case .testing, .waitingForDNS:
+                        return true
+                    default:
+                        return false
+                    }
+                }())
+                
+                // Disable button
+                Button(action: {
+                    dnsManager.disableDNS()
+                }) {
+                    Text("Disable Cutline DNS")
+                        .font(.headline)
+                        .foregroundColor(Color(red: 0.0, green: 0.4, blue: 0.8))
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.secondary.opacity(0.1))
+                        .cornerRadius(12)
+                }
+                .disabled(dnsManager.isLoading)
+            }
+            .padding(.horizontal)
+            
+            // Verification results
+            verificationResultView
+        }
+    }
+    
+    @ViewBuilder
+    private var verificationResultView: some View {
+        switch dnsManager.verificationResult {
+        case .testing:
+            VStack(spacing: 8) {
+                ProgressView()
+                Text("Testing DNS...")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
+            .padding()
+            .frame(maxWidth: .infinity)
+            .background(Color.secondary.opacity(0.1))
+            .cornerRadius(12)
+            .padding(.horizontal)
+            
+        case .waitingForDNS(let attempt, let maxAttempts):
+            VStack(spacing: 8) {
+                ProgressView()
+                Text("Waiting for DNS cache to clear...")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                Text("Attempt \(attempt) of \(maxAttempts)")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                
+                if let onResult = dnsManager.onTestResult,
+                   let offResult = dnsManager.offTestResult {
+                    Divider()
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("on.thecutline.org: \(onResult)")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        Text("off.thecutline.org: \(offResult)")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                }
+            }
+            .padding()
+            .frame(maxWidth: .infinity)
+            .background(Color.orange.opacity(0.1))
+            .cornerRadius(12)
+            .padding(.horizontal)
+            
+        case .passed:
+            VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    Text("✓")
+                        .font(.title)
+                        .foregroundColor(.green)
+                    Text("Cutline is on")
+                        .font(.headline)
+                }
+                
+                if let onResult = dnsManager.onTestResult,
+                   let offResult = dnsManager.offTestResult {
+                    Divider()
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("on.thecutline.org: \(onResult)")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        Text("off.thecutline.org: \(offResult)")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                }
+            }
+            .padding()
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color.green.opacity(0.2))
+            .cornerRadius(12)
+            .padding(.horizontal)
+            
+        case .failed(let reason):
+            VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    Text("✗")
+                        .font(.title)
+                        .foregroundColor(.red)
+                    Text(getSimplifiedFailureReason(reason))
+                        .font(.headline)
+                }
+                
+                if let onResult = dnsManager.onTestResult,
+                   let offResult = dnsManager.offTestResult {
+                    Divider()
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("on.thecutline.org: \(onResult)")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        Text("off.thecutline.org: \(offResult)")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                }
+                
+                Button(action: {
+                    dnsManager.verifyDNS()
+                }) {
+                    Text("Retry Verification")
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 8)
+                        .background(Color(red: 0.0, green: 0.4, blue: 0.8))
+                        .cornerRadius(8)
+                }
+            }
+            .padding()
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color.red.opacity(0.2))
+            .cornerRadius(12)
+            .padding(.horizontal)
+            
+        case .notTested:
+            EmptyView()
+        }
+    }
+    
+    private func getSimplifiedFailureReason(_ reason: String) -> String {
+        // Show one problem - prioritize Private Relay
+        if reason.contains("Private Relay") {
+            return "Private Relay is on"
+        } else if reason.contains("off.thecutline.org") && !reason.contains("blocked") {
+            return "DNS not routing through Cutline"
+        } else if reason.contains("on.thecutline.org") {
+            return "Connection problem"
+        } else {
+            return "Verification failed"
+        }
+    }
+    
+    @ViewBuilder
+    private var advancedView: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            // Active Interface
+            HStack {
+                Text("Active Interface:")
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                Text(dnsManager.diagnosticInfo.activeInterface)
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
+            
+            // Encrypted DNS Status
+            HStack {
+                Text("Cutline DNS (Encrypted):")
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                Text(dnsManager.diagnosticInfo.encryptedDNSEnabled ? "Enabled" : "Disabled")
+                    .font(.subheadline)
+                    .foregroundColor(dnsManager.diagnosticInfo.encryptedDNSEnabled ? .green : .secondary)
+            }
+            
+            // DoH Reachability
+            if let dohReachable = dnsManager.diagnosticInfo.dohReachable {
+                HStack(alignment: .top) {
+                    Text("DoH Endpoint:")
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                    VStack(alignment: .leading) {
+                        Text(dohReachable ? "✓ Reachable" : "✗ Not Reachable")
+                            .font(.subheadline)
+                            .foregroundColor(dohReachable ? .green : .red)
+                        if !dohReachable, let error = dnsManager.diagnosticInfo.dohError {
+                            Text(error)
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                    }
                 }
             }
             
             #if os(macOS)
+            // DNS Servers per Service (macOS only)
             if !dnsManager.diagnosticInfo.services.isEmpty {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Per-Network DNS")
-                        .font(.subheadline)
-                        .fontWeight(.medium)
-                    
-                    ForEach(dnsManager.diagnosticInfo.services, id: \.name) { service in
-                        VStack(alignment: .leading, spacing: 4) {
-                            HStack {
-                                Text(service.name)
+                Divider()
+                Text("DNS Servers by Service:")
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                
+                ForEach(dnsManager.diagnosticInfo.services, id: \.name) { service in
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack {
+                            Text(service.name)
+                                .font(.caption)
+                                .fontWeight(.medium)
+                            if service.isCutline {
+                                Text("(Cutline)")
                                     .font(.caption)
-                                    .fontWeight(.medium)
-                                if service.isCutline {
-                                    Text("✓ Cutline")
+                                    .foregroundColor(.green)
+                            }
+                        }
+                        ForEach(service.dnsServers, id: \.self) { server in
+                            HStack {
+                                Text("  •")
+                                    .font(.caption2)
+                                Text(server)
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                if dnsManager.isCutlineServer(server) {
+                                    Text("Cutline")
                                         .font(.caption2)
                                         .foregroundColor(.green)
+                                        .padding(.horizontal, 6)
+                                        .padding(.vertical, 2)
+                                        .background(Color.green.opacity(0.2))
+                                        .cornerRadius(4)
                                 }
-                            }
-                            ForEach(service.dnsServers, id: \.self) { server in
-                                Text("  \(server)")
-                                    .font(.caption2)
-                                    .foregroundColor(.secondary)
                             }
                         }
                     }
@@ -364,64 +578,16 @@ struct ContentView: View {
             }
             #endif
             
-            if let stats = dnsManager.networkStats {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Network Stats")
-                        .font(.subheadline)
-                        .fontWeight(.medium)
-                    
-                    if let ips = stats.distinctIPs7d {
-                        Text("Distinct IPs (7d): \(ips)")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                    
-                    if let latency = stats.latencyP50Ms {
-                        Text("Latency p50: \(String(format: "%.1f", latency))ms")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                    
-                    if let ewr = stats.ewr, let ewrLatency = ewr.latencyP50Ms {
-                        Text("EWR p50: \(String(format: "%.1f", ewrLatency))ms")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                    
-                    if let lax = stats.lax, let laxLatency = lax.latencyP50Ms {
-                        Text("LAX p50: \(String(format: "%.1f", laxLatency))ms")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                }
-            }
-            
-            Link("GitHub Repository", destination: URL(string: "https://github.com/dov-max/narge-spec")!)
+            Text("Note: Even if per-adapter DNS shows router/ISP servers, Cutline DNS (Encrypted) takes priority when enabled.")
                 .font(.caption)
-                .foregroundColor(.blue)
+                .foregroundColor(.secondary)
+                .padding(.top, 4)
         }
         .padding()
         .background(Color.secondary.opacity(0.05))
-        .cornerRadius(10)
-    }
-    
-    private var verificationStatusText: String {
-        switch dnsManager.verificationResult {
-        case .notTested:
-            return "Not tested"
-        case .checking:
-            return "Checking..."
-        case .working:
-            return "Working"
-        case .privateRelayDetected:
-            return "Private Relay detected"
-        case .onNotReachable:
-            return "On probe failed"
-        case .offNotBlocked:
-            return "Off probe succeeded (should fail)"
-        case .networkError(let message):
-            return "Error: \(message)"
-        }
+        .cornerRadius(12)
+        .padding(.horizontal)
+        .padding(.top, 4)
     }
 }
 

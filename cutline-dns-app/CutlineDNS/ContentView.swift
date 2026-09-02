@@ -51,8 +51,8 @@ struct ContentView: View {
                 .font(.subheadline)
                 .foregroundColor(.secondary)
             
-            // Network Stats (compact, always when we have data and in working step)
-            if let stats = dnsManager.networkStats, dnsManager.wizardStep == .working {
+            // Network Stats (compact, always when we have data)
+            if let stats = dnsManager.networkStats {
                 VStack(spacing: 8) {
                     if let distinctIPs = stats.distinctIPs7d {
                         HStack {

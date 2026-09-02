@@ -1,15 +1,81 @@
 import Foundation
 import NetworkExtension
+import Network
+#if os(macOS)
+import SystemConfiguration
+import AppKit
+#else
+import UIKit
+#endif
+
+enum VerificationResult {
+    case notTested
+    case testing
+    case waitingForDNS(attempt: Int, maxAttempts: Int)
+    case passed
+    case failed(reason: String)
+}
+
+struct NetworkService {
+    let name: String
+    let dnsServers: [String]
+    let isCutline: Bool
+}
+
+enum PrivateRelayStatus {
+    case on
+    case off
+    case unknown
+}
+
+struct NetworkStats {
+    var distinctIPs7d: Int?
+    var latencyP50Ms: Double?
+    var latencyWindow: String?
+    var health: String?
+    var asOf: String?
+    var ewr: BoxStats?
+    var lax: BoxStats?
+    
+    struct BoxStats {
+        var health: String?
+        var latencyP50Ms: Double?
+    }
+}
+
+struct DiagnosticInfo {
+    var activeInterface: String = "Unknown"
+    var services: [NetworkService] = []
+    var encryptedDNSEnabled: Bool = false
+    var dohReachable: Bool?
+    var dohError: String?
+    var privateRelayStatus: PrivateRelayStatus = .unknown
+}
 
 class DNSManager: ObservableObject {
     @Published var isEnabled = false
     @Published var isLoading = false
     @Published var errorMessage: String?
     @Published var requiresUserApproval = false
+    @Published var verificationResult: VerificationResult = .notTested
+    @Published var onTestResult: String?
+    @Published var offTestResult: String?
+    @Published var diagnosticInfo = DiagnosticInfo()
+    @Published var networkStats: NetworkStats?
     
     private let serverURL = "https://dns.thecutline.org/dns-query"
     private let bootstrapServers = ["64.176.200.99", "149.28.79.49"]
     private let configurationDescription = "Cutline DNS"
+    private let cutlineServers = ["64.176.200.99", "149.28.79.49", "dns.thecutline.org"]
+    
+    private var pathMonitor: NWPathMonitor?
+    private var verificationRetryTimer: Timer?
+    private let maxVerificationRetries = 6  // ~15 seconds with 2.5s intervals
+    
+    deinit {
+        verificationRetryTimer?.invalidate()
+        pathMonitor?.cancel()
+    }
     
     func checkStatus() {
         isLoading = true
@@ -26,9 +92,230 @@ class DNSManager: ObservableObject {
                 }
                 
                 self?.isEnabled = NEDNSSettingsManager.shared().isEnabled
+                self?.gatherDiagnostics()
             }
         }
     }
+    
+    func gatherDiagnostics() {
+        var info = DiagnosticInfo()
+        
+        // Get active interface
+        let monitor = NWPathMonitor()
+        monitor.pathUpdateHandler = { [weak self] path in
+            DispatchQueue.main.async {
+                if path.usesInterfaceType(.wifi) {
+                    self?.diagnosticInfo.activeInterface = "Wi-Fi"
+                } else if path.usesInterfaceType(.cellular) {
+                    self?.diagnosticInfo.activeInterface = "Cellular"
+                } else if path.usesInterfaceType(.wiredEthernet) {
+                    self?.diagnosticInfo.activeInterface = "Ethernet"
+                } else if path.usesInterfaceType(.loopback) {
+                    self?.diagnosticInfo.activeInterface = "Loopback"
+                } else {
+                    self?.diagnosticInfo.activeInterface = "Other"
+                }
+            }
+            monitor.cancel()
+        }
+        monitor.start(queue: DispatchQueue.global())
+        
+        // Check encrypted DNS status
+        info.encryptedDNSEnabled = NEDNSSettingsManager.shared().isEnabled
+        
+        // Detect Private Relay
+        info.privateRelayStatus = detectPrivateRelay()
+        
+        // Platform-specific DNS enumeration
+        #if os(macOS)
+        info.services = enumerateDNSServersMacOS()
+        #else
+        // iOS/iPadOS/visionOS: Cannot enumerate per-adapter DNS from sandbox
+        info.services = []
+        #endif
+        
+        DispatchQueue.main.async {
+            self.diagnosticInfo.services = info.services
+            self.diagnosticInfo.encryptedDNSEnabled = info.encryptedDNSEnabled
+            self.diagnosticInfo.privateRelayStatus = info.privateRelayStatus
+        }
+        
+        // Fetch network stats
+        fetchNetworkStats()
+    }
+    
+    private func detectPrivateRelay() -> PrivateRelayStatus {
+        // Check CFNetwork proxy settings for iCloud Private Relay indicators
+        guard let proxySettings = CFNetworkCopySystemProxySettings()?.takeRetainedValue() as? [String: Any] else {
+            return .unknown
+        }
+        
+        // Check for mask.icloud.com or mask-h2.icloud.com in proxy settings
+        let privateRelayDomains = ["mask.icloud.com", "mask-h2.icloud.com"]
+        
+        // Check HTTPS proxy
+        if let httpsProxy = proxySettings["HTTPSProxy"] as? String {
+            if privateRelayDomains.contains(where: { httpsProxy.contains($0) }) {
+                return .on
+            }
+        }
+        
+        // Check PAC URL
+        if let pacURL = proxySettings["ProxyAutoConfigURLString"] as? String {
+            if privateRelayDomains.contains(where: { pacURL.contains($0) }) {
+                return .on
+            }
+        }
+        
+        // Check scoped proxies
+        if let scopedProxies = proxySettings["__SCOPED__"] as? [String: Any] {
+            for (_, scopedSettings) in scopedProxies {
+                if let scopedDict = scopedSettings as? [String: Any] {
+                    if let httpsProxy = scopedDict["HTTPSProxy"] as? String,
+                       privateRelayDomains.contains(where: { httpsProxy.contains($0) }) {
+                        return .on
+                    }
+                    if let pacURL = scopedDict["ProxyAutoConfigURLString"] as? String,
+                       privateRelayDomains.contains(where: { pacURL.contains($0) }) {
+                        return .on
+                    }
+                }
+            }
+        }
+        
+        #if os(macOS)
+        // Additional macOS check via SystemConfiguration
+        if let dynamicStore = SCDynamicStoreCreate(nil, "CutlineDNS" as CFString, nil, nil),
+           let proxies = SCDynamicStoreCopyProxies(dynamicStore) as? [String: Any] {
+            if let httpsProxy = proxies["HTTPSProxy"] as? String,
+               privateRelayDomains.contains(where: { httpsProxy.contains($0) }) {
+                return .on
+            }
+        }
+        #endif
+        
+        // If we checked and found nothing, consider it off
+        return .off
+    }
+    
+    func fetchNetworkStats() {
+        let session = URLSession.shared
+        
+        // Fetch combined stats
+        if let url = URL(string: "https://dns.thecutline.org/stats.json") {
+            session.dataTask(with: url) { [weak self] data, _, _ in
+                guard let data = data else { return }
+                
+                if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
+                    var stats = NetworkStats()
+                    stats.distinctIPs7d = json["distinct_ips_7d"] as? Int
+                    stats.latencyP50Ms = json["latency_p50_ms"] as? Double
+                    stats.latencyWindow = json["latency_window"] as? String
+                    stats.health = json["health"] as? String
+                    stats.asOf = json["as_of"] as? String
+                    
+                    DispatchQueue.main.async {
+                        self?.networkStats = stats
+                    }
+                    
+                    // Try fetching per-box stats
+                    self?.fetchBoxStats()
+                }
+            }.resume()
+        }
+    }
+    
+    private func fetchBoxStats() {
+        let session = URLSession.shared
+        let group = DispatchGroup()
+        
+        var ewrStats: NetworkStats.BoxStats?
+        var laxStats: NetworkStats.BoxStats?
+        
+        // Fetch EWR stats
+        group.enter()
+        if let url = URL(string: "https://ewr.dns.thecutline.org/stats.json") {
+            session.dataTask(with: url) { data, response, _ in
+                defer { group.leave() }
+                
+                guard let data = data,
+                      let httpResponse = response as? HTTPURLResponse,
+                      httpResponse.statusCode == 200,
+                      let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+                    return
+                }
+                
+                ewrStats = NetworkStats.BoxStats(
+                    health: json["health"] as? String,
+                    latencyP50Ms: json["latency_p50_ms"] as? Double
+                )
+            }.resume()
+        } else {
+            group.leave()
+        }
+        
+        // Fetch LAX stats
+        group.enter()
+        if let url = URL(string: "https://lax.dns.thecutline.org/stats.json") {
+            session.dataTask(with: url) { data, response, _ in
+                defer { group.leave() }
+                
+                guard let data = data,
+                      let httpResponse = response as? HTTPURLResponse,
+                      httpResponse.statusCode == 200,
+                      let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+                    return
+                }
+                
+                laxStats = NetworkStats.BoxStats(
+                    health: json["health"] as? String,
+                    latencyP50Ms: json["latency_p50_ms"] as? Double
+                )
+            }.resume()
+        } else {
+            group.leave()
+        }
+        
+        group.notify(queue: .main) { [weak self] in
+            self?.networkStats?.ewr = ewrStats
+            self?.networkStats?.lax = laxStats
+        }
+    }
+    
+    #if os(macOS)
+    private func enumerateDNSServersMacOS() -> [NetworkService] {
+        var services: [NetworkService] = []
+        
+        guard let dynamicStore = SCDynamicStoreCreate(nil, "CutlineDNS" as CFString, nil, nil) else {
+            return services
+        }
+        
+        // Get network service IDs
+        guard let serviceIDs = SCDynamicStoreCopyKeyList(dynamicStore, "State:/Network/Service/.*/DNS" as CFString) as? [String] else {
+            return services
+        }
+        
+        for key in serviceIDs {
+            guard let dict = SCDynamicStoreCopyValue(dynamicStore, key as CFString) as? [String: Any],
+                  let dnsServers = dict["ServerAddresses"] as? [String], !dnsServers.isEmpty else {
+                continue
+            }
+            
+            // Extract service name from key (State:/Network/Service/{serviceID}/DNS)
+            let components = key.split(separator: "/")
+            let serviceName = components.count >= 4 ? String(components[3]) : "Unknown"
+            
+            // Check if any DNS server is Cutline
+            let isCutline = dnsServers.contains { server in
+                cutlineServers.contains(server)
+            }
+            
+            services.append(NetworkService(name: serviceName, dnsServers: dnsServers, isCutline: isCutline))
+        }
+        
+        return services
+    }
+    #endif
     
     func enableDNS() {
         isLoading = true
@@ -58,19 +345,38 @@ class DNSManager: ObservableObject {
             NEDNSSettingsManager.shared().onDemandRules = [connectRule]
             
             NEDNSSettingsManager.shared().saveToPreferences { [weak self] error in
-                DispatchQueue.main.async {
-                    self?.isLoading = false
-                    
-                    if let error = error {
+                guard let self = self else { return }
+                
+                if let error = error {
+                    DispatchQueue.main.async {
+                        self.isLoading = false
                         let nsError = error as NSError
                         if nsError.domain == "NEConfigurationErrorDomain" && nsError.code == 10 {
-                            self?.requiresUserApproval = true
+                            self.requiresUserApproval = true
                         }
-                        self?.errorMessage = "Failed to save DNS settings: \(error.localizedDescription)"
-                        self?.checkStatus()
-                    } else {
-                        self?.requiresUserApproval = true
-                        self?.isEnabled = true
+                        self.errorMessage = "Failed to save DNS settings: \(error.localizedDescription)"
+                    }
+                    return
+                }
+                
+                // Reload to get Apple's actual enablement status
+                NEDNSSettingsManager.shared().loadFromPreferences { [weak self] reloadError in
+                    DispatchQueue.main.async {
+                        self?.isLoading = false
+                        
+                        if let reloadError = reloadError {
+                            self?.errorMessage = "Failed to verify DNS settings: \(reloadError.localizedDescription)"
+                            return
+                        }
+                        
+                        let actuallyEnabled = NEDNSSettingsManager.shared().isEnabled
+                        self?.isEnabled = actuallyEnabled
+                        self?.requiresUserApproval = !actuallyEnabled
+                        
+                        // If not enabled after save, open Settings
+                        if !actuallyEnabled {
+                            self?.openSystemSettings()
+                        }
                     }
                 }
             }
@@ -105,5 +411,189 @@ class DNSManager: ObservableObject {
                 }
             }
         }
+    }
+    
+    func runDiagnosticTest(retryAttempt: Int = 0) {
+        // Cancel any existing retry timer
+        verificationRetryTimer?.invalidate()
+        verificationRetryTimer = nil
+        
+        if retryAttempt == 0 {
+            verificationResult = .testing
+            onTestResult = nil
+            offTestResult = nil
+            
+            // Refresh diagnostics first
+            gatherDiagnostics()
+        }
+        
+        let group = DispatchGroup()
+        var onSuccess = false
+        var offFailed = false
+        var onError: String?
+        var offError: String?
+        var dohSuccess = false
+        var dohErrorMsg: String?
+        
+        // Test DoH endpoint reachability (use /stats.json as /dns-query returns 400 without DNS body)
+        group.enter()
+        testURL(urlString: "https://dns.thecutline.org/stats.json") { success, error in
+            dohSuccess = success
+            dohErrorMsg = error
+            group.leave()
+        }
+        
+        // Test on.thecutline.org/ok - should succeed
+        group.enter()
+        testURL(urlString: "https://on.thecutline.org/ok") { success, error in
+            onSuccess = success
+            if success {
+                onError = "✓ Resolved"
+            } else {
+                onError = error ?? "Failed"
+            }
+            group.leave()
+        }
+        
+        // Test off.thecutline.org/ok - should fail (NXDOMAIN)
+        group.enter()
+        testURL(urlString: "https://off.thecutline.org/ok") { success, error in
+            offFailed = !success
+            if !success {
+                offError = "✓ Blocked (expected)"
+            } else {
+                offError = "⚠️ Resolved (should be blocked)"
+            }
+            group.leave()
+        }
+        
+        group.notify(queue: .main) { [weak self] in
+            guard let self = self else { return }
+            
+            self.diagnosticInfo.dohReachable = dohSuccess
+            self.diagnosticInfo.dohError = dohErrorMsg
+            self.onTestResult = onError
+            self.offTestResult = offError
+            
+            let privateRelayOn = self.diagnosticInfo.privateRelayStatus == .on
+            let testPassed = onSuccess && offFailed
+            
+            if testPassed {
+                // Test passed
+                self.verificationResult = .passed
+            } else if self.diagnosticInfo.encryptedDNSEnabled && retryAttempt < self.maxVerificationRetries {
+                // DNS is enabled but test failed - retry after a delay (DNS cache may need to clear)
+                self.verificationResult = .waitingForDNS(attempt: retryAttempt + 1, maxAttempts: self.maxVerificationRetries)
+                
+                // Schedule retry after 2.5 seconds
+                self.verificationRetryTimer = Timer.scheduledTimer(withTimeInterval: 2.5, repeats: false) { [weak self] _ in
+                    self?.runDiagnosticTest(retryAttempt: retryAttempt + 1)
+                }
+            } else {
+                // Test failed and either DNS not enabled or max retries reached
+                if !onSuccess && !offFailed {
+                    // Both failed - check Private Relay first
+                    if privateRelayOn {
+                        self.verificationResult = .failed(reason: "iCloud Private Relay is on. Private Relay bypasses Cutline DNS, so the cut will not work. Turn off Private Relay and try again.")
+                    } else {
+                        self.verificationResult = .failed(reason: "Neither domain resolved. Check your internet connection.")
+                    }
+                } else if !onSuccess {
+                    if privateRelayOn {
+                        self.verificationResult = .failed(reason: "on.thecutline.org did not resolve. iCloud Private Relay is on and may be interfering. Turn off Private Relay and try again.")
+                    } else {
+                        self.verificationResult = .failed(reason: "on.thecutline.org did not resolve. Check your internet connection.")
+                    }
+                } else if !offFailed {
+                    // off.thecutline.org succeeded when it should be blocked
+                    if privateRelayOn {
+                        self.verificationResult = .failed(reason: "iCloud Private Relay is on. Private Relay bypasses Cutline DNS, so the cut will not work. Turn off Private Relay.")
+                    } else if self.diagnosticInfo.encryptedDNSEnabled {
+                        self.verificationResult = .failed(reason: "off.thecutline.org resolved when it should be blocked. Cutline DNS is enabled but something else is leaking DNS queries.")
+                    } else {
+                        self.verificationResult = .failed(reason: "off.thecutline.org resolved when it should be blocked. DNS is not routing through Cutline.")
+                    }
+                } else {
+                    self.verificationResult = .failed(reason: "Verification failed.")
+                }
+            }
+        }
+    }
+    
+    func verifyDNS() {
+        runDiagnosticTest()
+    }
+    
+    private func testURL(urlString: String, completion: @escaping (Bool, String?) -> Void) {
+        guard let url = URL(string: urlString) else {
+            completion(false, "Invalid URL")
+            return
+        }
+        
+        // Use reloadIgnoringLocalCacheData to bypass URL cache
+        var request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 10)
+        request.httpMethod = "GET"
+        
+        let config = URLSessionConfiguration.ephemeral
+        config.urlCache = nil
+        config.requestCachePolicy = .reloadIgnoringLocalCacheData
+        let session = URLSession(configuration: config)
+        
+        let task = session.dataTask(with: request) { _, response, error in
+            if let error = error {
+                let nsError = error as NSError
+                // DNS resolution failures
+                if nsError.domain == NSURLErrorDomain &&
+                   (nsError.code == NSURLErrorCannotFindHost ||
+                    nsError.code == NSURLErrorDNSLookupFailed) {
+                    completion(false, "DNS lookup failed")
+                } else {
+                    completion(false, error.localizedDescription)
+                }
+                return
+            }
+            
+            if let httpResponse = response as? HTTPURLResponse {
+                completion(httpResponse.statusCode == 200, "HTTP \(httpResponse.statusCode)")
+            } else {
+                completion(false, "No response")
+            }
+        }
+        task.resume()
+    }
+    
+    func openSystemSettings() {
+        #if os(macOS)
+        // Try to open Network settings, preferably VPN & Filters
+        if let url = URL(string: "x-apple.systempreferences:com.apple.Network-Settings.extension") {
+            NSWorkspace.shared.open(url)
+        }
+        #elseif os(iOS)
+        // Open the app's Settings page (not the DNS pane, as there's no public URL for that)
+        if let url = URL(string: UIApplication.openSettingsURLString) {
+            UIApplication.shared.open(url)
+        }
+        #elseif os(visionOS)
+        // Open Settings if possible
+        if let url = URL(string: UIApplication.openSettingsURLString) {
+            UIApplication.shared.open(url)
+        }
+        #endif
+    }
+    
+    func isCutlineServer(_ server: String) -> Bool {
+        return cutlineServers.contains(server)
+    }
+    
+    func getPlatformSettingsInstructions() -> String {
+        #if os(macOS)
+        return "System Settings → Network → VPN & Filters → Cutline DNS"
+        #elseif os(iOS)
+        return "Settings → General → VPN & Device Management → DNS → Cutline DNS"
+        #elseif os(visionOS)
+        return "Settings → General → VPN & Device Management → DNS → Cutline DNS"
+        #else
+        return "Settings → VPN & Device Management → DNS → Cutline DNS"
+        #endif
     }
 }

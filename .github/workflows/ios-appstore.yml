@@ -91,6 +91,7 @@ jobs:
           rm "$PROFILE_PATH"
       
       - name: Build and archive iOS
+        if: false
         run: |
           cd cutline-dns-app
           
@@ -123,6 +124,7 @@ jobs:
             -allowProvisioningUpdates
       
       - name: Build and archive visionOS
+        if: false
         run: |
           cd cutline-dns-app
           
@@ -139,6 +141,7 @@ jobs:
             -allowProvisioningUpdates
       
       - name: Export iOS IPA
+        if: false
         run: |
           cd cutline-dns-app
           
@@ -215,6 +218,7 @@ jobs:
           ls -lh "$RUNNER_TEMP/export-macos/"
       
       - name: Export visionOS IPA
+        if: false
         run: |
           cd cutline-dns-app
           
@@ -253,6 +257,7 @@ jobs:
           ls -lh "$RUNNER_TEMP/export-visionos/"
       
       - name: Validate visionOS app icon in built archive
+        if: false
         run: |
           echo "Validating visionOS app icon assets..."
           
@@ -329,7 +334,6 @@ jobs:
           rm "$API_KEY_PATH"
       
       - name: Upload macOS to App Store Connect
-        if: false
         id: upload-macos
         continue-on-error: true
         env:
@@ -361,7 +365,7 @@ jobs:
           rm "$API_KEY_PATH"
       
       - name: Upload visionOS to App Store Connect
-        if: always()
+        if: false
         id: upload-visionos
         continue-on-error: true
         env:
@@ -389,23 +393,23 @@ jobs:
         run: |
           FAILED=0
           
-          # iOS and macOS uploads skipped (builds 4 already WAITING_FOR_REVIEW)
-          echo "ℹ️  iOS upload skipped (build 4 already in review)"
-          echo "ℹ️  macOS upload skipped (build 4 already in review)"
+          # iOS and visionOS uploads skipped for this run (macOS TestFlight only)
+          echo "ℹ️  iOS upload skipped (internal macOS TestFlight only)"
+          echo "ℹ️  visionOS upload skipped (internal macOS TestFlight only)"
           
-          if [ "${{ steps.upload-visionos.outcome }}" != "success" ]; then
-            echo "❌ visionOS upload failed"
+          if [ "${{ steps.upload-macos.outcome }}" != "success" ]; then
+            echo "❌ macOS upload failed"
             FAILED=1
           else
-            echo "✅ visionOS upload succeeded"
+            echo "✅ macOS upload succeeded"
           fi
           
           if [ $FAILED -eq 1 ]; then
-            echo "visionOS upload failed"
+            echo "macOS upload failed"
             exit 1
           fi
           
-          echo "visionOS upload succeeded (iOS/macOS skipped)"
+          echo "macOS upload succeeded (iOS/visionOS skipped)"
       
       - name: Clean up keychain
         if: always()

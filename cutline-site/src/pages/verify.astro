@@ -21,6 +21,15 @@ import Layout from '../layouts/Layout.astro';
       <strong>Not checked yet.</strong> Click "Check Now" to test.
     </div>
 
+    <div id="probe-details" class="probe-details" style="display: none;">
+      <div class="probe-result">
+        <strong>on.thecutline.org:</strong> <span id="on-result">—</span>
+      </div>
+      <div class="probe-result">
+        <strong>off.thecutline.org:</strong> <span id="off-result">—</span>
+      </div>
+    </div>
+
     <details class="how-it-works">
       <summary>How this check works</summary>
       <div class="details-content">
@@ -53,13 +62,13 @@ import Layout from '../layouts/Layout.astro';
     <div class="test-step">
       <div class="step-number">1</div>
       <div class="step-content">
-        <h3>Quit and Restart Safari (macOS/iOS)</h3>
+        <h3>Run the Automatic Check</h3>
         <p>
-          Safari caches DNS aggressively. On macOS, fully quit Safari (⌘Q), then reopen it. 
-          On iOS, swipe up to close Safari completely, then reopen.
+          Use the <strong>Automatic DNS Check</strong> button above to verify 
+          you're on the cut path. This is the easiest and most reliable verification method.
         </p>
-        <p>
-          Other browsers may also cache DNS. If testing in Chrome or Firefox, restart them as well.
+        <p class="status-note">
+          The check automatically retries for ~15 seconds if needed to account for DNS cache clearing.
         </p>
       </div>
     </div>
@@ -85,17 +94,6 @@ import Layout from '../layouts/Layout.astro';
     <div class="test-step">
       <div class="step-number">3</div>
       <div class="step-content">
-        <h3>Run the Automatic Check</h3>
-        <p>
-          Use the <strong>Automatic DNS Check</strong> button at the top of this page to verify 
-          you're on the cut path. This is the easiest and most reliable verification method.
-        </p>
-      </div>
-    </div>
-
-    <div class="test-step">
-      <div class="step-number">4</div>
-      <div class="step-content">
         <h3>Use the Canary (Connection Proof, Not DNS Proof)</h3>
         <p>
           Visit the HTTP canary by IP address to confirm you can reach the resolver infrastructure:
@@ -112,6 +110,24 @@ import Layout from '../layouts/Layout.astro';
         </p>
       </div>
     </div>
+  </section>
+
+  <section class="workarounds">
+    <h2>If the Check Stays Red</h2>
+    
+    <h3>Browser DNS Cache Workaround</h3>
+    <p>
+      Safari and other browsers cache DNS aggressively. If the automatic check stays red after you've 
+      enabled Cutline DNS, the browser may still have old DNS records cached.
+    </p>
+    <ul>
+      <li><strong>macOS Safari:</strong> Fully quit Safari (⌘Q), then reopen it</li>
+      <li><strong>iOS Safari:</strong> Swipe up to close Safari completely, then reopen</li>
+      <li><strong>Chrome/Firefox:</strong> Restart the browser</li>
+    </ul>
+    <p class="status-note">
+      The automatic check already retries for ~15 seconds, so try that first before restarting your browser.
+    </p>
   </section>
 
   <section class="dns-check-tools">
@@ -147,10 +163,10 @@ import Layout from '../layouts/Layout.astro';
 
     <h3>Blocked sites still load</h3>
     <ul>
-      <li>Fully quit and restart your browser (especially Safari)</li>
-      <li>Check that your device isn't using another DNS source (VPN, proxy, corporate network)</li>
+      <li>Check that your device isn't using another DNS source (VPN, proxy, iCloud Private Relay, corporate network)</li>
       <li>On iOS, verify DNS is set for the specific Wi-Fi network you're on</li>
-      <li>The site may not be in the block list (the list is an approximation)</li>
+      <li>The site may not be in the Narge list (the list is an approximation)</li>
+      <li>If the automatic check above is green but sites still load, browser cache may be serving old content — try restarting the browser</li>
     </ul>
 
     <h3>Windows: IPv6 DNS Leak</h3>
@@ -197,16 +213,37 @@ import Layout from '../layouts/Layout.astro';
 </Layout>
 
 <script>
-  function checkDNS() {
+  let retryTimer = null;
+  const MAX_RETRIES = 6; // ~15 seconds with 2.5s intervals
+
+  function checkDNS(retryAttempt = 0) {
     const banner = document.getElementById('status-banner');
     const button = document.getElementById('check-button');
+    const probeDetails = document.getElementById('probe-details');
+    const onResultEl = document.getElementById('on-result');
+    const offResultEl = document.getElementById('off-result');
     
     if (!banner || !button) return;
+
+    // Clear any existing retry timer
+    if (retryTimer) {
+      clearTimeout(retryTimer);
+      retryTimer = null;
+    }
     
     // Set checking state
-    banner.className = 'status-banner status-checking';
-    banner.innerHTML = '<strong>Checking...</strong>';
-    button.disabled = true;
+    if (retryAttempt === 0) {
+      banner.className = 'status-banner status-checking';
+      banner.innerHTML = '<strong>Checking...</strong>';
+      button.disabled = true;
+      if (probeDetails) probeDetails.style.display = 'none';
+    } else {
+      banner.className = 'status-banner status-waiting';
+      banner.innerHTML = `
+        <strong>Waiting for DNS cache to clear...</strong>
+        <p class="status-note">Attempt ${retryAttempt} of ${MAX_RETRIES}</p>
+      `;
+    }
     
     // Probe both endpoints
     const onProbe = fetch('https://on.thecutline.org/ok', {
@@ -232,28 +269,74 @@ import Layout from '../layouts/Layout.astro';
         
         // Check if off failed (network/DNS error)
         const offFailed = offResult.status === 'rejected';
+
+        // Update individual probe results
+        if (onResultEl) {
+          if (onSuccess) {
+            onResultEl.innerHTML = '<span style="color: green;">✓ Resolved (expected)</span>';
+          } else {
+            onResultEl.innerHTML = '<span style="color: red;">✗ Failed</span>';
+          }
+        }
+        
+        if (offResultEl) {
+          if (offFailed) {
+            offResultEl.innerHTML = '<span style="color: green;">✓ Blocked (expected)</span>';
+          } else {
+            offResultEl.innerHTML = '<span style="color: red;">⚠️ Resolved (should be blocked)</span>';
+          }
+        }
+
+        if (probeDetails) {
+          probeDetails.style.display = 'block';
+        }
         
         // Green ONLY if on succeeds AND off fails
-        if (onSuccess && offFailed) {
+        const testPassed = onSuccess && offFailed;
+        
+        if (testPassed) {
           banner.className = 'status-banner status-success';
           banner.innerHTML = `
             <strong>You are on a cut path.</strong>
-            <p class="status-note">Another DNS, a VPN, or Private Relay can skip Cutline.</p>
+            <p class="status-note">iCloud Private Relay or a VPN can bypass Cutline.</p>
           `;
+          button.disabled = false;
+        } else if (retryAttempt < MAX_RETRIES) {
+          // Test failed, retry after delay
+          banner.className = 'status-banner status-waiting';
+          banner.innerHTML = `
+            <strong>Waiting for DNS cache to clear...</strong>
+            <p class="status-note">Attempt ${retryAttempt + 1} of ${MAX_RETRIES}. Retrying in 2.5s...</p>
+          `;
+          
+          retryTimer = setTimeout(() => {
+            checkDNS(retryAttempt + 1);
+          }, 2500);
         } else {
-          // Any other combination: not on cut path
-          showNotOnCutPath(banner);
+          // Test failed and max retries reached
+          showNotOnCutPath(banner, onSuccess, offFailed);
+          button.disabled = false;
         }
-        
-        button.disabled = false;
       });
   }
   
-  function showNotOnCutPath(banner) {
+  function showNotOnCutPath(banner, onSuccess, offFailed) {
     banner.className = 'status-banner status-fail';
+    
+    let reason = '';
+    if (!onSuccess && !offFailed) {
+      reason = 'Neither domain resolved. Check your internet connection.';
+    } else if (!onSuccess) {
+      reason = 'on.thecutline.org did not resolve. You are not using Cutline DNS.';
+    } else if (!offFailed) {
+      reason = 'off.thecutline.org resolved when it should be blocked. DNS is not routing through Cutline. iCloud Private Relay or a VPN can bypass Cutline.';
+    } else {
+      reason = 'Verification failed.';
+    }
+    
     banner.innerHTML = `
       <strong>You are not on a cut path.</strong>
-      <p class="status-note">Another DNS, a VPN, or Private Relay can skip Cutline.</p>
+      <p class="status-note">${reason}</p>
     `;
   }
   
@@ -265,7 +348,13 @@ import Layout from '../layouts/Layout.astro';
   // Button click handler
   const checkButton = document.getElementById('check-button');
   if (checkButton) {
-    checkButton.addEventListener('click', checkDNS);
+    checkButton.addEventListener('click', () => {
+      if (retryTimer) {
+        clearTimeout(retryTimer);
+        retryTimer = null;
+      }
+      checkDNS(0);
+    });
   }
 </script>
 
@@ -342,14 +431,36 @@ import Layout from '../layouts/Layout.astro';
     border-left-color: #2196f3;
   }
 
+  .status-waiting {
+    background: #fff3e0;
+    border-left-color: #ff9800;
+  }
+
   .status-success {
     background: #e8f5e9;
     border-left-color: #4caf50;
   }
 
   .status-fail {
-    background: #fff3e0;
-    border-left-color: #ff9800;
+    background: #ffebee;
+    border-left-color: #f44336;
+  }
+
+  .probe-details {
+    margin-top: var(--spacing-md);
+    padding: var(--spacing-md);
+    background: #fafafa;
+    border-radius: var(--radius);
+    border: 1px solid var(--color-border);
+    font-size: 0.95rem;
+  }
+
+  .probe-result {
+    margin: var(--spacing-xs) 0;
+  }
+
+  .probe-result strong {
+    font-weight: 600;
   }
 
   .how-it-works {
@@ -450,6 +561,7 @@ import Layout from '../layouts/Layout.astro';
 
   .dns-check-tools,
   .troubleshooting,
+  .workarounds,
   .help {
     margin: var(--spacing-2xl) 0;
   }

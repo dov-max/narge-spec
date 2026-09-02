@@ -431,8 +431,8 @@ class DNSManager: ObservableObject {
                     self.stepMessage = "Filter installed."
                     self.wizardStep = .filterInstalled
                     
-                    // After a brief delay, move to step 2
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                    // Wait at least 2.5 seconds more (UI lag from video) before opening Settings
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
                         self.wizardStep = .needsEnabling
                         // Now open Filters
                         self.openSystemSettings()
@@ -679,32 +679,29 @@ class DNSManager: ObservableObject {
     
     func openSystemSettings() {
         #if os(macOS)
-        // Open Filters pane (where Cutline DNS Enabled lives)
-        if let url = URL(string: "x-apple.systempreferences:com.apple.Network-Settings.extension?Filters") {
-            NSWorkspace.shared.open(url)
-            
-            // Belt-and-suspenders: try to click the Filters sidebar item via AppleScript
-            // This is optional and fails closed if System Settings isn't frontmost or no Accessibility permission
-            DispatchQueue.global().asyncAfter(deadline: .now() + 0.5) {
-                let script = """
-                tell application "System Settings"
-                    if frontmost then
-                        try
-                            tell application "System Events"
-                                tell process "System Settings"
-                                    click UI element "Filters" of outline 1 of scroll area 1 of group 1 of splitter group 1 of window 1
-                                end tell
-                            end tell
-                        end try
-                    end if
-                end tell
-                """
-                if let appleScript = NSAppleScript(source: script) {
-                    var error: NSDictionary?
-                    appleScript.executeAndReturnError(&error)
-                    // Ignore errors - the URL open is the primary mechanism
+        // Check if System Settings is already running
+        let isSettingsRunning = NSWorkspace.shared.runningApplications.contains { app in
+            app.bundleIdentifier == "com.apple.systempreferences" || app.bundleIdentifier == "com.apple.Settings"
+        }
+        
+        if !isSettingsRunning {
+            // Settings not running: open Network list once
+            if let url = URL(string: "x-apple.systempreferences:com.apple.Network-Settings.extension") {
+                NSWorkspace.shared.open(url)
+            }
+        } else {
+            // Settings already running: just activate it, don't re-open any URL
+            for app in NSWorkspace.shared.runningApplications {
+                if app.bundleIdentifier == "com.apple.systempreferences" || app.bundleIdentifier == "com.apple.Settings" {
+                    app.activate()
+                    break
                 }
             }
+        }
+        
+        // Now try to click the Filters item via AppleScript, with retries for ~6 seconds
+        DispatchQueue.global().asyncAfter(deadline: .now() + 0.5) {
+            self.clickFiltersWithRetry(attempt: 0, maxAttempts: 6)
         }
         #elseif os(iOS)
         // Open the app's Settings page (not the DNS pane, as there's no public URL for that)
@@ -718,6 +715,79 @@ class DNSManager: ObservableObject {
         }
         #endif
     }
+    
+    #if os(macOS)
+    private func clickFiltersWithRetry(attempt: Int, maxAttempts: Int) {
+        // Check if we're already on the Filters pane
+        let checkScript = """
+        tell application "System Events"
+            try
+                tell process "System Settings"
+                    set windowTitle to name of window 1
+                    if windowTitle contains "Filters" then
+                        return "success"
+                    end if
+                end tell
+            end try
+        end tell
+        return "not_found"
+        """
+        
+        if let checkAppleScript = NSAppleScript(source: checkScript) {
+            var error: NSDictionary?
+            let result = checkAppleScript.executeAndReturnError(&error)
+            if result.stringValue == "success" {
+                // Already on Filters, done
+                return
+            }
+        }
+        
+        // Try to click the Filters item in the Network service list
+        let clickScript = """
+        tell application "System Events"
+            try
+                tell process "System Settings"
+                    -- Try outline approach
+                    try
+                        click UI element "Filters" of outline 1 of scroll area 1 of group 1 of splitter group 1 of window 1
+                        return "success"
+                    end try
+                    -- Try table approach
+                    try
+                        click UI element "Filters" of table 1 of scroll area 1 of group 1 of splitter group 1 of window 1
+                        return "success"
+                    end try
+                    -- Try name-based search in any group
+                    try
+                        click (first UI element whose name is "Filters")
+                        return "success"
+                    end try
+                end tell
+            end try
+        end tell
+        return "not_found"
+        """
+        
+        if let clickAppleScript = NSAppleScript(source: clickScript) {
+            var error: NSDictionary?
+            let result = clickAppleScript.executeAndReturnError(&error)
+            if result.stringValue == "success" {
+                // Successfully clicked Filters
+                return
+            }
+        }
+        
+        // If not successful and haven't reached max attempts, retry after 1 second
+        if attempt < maxAttempts {
+            DispatchQueue.global().asyncAfter(deadline: .now() + 1.0) {
+                self.clickFiltersWithRetry(attempt: attempt + 1, maxAttempts: maxAttempts)
+            }
+        }
+        // If AppleScript fails (no TCC yet), just leave the user on Network
+        // The Filters row should exist by then because of the 2.5s wait
+        // Do not error, do not reset the pane
+    }
+    #endif
     
     func isCutlineServer(_ server: String) -> Bool {
         return cutlineServers.contains(server)

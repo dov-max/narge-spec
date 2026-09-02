@@ -62,6 +62,9 @@ class DNSManager: ObservableObject {
     @Published var offTestResult: String?
     @Published var diagnosticInfo = DiagnosticInfo()
     @Published var networkStats: NetworkStats?
+    @Published var stillDisabledAfterEnable = false
+    @Published var needsUserAction = false
+    @Published var isPreparingSettings = false
     
     private let serverURL = "https://dns.thecutline.org/dns-query"
     private let bootstrapServers = ["64.176.200.99", "149.28.79.49"]
@@ -77,7 +80,7 @@ class DNSManager: ObservableObject {
         pathMonitor?.cancel()
     }
     
-    func checkStatus() {
+    func loadFromPreferences() {
         isLoading = true
         errorMessage = nil
         
@@ -95,6 +98,10 @@ class DNSManager: ObservableObject {
                 self?.gatherDiagnostics()
             }
         }
+    }
+    
+    func checkStatus() {
+        loadFromPreferences()
     }
     
     func gatherDiagnostics() {
@@ -321,6 +328,9 @@ class DNSManager: ObservableObject {
         isLoading = true
         errorMessage = nil
         requiresUserApproval = false
+        needsUserAction = false
+        isPreparingSettings = false
+        stillDisabledAfterEnable = false
         
         NEDNSSettingsManager.shared().loadFromPreferences { [weak self] error in
             guard let self = self else { return }
@@ -359,25 +369,87 @@ class DNSManager: ObservableObject {
                     return
                 }
                 
-                // Reload to get Apple's actual enablement status
-                NEDNSSettingsManager.shared().loadFromPreferences { [weak self] reloadError in
-                    DispatchQueue.main.async {
-                        self?.isLoading = false
-                        
-                        if let reloadError = reloadError {
-                            self?.errorMessage = "Failed to verify DNS settings: \(reloadError.localizedDescription)"
-                            return
-                        }
-                        
-                        let actuallyEnabled = NEDNSSettingsManager.shared().isEnabled
-                        self?.isEnabled = actuallyEnabled
-                        self?.requiresUserApproval = !actuallyEnabled
-                        
-                        // If not enabled after save, open Settings
-                        if !actuallyEnabled {
-                            self?.openSystemSettings()
-                        }
+                // Configuration saved (unchanged = success)
+                // Now verify the DNS row exists before opening Settings
+                self.waitForDNSRowAndOpenSettings()
+            }
+        }
+    }
+    
+    private func waitForDNSRowAndOpenSettings(attempt: Int = 0) {
+        let maxAttempts = 8
+        
+        if attempt == 0 {
+            DispatchQueue.main.async {
+                self.isPreparingSettings = true
+            }
+        }
+        
+        NEDNSSettingsManager.shared().loadFromPreferences { [weak self] error in
+            guard let self = self else { return }
+            
+            if let error = error {
+                DispatchQueue.main.async {
+                    self.isLoading = false
+                    self.isPreparingSettings = false
+                    self.errorMessage = "Failed to verify DNS settings: \(error.localizedDescription)"
+                }
+                return
+            }
+            
+            // Check if dnsSettings is non-nil (the row exists)
+            if NEDNSSettingsManager.shared().dnsSettings != nil {
+                // Row exists, we can open Settings now
+                DispatchQueue.main.async {
+                    self.isLoading = false
+                    self.isPreparingSettings = false
+                    self.isEnabled = NEDNSSettingsManager.shared().isEnabled
+                    self.needsUserAction = !self.isEnabled
+                    
+                    if !self.isEnabled {
+                        // Open Filters pane
+                        self.openSystemSettings()
                     }
+                }
+            } else if attempt < maxAttempts {
+                // Row doesn't exist yet, retry after a short delay
+                DispatchQueue.global().asyncAfter(deadline: .now() + 0.25) {
+                    self.waitForDNSRowAndOpenSettings(attempt: attempt + 1)
+                }
+            } else {
+                // Max retries reached, give up
+                DispatchQueue.main.async {
+                    self.isLoading = false
+                    self.isPreparingSettings = false
+                    self.errorMessage = "DNS configuration not ready. Please try again."
+                }
+            }
+        }
+    }
+    
+    func checkAfterUserEnabled() {
+        isLoading = true
+        stillDisabledAfterEnable = false
+        
+        // Check after a short delay to give the system time to update
+        DispatchQueue.global().asyncAfter(deadline: .now() + 1.0) { [weak self] in
+            self?.loadFromPreferences()
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                guard let self = self else { return }
+                
+                self.isLoading = false
+                
+                if !self.isEnabled {
+                    // Still disabled after user claimed to enable it
+                    self.stillDisabledAfterEnable = true
+                    self.needsUserAction = true
+                    self.openSystemSettings()
+                } else {
+                    // Successfully enabled, run verification
+                    self.stillDisabledAfterEnable = false
+                    self.needsUserAction = false
+                    self.verifyDNS()
                 }
             }
         }
@@ -564,9 +636,16 @@ class DNSManager: ObservableObject {
     
     func openSystemSettings() {
         #if os(macOS)
-        // Try to open Network settings, preferably VPN & Filters
-        if let url = URL(string: "x-apple.systempreferences:com.apple.Network-Settings.extension") {
-            NSWorkspace.shared.open(url)
+        // Try to open VPN & Filters pane first (where Cutline DNS Enabled lives)
+        if let url = URL(string: "x-apple.systempreferences:com.apple.NetworkExtensionSettingsUI.NESettingsUIExtension") {
+            let opened = NSWorkspace.shared.open(url)
+            
+            // If that fails, fallback to Network settings
+            if !opened {
+                if let fallbackUrl = URL(string: "x-apple.systempreferences:com.apple.Network-Settings.extension") {
+                    NSWorkspace.shared.open(fallbackUrl)
+                }
+            }
         }
         #elseif os(iOS)
         // Open the app's Settings page (not the DNS pane, as there's no public URL for that)

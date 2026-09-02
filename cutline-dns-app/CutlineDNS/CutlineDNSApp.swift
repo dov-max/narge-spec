@@ -6,5 +6,9 @@ struct CutlineDNSApp: App {
         WindowGroup {
             ContentView()
         }
+        #if os(macOS)
+        .windowResizability(.contentSize)
+        .defaultSize(width: 400, height: 560)
+        #endif
     }
 }

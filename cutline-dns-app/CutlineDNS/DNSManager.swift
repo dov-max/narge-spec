@@ -380,10 +380,23 @@ class DNSManager: ObservableObject {
                 guard let self = self else { return }
                 
                 if let error = error {
-                    DispatchQueue.main.async {
-                        self.isLoading = false
-                        self.errorMessage = "Failed to save DNS settings: \(error.localizedDescription)"
-                        self.wizardStep = .notStarted
+                    let nsError = error as NSError
+                    
+                    // Check if this is "configuration is unchanged" error
+                    // NEConfigurationErrorDomain code 9 means configuration is unchanged
+                    let isUnchangedError = nsError.domain == "NEConfigurationErrorDomain" && nsError.code == 9
+                    
+                    if isUnchangedError {
+                        // Configuration is unchanged = SUCCESS (filter is already installed)
+                        // Continue to wait for DNS row
+                        self.waitForDNSRow()
+                    } else {
+                        // Actual error
+                        DispatchQueue.main.async {
+                            self.isLoading = false
+                            self.errorMessage = "Failed to save DNS settings: \(error.localizedDescription)"
+                            self.wizardStep = .notStarted
+                        }
                     }
                     return
                 }

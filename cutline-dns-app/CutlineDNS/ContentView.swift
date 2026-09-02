@@ -257,7 +257,7 @@ struct ContentView: View {
                     .foregroundColor(.secondary)
                 
                 #if os(macOS)
-                if let screenshot = NSImage(named: "filters-screenshot") {
+                if let screenshot = NSImage(named: "SettingsFilters") {
                     Image(nsImage: screenshot)
                         .resizable()
                         .scaledToFit()

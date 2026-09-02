@@ -173,7 +173,14 @@ struct ContentView: View {
                         .background(Color(red: 0.0, green: 0.4, blue: 0.8).opacity(0.1))
                         .cornerRadius(12)
                 }
-                .disabled(dnsManager.verificationResult == .testing)
+                .disabled({
+                    switch dnsManager.verificationResult {
+                    case .testing, .waitingForDNS:
+                        return true
+                    default:
+                        return false
+                    }
+                }())
             }
             .padding(.horizontal)
             
@@ -338,6 +345,35 @@ struct ContentView: View {
                 .padding()
                 .frame(maxWidth: .infinity)
                 .background(Color.secondary.opacity(0.1))
+                .cornerRadius(12)
+                .padding(.horizontal)
+                
+            case .waitingForDNS(let attempt, let maxAttempts):
+                VStack(spacing: 8) {
+                    ProgressView()
+                    Text("Waiting for DNS cache to clear...")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                    Text("Attempt \(attempt) of \(maxAttempts)")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    
+                    if let onResult = dnsManager.onTestResult,
+                       let offResult = dnsManager.offTestResult {
+                        Divider()
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("on.thecutline.org: \(onResult)")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                            Text("off.thecutline.org: \(offResult)")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                }
+                .padding()
+                .frame(maxWidth: .infinity)
+                .background(Color.orange.opacity(0.1))
                 .cornerRadius(12)
                 .padding(.horizontal)
                 

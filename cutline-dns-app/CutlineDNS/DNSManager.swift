@@ -8,6 +8,7 @@ import SystemConfiguration
 enum VerificationResult {
     case notTested
     case testing
+    case waitingForDNS(attempt: Int, maxAttempts: Int)
     case passed
     case failed(reason: String)
 }
@@ -65,6 +66,13 @@ class DNSManager: ObservableObject {
     private let cutlineServers = ["64.176.200.99", "149.28.79.49", "dns.thecutline.org"]
     
     private var pathMonitor: NWPathMonitor?
+    private var verificationRetryTimer: Timer?
+    private let maxVerificationRetries = 6  // ~15 seconds with 2.5s intervals
+    
+    deinit {
+        verificationRetryTimer?.invalidate()
+        pathMonitor?.cancel()
+    }
     
     func checkStatus() {
         isLoading = true
@@ -402,13 +410,19 @@ class DNSManager: ObservableObject {
         }
     }
     
-    func runDiagnosticTest() {
-        verificationResult = .testing
-        onTestResult = nil
-        offTestResult = nil
+    func runDiagnosticTest(retryAttempt: Int = 0) {
+        // Cancel any existing retry timer
+        verificationRetryTimer?.invalidate()
+        verificationRetryTimer = nil
         
-        // Refresh diagnostics first
-        gatherDiagnostics()
+        if retryAttempt == 0 {
+            verificationResult = .testing
+            onTestResult = nil
+            offTestResult = nil
+            
+            // Refresh diagnostics first
+            gatherDiagnostics()
+        }
         
         let group = DispatchGroup()
         var onSuccess = false
@@ -459,33 +473,46 @@ class DNSManager: ObservableObject {
             self.offTestResult = offError
             
             let privateRelayOn = self.diagnosticInfo.privateRelayStatus == .on
+            let testPassed = onSuccess && offFailed
             
-            if onSuccess && offFailed {
+            if testPassed {
+                // Test passed
                 self.verificationResult = .passed
-            } else if !onSuccess && !offFailed {
-                // Both failed - check Private Relay first
-                if privateRelayOn {
-                    self.verificationResult = .failed(reason: "iCloud Private Relay is on. Private Relay bypasses Cutline DNS, so the cut will not work. Turn off Private Relay and try again.")
-                } else {
-                    self.verificationResult = .failed(reason: "Neither domain resolved. Check your internet connection.")
-                }
-            } else if !onSuccess {
-                if privateRelayOn {
-                    self.verificationResult = .failed(reason: "on.thecutline.org did not resolve. iCloud Private Relay is on and may be interfering. Turn off Private Relay and try again.")
-                } else {
-                    self.verificationResult = .failed(reason: "on.thecutline.org did not resolve. Check your internet connection.")
-                }
-            } else if !offFailed {
-                // off.thecutline.org succeeded when it should be blocked
-                if privateRelayOn {
-                    self.verificationResult = .failed(reason: "iCloud Private Relay is on. Private Relay bypasses Cutline DNS, so the cut will not work. Turn off Private Relay.")
-                } else if self.diagnosticInfo.encryptedDNSEnabled {
-                    self.verificationResult = .failed(reason: "off.thecutline.org resolved when it should be blocked. Cutline DNS is enabled but something else is leaking DNS queries.")
-                } else {
-                    self.verificationResult = .failed(reason: "off.thecutline.org resolved when it should be blocked. DNS is not routing through Cutline.")
+            } else if self.diagnosticInfo.encryptedDNSEnabled && retryAttempt < self.maxVerificationRetries {
+                // DNS is enabled but test failed - retry after a delay (DNS cache may need to clear)
+                self.verificationResult = .waitingForDNS(attempt: retryAttempt + 1, maxAttempts: self.maxVerificationRetries)
+                
+                // Schedule retry after 2.5 seconds
+                self.verificationRetryTimer = Timer.scheduledTimer(withTimeInterval: 2.5, repeats: false) { [weak self] _ in
+                    self?.runDiagnosticTest(retryAttempt: retryAttempt + 1)
                 }
             } else {
-                self.verificationResult = .failed(reason: "Verification failed.")
+                // Test failed and either DNS not enabled or max retries reached
+                if !onSuccess && !offFailed {
+                    // Both failed - check Private Relay first
+                    if privateRelayOn {
+                        self.verificationResult = .failed(reason: "iCloud Private Relay is on. Private Relay bypasses Cutline DNS, so the cut will not work. Turn off Private Relay and try again.")
+                    } else {
+                        self.verificationResult = .failed(reason: "Neither domain resolved. Check your internet connection.")
+                    }
+                } else if !onSuccess {
+                    if privateRelayOn {
+                        self.verificationResult = .failed(reason: "on.thecutline.org did not resolve. iCloud Private Relay is on and may be interfering. Turn off Private Relay and try again.")
+                    } else {
+                        self.verificationResult = .failed(reason: "on.thecutline.org did not resolve. Check your internet connection.")
+                    }
+                } else if !offFailed {
+                    // off.thecutline.org succeeded when it should be blocked
+                    if privateRelayOn {
+                        self.verificationResult = .failed(reason: "iCloud Private Relay is on. Private Relay bypasses Cutline DNS, so the cut will not work. Turn off Private Relay.")
+                    } else if self.diagnosticInfo.encryptedDNSEnabled {
+                        self.verificationResult = .failed(reason: "off.thecutline.org resolved when it should be blocked. Cutline DNS is enabled but something else is leaking DNS queries.")
+                    } else {
+                        self.verificationResult = .failed(reason: "off.thecutline.org resolved when it should be blocked. DNS is not routing through Cutline.")
+                    }
+                } else {
+                    self.verificationResult = .failed(reason: "Verification failed.")
+                }
             }
         }
     }
@@ -500,8 +527,16 @@ class DNSManager: ObservableObject {
             return
         }
         
-        let session = URLSession(configuration: .ephemeral)
-        let task = session.dataTask(with: url) { _, response, error in
+        // Use reloadIgnoringLocalCacheData to bypass URL cache
+        var request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 10)
+        request.httpMethod = "GET"
+        
+        let config = URLSessionConfiguration.ephemeral
+        config.urlCache = nil
+        config.requestCachePolicy = .reloadIgnoringLocalCacheData
+        let session = URLSession(configuration: config)
+        
+        let task = session.dataTask(with: request) { _, response, error in
             if let error = error {
                 let nsError = error as NSError
                 // DNS resolution failures

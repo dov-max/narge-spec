@@ -1,12 +1,12 @@
 # Narge domain list
 # Spec version: 0.2
-# Build date: 2026-09-11 10:06:10 UTC
+# Build date: 2026-09-11 14:39:18 UTC
 # Subscribe URL: https://raw.githubusercontent.com/dov-max/narge-spec/main/dist/narge.txt
 # Sources: core sources (seeded from StevenBlack porn-only MIT license), overlay/block.txt, overlay/allow.txt
 # License: CC0 1.0 (public domain)
 # Attribution: Initial seed from StevenBlack hosts (MIT license)
 #              https://github.com/StevenBlack/hosts
-# Total domains: 371
+# Total domains: 329
 #
 # Catalog ingest policy:
 #   - Ingest as "Narge," a separate optional category
@@ -15,7 +15,6 @@
 #   - See https://github.com/dov-max/narge-spec for definition
 
 100bucksbabes.com
-1cam.webcam
 3xxx.pro
 4tube.com
 7mmtv.tv
@@ -23,20 +22,15 @@
 adult-empire.com
 adultadworld.com
 adultfriendfinder.com
-adultmetas.com
 adultrevenueservice.com
 adultsearch.com
 aebn.net
 ahacdn.me
 ahcdn.com
 ahtops.com
-allepornodeutsch.com
 angelfire.com
 animehentaivideos.xxx
-artpanty.com
 artthong.com
-artxgirl.com
-asianxpic.com
 assxpic.com
 atube.sex
 atube.xxx
@@ -53,18 +47,10 @@ beautifulmetas.com
 beautyxgirl.com
 beautyxpic.com
 bellexpic.com
-bestxass.com
-bestxbeauty.com
-bestxboobs.com
-bestxbum.com
-bestxleg.com
-bestxlingerie.com
-bestxpic.com
 bigporn.com
 bigtopsites.com
 biguz.net
 bimbolive.com
-bitchxpic.com
 blog.br
 blogspot.com
 bongacams.com
@@ -85,19 +71,15 @@ cartoonporno.xxx
 cdn3x.com
 chaturbate.com
 chickenhost.com
-co.hu
 co.il
 co.in
-co.jp
 co.uk
 coedcherry.com
 collegeporn.xxx
 com.ar
 com.au
 com.br
-com.co
 com.es
-com.home
 cutexgirl.com
 cutexpic.com
 darknun.com
@@ -114,8 +96,6 @@ drtst.com
 eporner.com
 ero-advertising.com
 erome.com
-eroticxgirl.com
-eroticxpic.com
 escortbook.com
 escortsyputas.com
 evooli.com
@@ -144,7 +124,6 @@ gay.bingo
 gayfucktube.xxx
 girlgirlgo.net
 girlygirlpic.com
-gooxh.life
 gotporn.com
 greatxass.com
 greatxgirl.com
@@ -172,14 +151,12 @@ hotbokep-hotvideo.info
 hottyxpic.com
 hotxbaby.com
 hotxgirl.com
-hotxhips.com
 ibxh.life
 iceppsn.com
 imagetwist.com
 incest.click
 itch.io
 jasmin.com
-jerkoffgalleries.com
 jpg4.biz
 jucydate.com
 juicexgirl.com
@@ -194,7 +171,6 @@ kinkygirlz.com
 letsdoeit.com
 letsgirlz.com
 lexixxx.com
-lingeriexgirl.com
 livejasmin.com
 luscious.net
 lxtube.com
@@ -209,7 +185,6 @@ mtree.com
 myfreecams.com
 mypornvid.fun
 naiadsystems.com
-ne.jp
 nicexgirl.com
 nsimg.net
 nu-bay.com
@@ -222,20 +197,16 @@ org.uk
 outster.com
 over-blog.com
 pantyxart.com
-pantyxgirl.com
 pantyxpic.com
 pbwstatic.com
 peachgirlz.com
 perfectgirls.net
-perfectxbody.com
 perfectxpic.com
-perfectxsexy.com
 phncdn.com
 pimproll.com
 pixhost.to
 playboy.com
 poringa.net
-porn-good.com
 porn-hd.xxx
 porn-images-xxx.com
 porn.biz
@@ -248,9 +219,7 @@ pornhub.com
 pornhubs.video
 pornicom.com
 pornmaster.fun
-pornmeamelone.com
 porno71.com
-pornobrasileirinhas.com
 pornohdv.com
 pornomoviegals.com
 pornpen.tv
@@ -269,13 +238,10 @@ puba.com
 rdtcdn.com
 redgifs.com
 redtube.com
-retroporn.sexy
 rexporn.com
-sakuraxgirl.com
 sankakucomplex.com
 scrolller.com
 serviporno.com
-sex-explorer.com
 sex-porn.cam
 sex-tracker.com
 sex.com
@@ -297,14 +263,11 @@ sexvideo12.com
 sexyaporno.com
 sexymetas.com
 sexyqgirl.com
-sexyslutx.com
 sexyxart.com
-sexyxbody.com
 sexyxpic.com
 shameless.com
 shemale.movie
 sleazyneasy.com
-slutxpic.com
 spankbang.com
 stiffia.com
 streamray.com
@@ -319,7 +282,6 @@ teenixxx.com
 teentuber.xxx
 thongpic.com
 thongxgirl.com
-thongxxx.com
 thumblogger.com
 tiktok-pornhub.com
 tlsext.com
@@ -353,9 +315,6 @@ watchmygf.name
 watchmygf.sex
 wnppsn.com
 wordpress.com
-xartpic.com
-xbeautyzone.com
-xgirlzone.com
 xgroovy.com
 xhamster.com
 xhamster.desi
@@ -376,7 +335,6 @@ xvideos-cdn.com
 xvideos.com
 xxxbox.me
 xxxcounter.com
-xxxthong.com
 xxxtube1.com
 xxxvideor.com
 xxxvideos247.com

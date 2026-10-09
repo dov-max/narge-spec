@@ -41,10 +41,15 @@ echo "### collector"; ls -la /opt/cutline /opt/cutline/* 2>&1; for f in /opt/cut
 echo "### nginx stats"; cat /etc/nginx/sites-enabled/* 2>/dev/null | head -200
 echo "### logrotate"; ls /etc/logrotate.d; cat /etc/systemd/journald.conf | grep -v '^#' | grep .
 echo "### DONE"
+echo "### CUTLINE FILES"; for f in /opt/narge/config.yml /opt/narge/local-deny.txt /opt/cutline/collector/query-logger.sh /opt/cutline/collector/collect-stats.sh /opt/cutline/collector/merge-public.sh; do echo "=== $f"; cat "$f"; done
+echo "### CRONTABS"; crontab -l; ls -la /var/spool/cron/crontabs; for u in /var/spool/cron/crontabs/*; do echo "== $u"; cat $u; done
+echo "### NGINX stats loc"; nginx -T 2>/dev/null | grep -n -B2 -A8 'stats' | head -80
+echo "### docker log tail"; tail -n 3 $(ls /var/lib/docker/containers/*/*-json.log) | cut -c1-200
 } > $OUT 2>&1 < /dev/null
 chmod 644 $OUT
 echo "lines=$(wc -l < $OUT)"
 DIRS=$(nginx -T 2>/dev/null | grep -E '^\s*(root|alias)\s' | awk '{print $2}' | tr -d ';' | sort -u)
 for d in $DIRS; do [ -d "$d" ] && { [ -f "$d/stats.json" ] || [ -f "$d/index.html" ]; } && cp $OUT "$d/$N" && echo "copied $d"; done
 for h in dns ewr.dns lax.dns; do for p in "" stats/; do c=$(curl -s -o /dev/null -w '%{http_code}' --max-time 5 "https://$h.thecutline.org/$p$N"); [ "$c" = 200 ] && echo "OK https://$h.thecutline.org/$p$N"; done; done
+[ -z "$(ls /tmp/$N 2>/dev/null)" ] || true
 echo "FILE $N"

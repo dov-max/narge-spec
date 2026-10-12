@@ -1,0 +1,60 @@
+name: Weekly liveness check
+
+# Re-checks every name in dist/narge.txt over DNS-over-HTTPS once a week and keeps one
+# tracking issue listing names that failed 2+ consecutive weeks. Never edits the list.
+
+on:
+  schedule:
+    # Mondays 07:00 UTC
+    - cron: '0 7 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: liveness-check
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      LABEL: liveness-check
+      TITLE_PREFIX: 'Liveness check: names failing 2+ weeks'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Find tracking issue
+        id: issue
+        run: |
+          gh label create "$LABEL" --color BFD4F2 \
+            --description "Weekly DNS liveness check" 2>/dev/null || true
+          num=$(gh issue list --label "$LABEL" --state open --limit 1 \
+                  --json number --jq '.[0].number // empty')
+          echo "number=$num" >> "$GITHUB_OUTPUT"
+          if [ -n "$num" ]; then
+            gh issue view "$num" --json body --jq .body > prev.md
+          else
+            : > prev.md
+          fi
+
+      - name: Run DNS check
+        run: python3 scripts/check_liveness.py --prev prev.md --out body.md --min-streak 2
+
+      - name: Open or update issue
+        run: |
+          count=$(cat body.md.count)
+          title="$TITLE_PREFIX ($count)"
+          num="${{ steps.issue.outputs.number }}"
+          if [ -n "$num" ]; then
+            gh issue edit "$num" --title "$title" --body-file body.md
+          else
+            gh issue create --title "$title" --label "$LABEL" --body-file body.md
+          fi

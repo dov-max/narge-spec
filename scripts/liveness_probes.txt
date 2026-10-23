@@ -1,0 +1,11 @@
+# Extra subdomains to try for delivery/CDN names that have no address at the apex.
+# Format: <listed name> <subdomain> [<subdomain> ...]
+# Only used by scripts/check_liveness.py. Found via DNS lookups, 2026-10-08.
+gammacdn.com images-fame
+highwebmedia.com static-pub roomimg.stream static-assets
+fwwgo.com s1 s2
+nsimg.net cdn
+phncdn.com ei di
+rdtcdn.com ei di assets
+strpst.com assets
+ypncdn.com ei di

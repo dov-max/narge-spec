@@ -1,0 +1,2240 @@
+{
+  "folder": {
+    "title": "Narge",
+    "description": "Narge content class - adult content sites",
+    "rules": [
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "100bucksbabes.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "1cam.webcam"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "3xxx.pro"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "4tube.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "7mmtv.tv"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "9hz.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "adult-empire.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "adultadworld.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "adultfriendfinder.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "adultmetas.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "adultrevenueservice.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "adultsearch.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "aebn.net"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "ahacdn.me"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "ahcdn.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "ahtops.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "allepornodeutsch.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "angelfire.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "animehentaivideos.xxx"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "artpanty.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "artthong.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "artxgirl.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "asianxpic.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "assxpic.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "atube.sex"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "atube.xxx"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "av4.club"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "awempire.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "b-cdn.net"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "babesandgirls.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "bangbros.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "bangbros1.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "bcvcdn.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "bdsmlr.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "bdsmsite.net"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "beautifulmetas.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "beautyxgirl.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "beautyxpic.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "bellexpic.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "bestxass.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "bestxbeauty.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "bestxboobs.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "bestxbum.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "bestxleg.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "bestxlingerie.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "bestxpic.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "bigporn.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "bigtopsites.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "biguz.net"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "bimbolive.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "bitchxpic.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "blog.br"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "blogspot.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "bongacams.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "bongacams.org"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "boobxgirl.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "book.fr"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "booru.org"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "bootyxgirl.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "brazzers.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "broxxx.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "bumxpic.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "bunnyxgirl.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "bustyxgirl.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "callofgirl.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "camsoda.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "canalblog.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "cartoonporno.xxx"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "cdn3x.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "chaturbate.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "chickenhost.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "co.hu"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "co.il"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "co.in"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "co.jp"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "co.uk"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "coedcherry.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "collegeporn.xxx"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "com.ar"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "com.au"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "com.br"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "com.co"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "com.es"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "com.home"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "cutexgirl.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "cutexpic.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "darknun.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "dashxh.site"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "dditscdn.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "decorativemodels.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "deluxepass.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "deutschcasting.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "dirtypornvids.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "dogfartnetwork.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "dosexvideo.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "doublepimp.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "drtst.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "eporner.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "ero-advertising.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "erome.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "eroticxgirl.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "eroticxpic.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "escortbook.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "escortsyputas.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "evooli.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "exmasters.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "extremesexchannels.tv"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "fapcat.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "faperoni.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "fapnado.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "fastpic.ru"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "fc2.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "fchat.net"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "fetishshrine.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "filesor.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "filestube.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "fpo.xxx"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "free.fr"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "freeadultporn.pro"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "fuckedgay.xxx"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "fuckedtube.xxx"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "fuckvideos.xxx"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "fullhdxxx.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "fulltube.xxx"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "fwwgo.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "gammacdn.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "gay.bingo"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "gayfucktube.xxx"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "girlgirlgo.net"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "girlygirlpic.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "gooxh.life"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "gotporn.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "greatxass.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "greatxgirl.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "hardpornlinks.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "hdmmovies.xxx"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "hdpornmovies.xxx"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "hdpornt.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "hdpornup.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "hdpornvideo.xxx"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "hdpornvideoindia.pro"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "hdpsn21.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "hdsex.org"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "hdsex2.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "hdsexvideo.xxx"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "hdtubemovies.xxx"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "hentai-cosplays.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "hentai-img.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "hifiporn.fun"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "highwebmedia.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "hobby.porn"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "homegrownvideo.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "hot-live-sex-shows.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "hotbeautypic.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "hotbokep-hotvideo.info"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "hottyxpic.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "hotxbaby.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "hotxgirl.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "hotxhips.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "ibxh.life"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "iceppsn.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "imagetwist.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "incest.click"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "itch.io"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "jasmin.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "jerkoffgalleries.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "jpg4.biz"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "jucydate.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "juicexgirl.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "juicyads.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "jzzo.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "katestube.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "kawaiithong.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "kawaiix.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "kawaiixgirl.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "kawaiixpic.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "kinkygirlz.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "letsdoeit.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "letsgirlz.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "lexixxx.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "lingeriexgirl.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "livejasmin.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "luscious.net"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "lxtube.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "m-porn.xxx"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "matureclub.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "maturepornvideos.xxx"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "metaxgirl.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "metaxpic.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "mrdeepfakes.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "mrskincdn.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "mtree.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "myfreecams.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "mypornvid.fun"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "naiadsystems.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "ne.jp"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "nicexgirl.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "nsimg.net"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "nu-bay.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "nudevista.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "nvdst.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "nyuu.info"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "off.thecutline.org"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "onlyfans.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "org.uk"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "outster.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "over-blog.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "pantyxart.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "pantyxgirl.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "pantyxpic.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "pbwstatic.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "peachgirlz.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "perfectgirls.net"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "perfectxbody.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "perfectxpic.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "perfectxsexy.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "phncdn.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "pimproll.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "pixhost.to"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "playboy.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "poringa.net"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "porn-good.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "porn-hd.xxx"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "porn-images-xxx.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "porn.biz"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "porn.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "porn7.xxx"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "pornbl.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "porndig.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "porngo.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "pornhub.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "pornhubs.video"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "pornicom.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "pornmaster.fun"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "pornmeamelone.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "porno71.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "pornobrasileirinhas.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "pornohdv.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "pornomoviegals.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "pornpen.tv"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "pornpics.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "pornproxy.app"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "pornrabbit.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "pornstar-scenes.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "porntrex.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "pornv.xxx"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "pornvideos7.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "pornwhite.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "pornxp.cc"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "pornxp.me"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "prettyxgirl.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "puba.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "rdtcdn.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "redgifs.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "redtube.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "retroporn.sexy"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "rexporn.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "sakuraxgirl.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "sankakucomplex.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "scrolller.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "serviporno.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "sex-explorer.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "sex-porn.cam"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "sex-tracker.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "sex.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "sex4k.cam"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "sexfreehd.xxx"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "sexfreehdxxxindia.pro"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "sexhdtuber.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "sexlist.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "sexm.xxx"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "sexmature.xxx"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "sexmovr.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "sextgem.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "sextracker.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "sextracker.de"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "sextvx.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "sexvid.xxx"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "sexvideo10.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "sexvideo12.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "sexyaporno.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "sexymetas.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "sexyqgirl.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "sexyslutx.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "sexyxart.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "sexyxbody.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "sexyxpic.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "shameless.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "shemale.movie"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "sleazyneasy.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "slutxpic.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "spankbang.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "stiffia.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "streamray.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "stripchat.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "stripst.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "strpst.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "suitemovies.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "sunporno.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "sweetxladies.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "taoxh.life"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "teenixxx.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "teentuber.xxx"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "thongpic.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "thongxgirl.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "thongxxx.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "thumblogger.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "tiktok-pornhub.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "tlsext.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "tnaflix.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "tokyohotgirl.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "tokyoxgirl.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "tokyoxhot.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "topbucks.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "totalsupercuties.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "trafficdeposit.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "tsyndicate.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "tubev.pro"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "tubev.sex"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "tubevideoshd.xxx"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "tukif.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "twinkmovies.xxx"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "txxx.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "ujizz.xxx"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "uploadhouse.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "urlgalleries.net"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "videosection.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "videoshd.xxx"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "videosrc.net"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "videosz.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "vids69.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "vikiporn.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "vps-vids.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "vptpsn.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "wankoz.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "watchmygf.name"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "watchmygf.sex"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "wnppsn.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "wordpress.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "xartpic.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "xbeautyzone.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "xgirlzone.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "xgroovy.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "xhamster.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "xhamster.desi"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "xhamster2.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "xhamster3.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "xhamsterlive.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "xhcdn.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "xhchannel2.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "xhcoins.xyz"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "xlogz.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "xn--3dsq7teoyo9d.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "xn--94qy09a6nz5ui.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "xn--aa-wl5eb.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "xnxx-cdn.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "xnxx.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "xpiczone.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "xvideos-cdn.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "xvideos.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "xxxbox.me"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "xxxcounter.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "xxxthong.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "xxxtube1.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "xxxvideor.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "xxxvideos247.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "yobt.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "youngsexer.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "youporn.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "ypncdn.com"
+      },
+      {
+        "group": "domain",
+        "do": "block",
+        "status": 1,
+        "PK": "zproxy.org"
+      }
+    ]
+  },
+  "metadata": {
+    "spec_version": "0.2",
+    "build_date": "2026-11-02 16:52:07 UTC",
+    "feed_url": "https://feeds.thecutline.org/v1/narge-controld.json",
+    "total_domains": 371
+  }
+}

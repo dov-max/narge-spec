@@ -1,0 +1,61 @@
+# Cutline feed host: feeds.thecutline.org
+# Neutral naming only. No request data is ever logged.
+name = "cutline-feeds"
+main = "src/index.ts"
+compatibility_date = "2026-11-01"
+
+# Reachable only on the custom domain: no *.workers.dev URL, no preview URLs.
+workers_dev = false
+preview_urls = false
+routes = [{ pattern = "feeds.thecutline.org", custom_domain = true }]
+
+# Logging OFF. New Workers default observability to ON, so it is pinned off here
+# and must also be confirmed in the dashboard after first deploy.
+logpush = false
+[observability]
+enabled = false
+[observability.logs]
+enabled = false
+invocation_logs = false
+
+# Feed files (built from narge-spec dist/ by scripts/build-assets.mjs).
+# run_worker_first: every request passes the token check; assets are never served directly.
+[assets]
+directory = "./feed-dist"
+binding = "ASSETS"
+run_worker_first = true
+
+# TOKENS: "t:<sha256(token)>" -> {"org":"...","status":"active|grace|revoked"}
+# STATS:  "agg:<day>" (private, per org/ASN counts), "pub:<day>" and "pub:latest" (k-thresholded)
+# The ids below are placeholders; `wrangler kv namespace create` fills them at deploy time.
+[[kv_namespaces]]
+binding = "TOKENS"
+id = "00000000000000000000000000000001"
+
+[[kv_namespaces]]
+binding = "STATS"
+id = "00000000000000000000000000000002"
+
+[[durable_objects.bindings]]
+name = "COUNTER"
+class_name = "FetchCounter"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["FetchCounter"]
+
+# Per-org rate limit (keyed by org id, never by IP).
+[[ratelimits]]
+name = "RL"
+namespace_id = "1001"
+simple = { limit = 120, period = 60 }
+
+[vars]
+K_MIN = "10"
+
+# Minute ping keeps the counter object resident (its de-dup set lives in memory only)
+# and flushes counts; 00:05 UTC finalises the previous day.
+[triggers]
+crons = ["* * * * *", "5 0 * * *"]
+
+# Secret (not in this file): COUNTER_SECRET, 32+ random bytes, set with `wrangler secret put COUNTER_SECRET`.

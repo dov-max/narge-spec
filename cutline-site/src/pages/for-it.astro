@@ -2,93 +2,198 @@
 import Layout from '../layouts/Layout.astro';
 ---
 
-<Layout title="For IT Teams — Cutline DNS">
-  <h1>Cutline DNS for IT Teams</h1>
+<Layout title="For IT Teams — Narge Feed">
+  <h1>Narge for IT Teams</h1>
 
   <section class="intro">
     <p class="lead">
-      Cutline is a free, open DNS resolver that blocks a narrow, public list of adult content sites. 
-      Point your office router or firewall to our resolvers to provide a cut path for your network.
+      The Narge domain list blocks a narrow, public set of adult content sites. Load it into your own 
+      firewall, DNS server, or security platform—no need to point at external resolvers.
     </p>
   </section>
 
   <section class="what-it-is">
-    <h2>What Cutline Blocks</h2>
+    <h2>What Narge Blocks</h2>
     <p>
-      Cutline blocks sites on the <a href="/spec">Narge content class</a>—a narrow, secular list 
-      of explicit adult content sites. It operates like malware blocking: DNS queries for blocked 
-      domains return NXDOMAIN (no such domain).
+      Narge is a curated list of ~371 domains classified as explicit adult content sites. 
+      See the <a href="/spec">specification</a> for the formal definition.
     </p>
     <ul>
-      <li>Focused on explicit sites designed for arousal</li>
+      <li>Focused on sites designed for explicit content consumption</li>
       <li>Public, verifiable hostname list</li>
       <li>Does NOT block social media, dating apps, or general content</li>
-      <li>No query logging—query names are not stored</li>
+      <li>Free and open source (CC0 1.0)</li>
     </ul>
   </section>
 
-  <section class="dns-config">
-    <h2>DNS Configuration</h2>
-    
-    <div class="config-box">
-      <h3>Plain DNS (Port 53)</h3>
-      <div class="config-item">
-        <strong>Primary:</strong> <code class="ip">64.176.200.99</code>
+  <section class="feed-first">
+    <h2>Feed-First Approach</h2>
+    <p>
+      <strong>You keep control of your DNS.</strong> Most enterprise firewalls and DNS servers can load 
+      an external domain list by URL. Narge is the <strong>feed</strong>—you handle enforcement.
+    </p>
+    <div class="feed-urls">
+      <h3>Feed URLs</h3>
+      <div class="url-box">
+        <code class="url">https://feeds.thecutline.org/v1/narge.txt</code>
+        <span class="format">Plain domains</span>
       </div>
-      <div class="config-item">
-        <strong>Secondary:</strong> <code class="ip">149.28.79.49</code>
+      <div class="url-box">
+        <code class="url">https://feeds.thecutline.org/v1/narge-wildcard.txt</code>
+        <span class="format">With *.domain</span>
       </div>
+      <div class="url-box">
+        <code class="url">https://feeds.thecutline.org/v1/narge.rpz</code>
+        <span class="format">RPZ zone</span>
+      </div>
+      <div class="url-box">
+        <code class="url">https://feeds.thecutline.org/v1/narge-adguard.txt</code>
+        <span class="format">AdGuard format</span>
+      </div>
+      <details class="more-formats">
+        <summary>More formats</summary>
+        <div class="format-list">
+          <p><code>narge-plain-nocomments.txt</code> — For UniFi</p>
+          <p><code>narge.csv</code> — CSV with header</p>
+          <p><code>narge-controld.json</code> — Control D folder JSON</p>
+          <p><code>narge.hosts</code> — Hosts file format (legacy, cannot block subdomains)</p>
+        </div>
+      </details>
     </div>
-
-    <div class="config-box">
-      <h3>DNS-over-HTTPS (DoH)</h3>
-      <div class="config-item">
-        <strong>Endpoint:</strong><br>
-        <code class="url">https://dns.thecutline.org/dns-query</code>
-      </div>
-      <div class="config-item small-note">
-        Standard RFC 8484 application/dns-message format
-      </div>
-    </div>
-
     <p class="note-box">
-      <strong>Note:</strong> DNS-over-TLS (DoT) is temporarily unavailable while we complete certificate updates. 
-      Use plain DNS or DoH for now.
+      <strong>TODO:</strong> Hosted feed infrastructure is in progress. Per-organization feed URLs 
+      (with unique tokens for telemetry) will be issued on request. GitHub mirror remains available 
+      at <code>https://raw.githubusercontent.com/dov-max/narge-spec/main/dist/narge.txt</code>
     </p>
   </section>
 
-  <section class="setup">
-    <h2>Setup: Router or Firewall</h2>
+  <section class="platform-table">
+    <h2>Platform Support</h2>
     
-    <h3>Router DNS</h3>
-    <ol>
-      <li>Access your router admin panel (typically http://192.168.1.1 or http://192.168.0.1)</li>
-      <li>Find DNS settings (often under Internet, WAN, or DHCP configuration)</li>
-      <li>Set Primary DNS to <code>64.176.200.99</code></li>
-      <li>Set Secondary DNS to <code>149.28.79.49</code></li>
-      <li>Save and reboot the router</li>
-      <li>Devices will pick up the new DNS on next DHCP renewal</li>
-    </ol>
+    <h3>Direct URL Feed (No Script Needed)</h3>
+    <table class="platform-list">
+      <thead>
+        <tr>
+          <th>Platform</th>
+          <th>Feature</th>
+          <th>Format</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Palo Alto (PAN-OS)</strong></td>
+          <td>External Dynamic Lists</td>
+          <td>narge.txt (enable auto-expand)</td>
+        </tr>
+        <tr>
+          <td><strong>Fortinet FortiGate</strong></td>
+          <td>External Connector, Domain Name feed</td>
+          <td>narge.txt</td>
+        </tr>
+        <tr>
+          <td><strong>Infoblox</strong></td>
+          <td>TIDE custom feed / CSV import</td>
+          <td>narge.txt or narge.csv</td>
+        </tr>
+        <tr>
+          <td><strong>DigiCert UltraDDR</strong></td>
+          <td>Lists Engine URL import</td>
+          <td>narge.txt</td>
+        </tr>
+        <tr>
+          <td><strong>pfSense (pfBlockerNG)</strong></td>
+          <td>DNSBL source URL</td>
+          <td>narge.txt or narge-adguard.txt</td>
+        </tr>
+        <tr>
+          <td><strong>OPNsense</strong></td>
+          <td>Unbound custom blocklist</td>
+          <td>narge.txt</td>
+        </tr>
+        <tr>
+          <td><strong>WatchGuard Firebox</strong></td>
+          <td>Custom Dynamic Alias</td>
+          <td>narge.txt</td>
+        </tr>
+        <tr>
+          <td><strong>Unbound</strong></td>
+          <td>RPZ url:</td>
+          <td>narge.rpz</td>
+        </tr>
+        <tr>
+          <td><strong>PowerDNS Recursor</strong></td>
+          <td>rpzFile() or rpzPrimary()</td>
+          <td>narge.rpz (via cron or AXFR)</td>
+        </tr>
+        <tr>
+          <td><strong>BIND</strong></td>
+          <td>RPZ zone</td>
+          <td>narge.rpz (via AXFR or file)</td>
+        </tr>
+      </tbody>
+    </table>
 
-    <h3>Firewall / DNS Forwarder</h3>
+    <h3>API Sync (Script Required)</h3>
+    <table class="platform-list">
+      <thead>
+        <tr>
+          <th>Platform</th>
+          <th>Script</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Windows Server DNS</strong></td>
+          <td><a href="https://github.com/dov-max/narge-spec/tree/main/feeds/scripts">windows-dns-sync.ps1</a></td>
+          <td>Query Resolution Policies, PowerShell</td>
+        </tr>
+        <tr>
+          <td><strong>Cisco Umbrella</strong></td>
+          <td><a href="https://github.com/dov-max/narge-spec/tree/main/feeds/scripts">umbrella-sync.py</a></td>
+          <td>Destination List API</td>
+        </tr>
+        <tr>
+          <td><strong>Cloudflare Gateway</strong></td>
+          <td><a href="https://github.com/dov-max/narge-spec/tree/main/feeds/scripts">cloudflare-gateway-sync.py</a></td>
+          <td>Gateway Lists API</td>
+        </tr>
+        <tr>
+          <td><strong>Microsoft Defender</strong></td>
+          <td><a href="https://github.com/dov-max/narge-spec/tree/main/feeds/scripts">defender-sync.py</a></td>
+          <td>Custom Indicators API (works on roaming devices)</td>
+        </tr>
+        <tr>
+          <td><strong>Zscaler / DNSFilter / Meraki / UniFi / Control D</strong></td>
+          <td>Similar API scripts</td>
+          <td>Can be scripted using platform APIs</td>
+        </tr>
+      </tbody>
+    </table>
+
     <p>
-      Configure your firewall or internal DNS forwarder to use Cutline as its upstream resolver. 
-      The exact steps depend on your firewall vendor (pfSense, FortiGate, Cisco, etc.).
+      All scripts are <a href="https://github.com/dov-max/narge-spec/tree/main/feeds/scripts">available on GitHub</a> 
+      with setup instructions and can run on a schedule (daily recommended).
     </p>
+  </section>
 
-    <h3>ISP Router Restrictions</h3>
+  <section class="resolver-optional">
+    <h2>Resolvers (By Arrangement)</h2>
     <p>
-      Some ISPs lock DNS settings on their provided routers. If DNS settings are grayed out or unavailable, 
-      you may need to use bridge mode or your own router.
+      If you cannot load a list into your own DNS and need a resolver that enforces Narge, contact us to arrange access. 
+      Public open resolvers are no longer offered.
+    </p>
+    <p class="note-box">
+      <strong>TODO:</strong> Contact information for resolver access arrangements.
     </p>
   </section>
 
   <section class="testing">
-    <h2>Testing</h2>
+    <h2>Testing Your Deployment</h2>
     
-    <h3>Verification Probe</h3>
+    <h3>Automatic Verification</h3>
     <p>
-      After configuring DNS, test from a client device by visiting:
+      After configuring your firewall or DNS, test from a client device:
     </p>
     <div class="test-link-box">
       <a href="/verify" class="test-link">thecutline.org/verify</a>
@@ -97,63 +202,87 @@ import Layout from '../layouts/Layout.astro';
       This page runs an automatic probe that confirms:
     </p>
     <ul>
-      <li><code>on.thecutline.org</code> resolves (special test domain that only resolves via Cutline)</li>
-      <li><code>off.thecutline.org</code> does NOT resolve (blocked by the filter)</li>
+      <li><code>on.thecutline.org</code> resolves (control, should work)</li>
+      <li><code>off.thecutline.org</code> does NOT resolve (test domain in the block list)</li>
     </ul>
-    <p>
-      The verification shows green only when both conditions are met.
-    </p>
+    <p>Green status means the cut is working.</p>
 
     <h3>Command-Line Test</h3>
-    <p>Query Cutline directly to confirm it responds:</p>
-    <pre><code>dig @64.176.200.99 example.com</code></pre>
-    <p>or on Windows:</p>
-    <pre><code>nslookup example.com 64.176.200.99</code></pre>
+    <p>From a client device behind your firewall/DNS:</p>
+    <pre><code># Should work (not blocked)
+dig example.com
+
+# Should fail (blocked - domain is in Narge list)
+dig off.thecutline.org</code></pre>
+
+    <h3>Check List Loading</h3>
+    <p>Verify your platform fetched the list:</p>
+    <ul>
+      <li><strong>Palo Alto:</strong> Monitor → Logs → System, filter for "External Dynamic List"</li>
+      <li><strong>Fortinet:</strong> Log & Report → System Events, search for External Connector updates</li>
+      <li><strong>Infoblox:</strong> TIDE dashboard shows last refresh time</li>
+      <li><strong>pfBlockerNG:</strong> Firewall → pfBlockerNG → DNSBL → Statistics</li>
+      <li><strong>Sync scripts:</strong> Check cron job logs or scheduled task history</li>
+    </ul>
   </section>
 
   <section class="rollback">
     <h2>Rolling Back</h2>
-    <p>
-      To remove Cutline DNS from your network:
-    </p>
+    <p>To remove Narge blocking:</p>
+    
+    <h3>URL Feed Platforms</h3>
     <ol>
-      <li>Access your router or firewall admin panel</li>
-      <li>Change DNS settings back to your ISP's default (often set to "Automatic" or "Obtain automatically")</li>
-      <li>Save and reboot</li>
+      <li>Remove the Narge list from your platform's configuration (delete the External Dynamic List, External Connector, TIDE feed, etc.)</li>
+      <li>Save and apply the configuration</li>
+      <li>The list will stop updating and blocks will cease on next policy reload</li>
     </ol>
+
+    <h3>API Sync Scripts</h3>
+    <p>Most sync scripts include an uninstall option:</p>
+    <pre><code># Windows DNS
+.\windows-dns-sync.ps1 -Uninstall
+
+# Or manually delete indicators/policies from the platform dashboard</code></pre>
+
+    <h3>Verification</h3>
     <p>
-      Devices will revert to the previous DNS configuration on next DHCP renewal. No client-side changes needed.
+      Test that a previously blocked domain now resolves. The <a href="/verify">verification page</a> 
+      should show red (not on a cut path).
     </p>
   </section>
 
   <section class="privacy">
-    <h2>Privacy &amp; Logging</h2>
+    <h2>Privacy &amp; Telemetry</h2>
     <p>
-      Cutline collects no personal data:
+      Narge feed fetches can be counted without storing requester IPs. See the 
+      <a href="/privacy-design">privacy design</a> for how feed adoption is measured:
     </p>
     <ul>
-      <li>Query names are NOT stored—after a query completes, we cannot retrieve what was asked</li>
-      <li>Source IPs are retained for 7 days for rate limiting and public usage statistics, then deleted</li>
-      <li>No user accounts, no tracking, no data sales</li>
+      <li>Organization feed IDs and ASN/ISP are recorded</li>
+      <li>IPs are discarded at the edge (never stored)</li>
+      <li>Aggregated stats published only at ≥10 organizations per ASN</li>
+      <li>Organizations verified via DNS TXT record</li>
+      <li>Seat counts are self-declared</li>
     </ul>
     <p>
-      Full details: <a href="/privacy">Privacy Policy</a>
+      <strong>Current status:</strong> Planned (not yet live). GitHub mirror has no telemetry.
     </p>
   </section>
 
   <section class="limitations">
-    <h2>What Cutline Does NOT Do</h2>
+    <h2>What Narge Does NOT Do</h2>
     <ul>
-      <li><strong>Not complete filtering:</strong> Cutline blocks only the Narge content class. It does not block malware, social media explicit content, or other categories.</li>
-      <li><strong>DNS only:</strong> Cutline operates at the DNS layer. HTTPS content on general platforms (Reddit, Twitter, etc.) cannot be filtered by DNS.</li>
+      <li><strong>Not complete filtering:</strong> Narge blocks only ~371 explicit sites. It does not block malware, social media content, or other categories.</li>
+      <li><strong>DNS only:</strong> HTTPS content on general platforms (Reddit, Twitter, etc.) cannot be filtered by DNS alone.</li>
       <li><strong>Bypassable:</strong> Users with VPN access or the ability to change device DNS settings can bypass the filter.</li>
+      <li><strong>No real-time categorization:</strong> Narge is a curated list, not a dynamic web classifier.</li>
     </ul>
   </section>
 
   <section class="contact">
     <h2>Contact</h2>
-    <p>
-      <strong>TODO:</strong> Contact information for IT support inquiries.
+    <p class="note-box">
+      <strong>TODO:</strong> Contact information for IT support, feed access tokens, and resolver arrangements.
     </p>
     <p>
       <strong>GitHub:</strong> <a href="https://github.com/dov-max/narge-spec/issues" target="_blank" rel="noopener">Report issues or request changes</a>
@@ -165,19 +294,19 @@ import Layout from '../layouts/Layout.astro';
     <div class="card-grid">
       <a href="/spec" class="info-card">
         <h3>Narge Specification</h3>
-        <p>The formal definition of what Cutline blocks</p>
+        <p>The formal definition of what Narge blocks</p>
       </a>
       <a href="/stats" class="info-card">
         <h3>Live Statistics</h3>
-        <p>Service health, uptime, and usage metrics</p>
+        <p>Service health and list build status</p>
       </a>
-      <a href="/why" class="info-card">
-        <h3>Why Cut Paths?</h3>
-        <p>The reasoning behind this approach</p>
+      <a href="/privacy-design" class="info-card">
+        <h3>Privacy Design</h3>
+        <p>How feed adoption is counted without storing IPs</p>
       </a>
-      <a href="/run-your-own" class="info-card">
-        <h3>Run Your Own</h3>
-        <p>Deploy your own cut path resolver</p>
+      <a href="https://github.com/dov-max/narge-spec/tree/main/feeds/scripts" target="_blank" rel="noopener" class="info-card">
+        <h3>Sync Scripts</h3>
+        <p>Open-source scripts for API-based platforms</p>
       </a>
     </div>
   </section>
@@ -195,8 +324,9 @@ import Layout from '../layouts/Layout.astro';
   }
 
   .what-it-is,
-  .dns-config,
-  .setup,
+  .feed-first,
+  .platform-table,
+  .resolver-optional,
   .testing,
   .rollback,
   .privacy,
@@ -221,7 +351,7 @@ import Layout from '../layouts/Layout.astro';
     line-height: 1.7;
   }
 
-  .config-box {
+  .feed-urls {
     background: var(--color-card-bg);
     border: 2px solid var(--color-accent);
     border-radius: var(--radius);
@@ -229,39 +359,87 @@ import Layout from '../layouts/Layout.astro';
     margin: var(--spacing-lg) 0;
   }
 
-  .config-box h3 {
+  .feed-urls h3 {
     margin-top: 0;
     margin-bottom: var(--spacing-md);
   }
 
-  .config-item {
-    margin: var(--spacing-sm) 0;
-    font-size: 1rem;
-  }
-
-  .config-item.small-note {
-    font-size: 0.9rem;
-    color: var(--color-text-muted);
-    margin-top: var(--spacing-xs);
-  }
-
-  .ip {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: var(--color-accent);
+  .url-box {
     background: var(--color-bg);
-    padding: 0.25rem 0.5rem;
+    border: 1px solid var(--color-border);
     border-radius: 4px;
+    padding: var(--spacing-sm) var(--spacing-md);
+    margin: var(--spacing-sm) 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
   }
 
   .url {
-    font-size: 1rem;
+    font-size: 0.95rem;
     font-weight: 600;
     color: var(--color-accent);
-    background: var(--color-bg);
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
     word-break: break-all;
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .format {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    white-space: nowrap;
+  }
+
+  .more-formats {
+    margin-top: var(--spacing-md);
+    padding: var(--spacing-sm);
+    background: var(--color-bg);
+    border-radius: 4px;
+  }
+
+  .more-formats summary {
+    cursor: pointer;
+    font-weight: 600;
+    padding: var(--spacing-xs);
+    user-select: none;
+  }
+
+  .more-formats summary:hover {
+    color: var(--color-accent);
+  }
+
+  .format-list {
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+
+  .format-list p {
+    margin: var(--spacing-xs) 0;
+    font-size: 0.9rem;
+  }
+
+  .platform-list {
+    width: 100%;
+    border-collapse: collapse;
+    margin: var(--spacing-md) 0;
+    font-size: 0.95rem;
+  }
+
+  .platform-list th {
+    background: var(--color-card-bg);
+    padding: var(--spacing-sm);
+    text-align: left;
+    border-bottom: 2px solid var(--color-border);
+  }
+
+  .platform-list td {
+    padding: var(--spacing-sm);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .platform-list tr:last-child td {
+    border-bottom: none;
   }
 
   .note-box {
@@ -356,9 +534,19 @@ import Layout from '../layouts/Layout.astro';
     font-size: 0.95rem;
   }
 
-  @media (max-width: 640px) {
-    .ip {
-      font-size: 1.1rem;
+  @media (max-width: 768px) {
+    .platform-list {
+      font-size: 0.85rem;
+    }
+
+    .platform-list th,
+    .platform-list td {
+      padding: var(--spacing-xs);
+    }
+
+    .url-box {
+      flex-direction: column;
+      align-items: flex-start;
     }
 
     .card-grid {

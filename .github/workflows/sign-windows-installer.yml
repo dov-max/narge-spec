@@ -1,3 +1,7 @@
+# Paused Nov 2026: business-router-only strategy.
+# Per-device apps and installers are no longer actively distributed.
+# This workflow remains available for manual execution if needed.
+
 name: Sign Cutline DNS Installer
 
 on:

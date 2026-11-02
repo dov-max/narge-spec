@@ -1,5 +1,8 @@
 # Cutline DNS Settings App
 
+> **PAUSED (Nov 2026):** Cutline now targets IT teams and router-level DNS configuration. 
+> Per-device apps are no longer actively distributed. This codebase remains available for reference.
+
 iOS, iPadOS, and macOS app that uses NEDNSSettingsManager to configure system-wide encrypted DNS-over-HTTPS.
 
 ## Overview

@@ -1,0 +1,358 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Privacy Design — Narge Feed Telemetry">
+  <h1>Privacy Design</h1>
+
+  <div class="status-banner">
+    <strong>Status: Planned</strong>
+    <p>This design is not yet implemented. Hosted feed infrastructure is in progress. 
+    The current GitHub mirror has no telemetry.</p>
+  </div>
+
+  <section class="intro">
+    <p class="lead">
+      Narge counts feed adoption without storing IP addresses. This page documents the privacy-preserving 
+      design for measuring how many organizations use the Narge list.
+    </p>
+  </section>
+
+  <section class="problem">
+    <h2>The Challenge</h2>
+    <p>
+      When organizations load the Narge list into their own DNS or firewall, we want to count adoption 
+      without storing personal data about their users or employees. Traditional analytics would log 
+      IP addresses, which we explicitly do not want.
+    </p>
+  </section>
+
+  <section class="solution">
+    <h2>IP-Free Counting</h2>
+    <p>
+      The feed telemetry system counts <strong>installations</strong> (organizations fetching the list), 
+      not individual users, using an IP-free pipeline:
+    </p>
+
+    <h3>1. Edge Processing</h3>
+    <p>
+      Feed URLs are served through an edge worker (e.g., Cloudflare Workers) that exposes ASN and 
+      organization metadata <strong>without writing the IP address</strong>:
+    </p>
+    <ul>
+      <li>The request object includes <code>request.cf.asn</code> and <code>asOrganization</code></li>
+      <li>IP address is used <strong>in memory only</strong> to compute a daily hash</li>
+      <li>Hash: <code>h = HMAC(daily_key, client_ip)</code></li>
+      <li>The hash is added to a HyperLogLog sketch to count distinct installations</li>
+      <li>IP and hash are <strong>immediately discarded</strong> after processing</li>
+      <li>The daily HMAC key is destroyed at midnight UTC, so sketches cannot be re-linked across days</li>
+    </ul>
+
+    <h3>2. What Gets Stored</h3>
+    <p>
+      Only aggregated, non-identifying metrics:
+    </p>
+    <ul>
+      <li><strong>Day:</strong> Date of the fetch (e.g., 2026-11-02)</li>
+      <li><strong>Organization token:</strong> Unique feed URL token (e.g., <code>/v1/org-abc123/narge.txt</code>)</li>
+      <li><strong>ASN:</strong> Autonomous System Number (e.g., AS7922 = Comcast)</li>
+      <li><strong>Distinct estimate:</strong> HyperLogLog count of unique installations</li>
+      <li><strong>Fetch count:</strong> Total HTTP 200 and 304 responses</li>
+    </ul>
+    <p>
+      <strong>What is NOT stored:</strong> IP addresses, user agents, geographic coordinates, device identifiers, 
+      or any personally identifiable information.
+    </p>
+
+    <h3>3. Organization Verification</h3>
+    <p>
+      To distinguish real organizations from test/spam fetches, organizations are verified via DNS TXT record:
+    </p>
+    <pre><code>narge-verify=&lt;token&gt;</code></pre>
+    <p>
+      This proves domain control without revealing anything about the organization's users. Only verified 
+      organizations are included in public stats.
+    </p>
+
+    <h3>4. Declared Seats</h3>
+    <p>
+      Organizations may optionally declare how many people are covered (seats). This is <strong>self-reported</strong> 
+      and labeled as "declared seats" in all published data—it is not verified or measured automatically.
+    </p>
+  </section>
+
+  <section class="publishing">
+    <h2>Publishing Thresholds</h2>
+    <p>
+      Aggregated stats are published with privacy protections:
+    </p>
+
+    <h3>k-Anonymity Threshold</h3>
+    <p>
+      Per-ASN rows are published <strong>only when ≥10 distinct organizations</strong> are active in that ASN. 
+      This prevents revealing that "one company on Comcast's network uses Narge."
+    </p>
+    <p>
+      Example published row:
+    </p>
+    <pre><code>AS7922 (Comcast): 14 active installations</code></pre>
+    <p>
+      This reveals nothing about any individual person or organization. It shows only that multiple 
+      Comcast-connected orgs use Narge.
+    </p>
+
+    <h3>Organization Opt-In</h3>
+    <p>
+      Organizations may opt in to being named publicly. Opt-in stats include:
+    </p>
+    <ul>
+      <li>Organization name (self-provided)</li>
+      <li>Active status (fetched in last 24 hours)</li>
+      <li>Last fetch time (rounded to hour)</li>
+      <li>Installation count (distinct fetchers from that org's token)</li>
+      <li>Declared seats (if provided)</li>
+    </ul>
+    <p>
+      <strong>Without opt-in,</strong> the organization is counted in aggregate totals but not named.
+    </p>
+
+    <h3>Published Metrics</h3>
+    <p>
+      The public <code>stats.json</code> includes:
+    </p>
+    <ul>
+      <li><strong>Verified organizations:</strong> Orgs with valid DNS TXT verification</li>
+      <li><strong>Active organizations (24h):</strong> Orgs that fetched the list in the last day</li>
+      <li><strong>Active installations (24h):</strong> Distinct installation count across all orgs</li>
+      <li><strong>Declared seats:</strong> Sum of self-reported seat counts from verified orgs</li>
+      <li><strong>Per-ASN counts:</strong> Published only when ≥10 orgs, with optional differential privacy noise</li>
+    </ul>
+  </section>
+
+  <section class="device-heartbeat">
+    <h2>Optional Device Heartbeat (Phase 2)</h2>
+    <p>
+      For organizations that want to count <strong>protected devices</strong> (not just installations), 
+      an opt-in device heartbeat is planned:
+    </p>
+    <ul>
+      <li><strong>MDM-managed devices</strong> periodically resolve a heartbeat domain or POST to an aggregator</li>
+      <li><strong>DNS form:</strong> Resolver IP + org label (easy to spam, so low priority)</li>
+      <li><strong>DAP form:</strong> Uses <a href="https://divviup.org/" target="_blank" rel="noopener">ISRG Divvi Up</a> 
+          (IETF DAP, Prio3Count) for split-trust aggregation—no single party sees individual reports</li>
+      <li><strong>Privacy Pass tokens:</strong> Optionally, per-seat tokens (RFC 9576/9578) issued through the org's 
+          MDM can be required to prevent fake reports</li>
+    </ul>
+    <p>
+      This gives an honest "protected devices" count without revealing which specific devices or users.
+    </p>
+    <p>
+      <strong>Status:</strong> Phase 2, not yet implemented.
+    </p>
+  </section>
+
+  <section class="auditing">
+    <h2>Transparency &amp; Auditing</h2>
+    <p>
+      To build trust in the privacy design:
+    </p>
+    <ul>
+      <li><strong>Open-source code:</strong> Feed-serving and telemetry pipeline code will be published</li>
+      <li><strong>Signed stats:</strong> Published <code>stats.json</code> will be cryptographically signed</li>
+      <li><strong>Daily builds:</strong> List builds and stats updates are timestamped and verifiable</li>
+      <li><strong>No query logging:</strong> Edge workers do not log requests (logging is disabled)</li>
+      <li><strong>Third-party audit (optional):</strong> Pipeline configuration can be audited by an independent party</li>
+    </ul>
+  </section>
+
+  <section class="limitations">
+    <h2>Honest Limitations</h2>
+    <p>
+      This design <strong>cannot</strong> provide:
+    </p>
+    <ul>
+      <li><strong>Real-time user count:</strong> Without resolver access or device heartbeats, we count installations, not users</li>
+      <li><strong>Passive device count:</strong> Devices become countable only with an opt-in heartbeat</li>
+      <li><strong>Per-user attribution:</strong> By design, individual users are never identified or counted</li>
+      <li><strong>Perfect fake resistance:</strong> Anyone can curl a feed URL; verification and thresholds raise the bar but don't eliminate spam</li>
+    </ul>
+    <p>
+      The trade-off is intentional: privacy preservation over perfect accuracy.
+    </p>
+  </section>
+
+  <section class="current-status">
+    <h2>Current Status</h2>
+    <div class="status-box">
+      <h3>Not Yet Live</h3>
+      <p>
+        The hosted feed infrastructure (<code>https://feeds.thecutline.org</code>) is in progress. 
+        Per-organization feed URLs and telemetry are not yet active.
+      </p>
+      <p>
+        <strong>Currently available:</strong> GitHub mirror at 
+        <code>https://raw.githubusercontent.com/dov-max/narge-spec/main/dist/narge.txt</code> 
+        with <strong>no telemetry</strong>.
+      </p>
+    </div>
+  </section>
+
+  <section class="more-info">
+    <h2>More Information</h2>
+    <div class="card-grid">
+      <a href="/for-it" class="info-card">
+        <h3>For IT Teams</h3>
+        <p>Feed URLs and platform integration</p>
+      </a>
+      <a href="/privacy" class="info-card">
+        <h3>Privacy Policy</h3>
+        <p>Overall privacy commitments</p>
+      </a>
+      <a href="https://github.com/dov-max/narge-spec" target="_blank" rel="noopener" class="info-card">
+        <h3>GitHub Repository</h3>
+        <p>Open-source list and build scripts</p>
+      </a>
+      <a href="https://divviup.org/" target="_blank" rel="noopener" class="info-card">
+        <h3>ISRG Divvi Up</h3>
+        <p>Split-trust aggregation for device heartbeats</p>
+      </a>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .status-banner {
+    background: #fff3cd;
+    border: 2px solid #ffc107;
+    border-radius: var(--radius);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-xl);
+  }
+
+  .status-banner strong {
+    color: #856404;
+    font-size: 1.1rem;
+    display: block;
+    margin-bottom: var(--spacing-xs);
+  }
+
+  .status-banner p {
+    margin-bottom: 0;
+    color: #856404;
+  }
+
+  .intro {
+    margin-bottom: var(--spacing-xl);
+  }
+
+  .lead {
+    font-size: 1.25rem;
+    line-height: 1.7;
+  }
+
+  .problem,
+  .solution,
+  .publishing,
+  .device-heartbeat,
+  .auditing,
+  .limitations,
+  .current-status,
+  .more-info {
+    margin: var(--spacing-2xl) 0;
+  }
+
+  h3 {
+    margin-top: var(--spacing-xl);
+    font-size: 1.25rem;
+  }
+
+  ul {
+    padding-left: var(--spacing-lg);
+    margin: var(--spacing-md) 0;
+  }
+
+  li {
+    margin-bottom: var(--spacing-sm);
+    line-height: 1.7;
+  }
+
+  pre {
+    background: var(--color-text);
+    color: #f8f8f2;
+    padding: var(--spacing-md);
+    border-radius: var(--radius);
+    overflow-x: auto;
+    margin: var(--spacing-md) 0;
+  }
+
+  pre code {
+    color: #f8f8f2;
+  }
+
+  code {
+    background: var(--color-card-bg);
+    padding: 0.125rem 0.375rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+  }
+
+  .status-box {
+    background: var(--color-card-bg);
+    border: 2px solid var(--color-accent);
+    border-radius: var(--radius);
+    padding: var(--spacing-xl);
+  }
+
+  .status-box h3 {
+    margin-top: 0;
+    margin-bottom: var(--spacing-md);
+    color: var(--color-accent);
+  }
+
+  .status-box p:last-child {
+    margin-bottom: 0;
+  }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-lg);
+  }
+
+  .info-card {
+    background: var(--color-card-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: var(--spacing-lg);
+    text-decoration: none;
+    color: var(--color-text);
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  }
+
+  .info-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-color: var(--color-accent);
+    text-decoration: none;
+  }
+
+  .info-card h3 {
+    margin-top: 0;
+    margin-bottom: var(--spacing-sm);
+    color: var(--color-accent);
+    font-size: 1.15rem;
+  }
+
+  .info-card p {
+    margin-bottom: 0;
+    color: var(--color-text-muted);
+    font-size: 0.95rem;
+  }
+
+  @media (max-width: 640px) {
+    .card-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

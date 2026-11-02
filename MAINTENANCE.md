@@ -16,7 +16,7 @@ Not from: query volume, completeness.
 
 ### Prune Owned Core
 
-DNS resolve the ~371 names in `core/`. Drop NXDOMAIN or dead domains. This is a DNS lookup of our owned list, not a web crawl and not a scan of the internet.
+The weekly liveness Action resolves every name over DoH and keeps one issue listing names failing 2+ consecutive weeks. Remove a name only after the failure rule in [RULES.md](RULES.md#6-active-and-removal-for-inactivity) is met, with a line in CHANGELOG.md. This is a DNS lookup of our owned list, not a web crawl and not a scan of the internet.
 
 ### False Positives First
 
@@ -63,7 +63,7 @@ Rebuild `dist/` via the existing GitHub Action after changes.
 The add path:
 
 1. Take a noisy third-party list
-2. Intersect with Tranco top 50,000 (https://tranco-list.eu/)
+2. Intersect with Tranco top 50,000 (https://tranco-list.eu/); see add criteria in [RULES.md](RULES.md#4-adding-a-name)
 3. Drop names already in `core/`
 4. Review the remaining hostnames (names only, do not visit)
 5. Never auto-merge

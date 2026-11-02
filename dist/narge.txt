@@ -1,12 +1,12 @@
 # Narge domain list
 # Spec version: 0.2
-# Build date: 2026-11-02 16:57:39 UTC
+# Build date: 2026-11-02 16:58:39 UTC
 # Subscribe URL: https://raw.githubusercontent.com/dov-max/narge-spec/main/dist/narge.txt
 # Sources: core sources (seeded from StevenBlack porn-only MIT license), overlay/block.txt, overlay/allow.txt
 # License: CC0 1.0 (public domain)
 # Attribution: Initial seed from StevenBlack hosts (MIT license)
 #              https://github.com/StevenBlack/hosts
-# Total domains: 300
+# Total domains: 305
 #
 # Catalog ingest policy:
 #   - Ingest as "Narge," a separate optional category
@@ -65,6 +65,7 @@ cartoonporno.xxx
 cdn3x.com
 chaturbate.com
 chickenhost.com
+clips4sale.com
 coedcherry.com
 collegeporn.xxx
 cutexgirl.com
@@ -88,6 +89,7 @@ escortsyputas.com
 evooli.com
 exmasters.com
 extremesexchannels.tv
+fansly.com
 fapcat.com
 faperoni.com
 fapnado.com
@@ -133,6 +135,7 @@ hotbeautypic.com
 hotbokep-hotvideo.info
 hotxbaby.com
 hotxgirl.com
+hustler.com
 ibxh.life
 iceppsn.com
 incest.click
@@ -154,10 +157,12 @@ livejasmin.com
 luscious.net
 lxtube.com
 m-porn.xxx
+manyvids.com
 matureclub.com
 maturepornvideos.xxx
 metaxgirl.com
 metaxpic.com
+motherless.com
 mrdeepfakes.com
 mrskincdn.com
 mtree.com

@@ -2,6 +2,8 @@
 
 This process sits next to the [Narge specification](README.md). It produces a hostname list a DNS resolver can load.
 
+**Rules**: [RULES.md](RULES.md) (what qualifies, adds, removals, appeals, feed guarantees).
+
 **Maintenance**: See [MAINTENANCE.md](MAINTENANCE.md) for the weekly maintenance SOP.
 
 ## Subscribe URL
@@ -37,7 +39,7 @@ See [resolver/](resolver/) for a ready-to-run Blocky DNS configuration that load
 
 A DNS product judges site-level intent: is this host's purpose arousal?
 
-A modest shop or a sex education site is not Narge even if a picture slips. An arousal-first lingerie shop can be.
+A shop or a sex education site is not listed even if a picture slips. Lingerie, clothing, toy and wellness shops are not listed. General platforms and mixed-use hosts are not listed, because consumers match subdomains. See [RULES.md](RULES.md).
 
 ## Purpose types
 
@@ -58,7 +60,8 @@ Irrelevant types (grocery, banks) are cleared and never asked. A porn CDN is del
 
 - Types **1** and **2** default to Narge unless shown otherwise.
 - Types **4** and **8** default to not Narge, unless the host's purpose is arousal.
-- Types **3**, **5**, **6**, and **7** are the margin. Each host is judged.
+- Types **3** and **7** are the margin. Each host is judged.
+- Types **5** and **6** (shops) are not listed. See [RULES.md](RULES.md).
 
 ## Ranks inside a type
 

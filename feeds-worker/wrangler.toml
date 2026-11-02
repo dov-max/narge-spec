@@ -27,14 +27,14 @@ run_worker_first = true
 
 # TOKENS: "t:<sha256(token)>" -> {"org":"...","status":"active|grace|revoked"}
 # STATS:  "agg:<day>" (private, per org/ASN counts), "pub:<day>" and "pub:latest" (k-thresholded)
-# The ids below are placeholders; `wrangler kv namespace create` fills them at deploy time.
+# KV namespaces cutline-feeds-TOKENS and cutline-feeds-STATS (Cloudflare account "Cutline").
 [[kv_namespaces]]
 binding = "TOKENS"
-id = "00000000000000000000000000000001"
+id = "eb6835ae57fe420491a9bd0ff90317b1"
 
 [[kv_namespaces]]
 binding = "STATS"
-id = "00000000000000000000000000000002"
+id = "09c33bbac9fa45809bb48525b8bee24a"
 
 [[durable_objects.bindings]]
 name = "COUNTER"

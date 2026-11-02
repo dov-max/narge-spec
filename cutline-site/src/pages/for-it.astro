@@ -61,9 +61,8 @@ import Layout from '../layouts/Layout.astro';
       </details>
     </div>
     <p class="note-box">
-      <strong>TODO:</strong> Hosted feed infrastructure is in progress. Per-organization feed URLs 
-      (with unique tokens for telemetry) will be issued on request. GitHub mirror remains available 
-      at <code>https://raw.githubusercontent.com/dov-max/narge-spec/main/dist/narge.txt</code>
+      <strong>Per-organization feed URLs</strong> (with unique tokens for telemetry) are available on request. 
+      GitHub mirror remains available as a fallback at <code>https://raw.githubusercontent.com/dov-max/narge-spec/main/dist/narge.txt</code>
     </p>
   </section>
 
@@ -218,7 +217,7 @@ dig off.thecutline.org</code></pre>
     <h3>Check List Loading</h3>
     <p>Verify your platform fetched the list:</p>
     <ul>
-      <li><strong>Palo Alto:</strong> Monitor → Logs → System, filter for "External Dynamic List"</li>
+      <li><strong>Palo Alto:</strong> Monitor → Logs → System, search for "External Dynamic List"</li>
       <li><strong>Fortinet:</strong> Log & Report → System Events, search for External Connector updates</li>
       <li><strong>Infoblox:</strong> TIDE dashboard shows last refresh time</li>
       <li><strong>pfBlockerNG:</strong> Firewall → pfBlockerNG → DNSBL → Statistics</li>
@@ -254,8 +253,8 @@ dig off.thecutline.org</code></pre>
   <section class="privacy">
     <h2>Privacy &amp; Telemetry</h2>
     <p>
-      Narge feed fetches can be counted without storing requester IPs. See the 
-      <a href="/privacy-design">privacy design</a> for how feed adoption is measured:
+      The hosted feed at <code>https://feeds.thecutline.org</code> counts adoption without storing requester IPs. 
+      See the <a href="/privacy-design">privacy design</a> for how feed adoption is measured:
     </p>
     <ul>
       <li>Organization feed IDs and ASN/ISP are recorded</li>
@@ -265,16 +264,16 @@ dig off.thecutline.org</code></pre>
       <li>Seat counts are self-declared</li>
     </ul>
     <p>
-      <strong>Current status:</strong> Planned (not yet live). GitHub mirror has no telemetry.
+      The GitHub mirror has no telemetry. Per-organization feed URLs with tokens are available on request.
     </p>
   </section>
 
   <section class="limitations">
     <h2>What Narge Does NOT Do</h2>
     <ul>
-      <li><strong>Not complete filtering:</strong> Narge blocks only ~371 explicit sites. It does not block malware, social media content, or other categories.</li>
-      <li><strong>DNS only:</strong> HTTPS content on general platforms (Reddit, Twitter, etc.) cannot be filtered by DNS alone.</li>
-      <li><strong>Bypassable:</strong> Users with VPN access or the ability to change device DNS settings can bypass the filter.</li>
+      <li><strong>Not comprehensive:</strong> Narge blocks only ~371 explicit sites. It does not block malware, social media content, or other categories.</li>
+      <li><strong>DNS only:</strong> HTTPS content on general platforms (Reddit, Twitter, etc.) cannot be addressed by DNS alone.</li>
+      <li><strong>Bypassable:</strong> Users with VPN access or the ability to change device DNS settings can route around the block list.</li>
       <li><strong>No real-time categorization:</strong> Narge is a curated list, not a dynamic web classifier.</li>
     </ul>
   </section>

@@ -6,9 +6,9 @@ import Layout from '../layouts/Layout.astro';
   <h1>Privacy Design</h1>
 
   <div class="status-banner">
-    <strong>Status: Planned</strong>
-    <p>This design is not yet implemented. Hosted feed infrastructure is in progress. 
-    The current GitHub mirror has no telemetry.</p>
+    <strong>Status: Live</strong>
+    <p>The hosted feed at <code>https://feeds.thecutline.org</code> is live with IP-free telemetry. 
+    Per-organization feed URLs and the anonymous feed are available. The GitHub mirror remains available as a fallback with no telemetry.</p>
   </div>
 
   <section class="intro">
@@ -184,15 +184,18 @@ import Layout from '../layouts/Layout.astro';
   <section class="current-status">
     <h2>Current Status</h2>
     <div class="status-box">
-      <h3>Not Yet Live</h3>
+      <h3>Live</h3>
       <p>
-        The hosted feed infrastructure (<code>https://feeds.thecutline.org</code>) is in progress. 
-        Per-organization feed URLs and telemetry are not yet active.
+        The hosted feed infrastructure at <code>https://feeds.thecutline.org</code> is live. 
+        Per-organization feed URLs (<code>/v1/&lt;token&gt;/&lt;file&gt;</code>) and the anonymous form 
+        (<code>/v1/&lt;file&gt;</code>, <code>/v1/public/&lt;file&gt;</code>) are active. IP-free telemetry 
+        counts organization fetches by ASN without storing addresses. ISP rows in <code>stats.json</code> 
+        are published only when ≥10 organizations are active in that ASN.
       </p>
       <p>
-        <strong>Currently available:</strong> GitHub mirror at 
+        <strong>GitHub mirror:</strong> 
         <code>https://raw.githubusercontent.com/dov-max/narge-spec/main/dist/narge.txt</code> 
-        with <strong>no telemetry</strong>.
+        remains available as a fallback with <strong>no telemetry</strong>.
       </p>
     </div>
   </section>

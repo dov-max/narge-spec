@@ -25,21 +25,20 @@ import Layout from '../layouts/Layout.astro';
   <section id="what-is-cutline">
     <h2>What is Cutline?</h2>
     <p>
-      Cutline is a public DNS resolver service that provides a "cut path"—an internet connection that does not 
-      resolve the Narge content class. It operates two DNS resolvers at <code>64.176.200.99</code> and 
-      <code>149.28.79.49</code>.
+      Cutline is the public Narge domain list and feed infrastructure. Organizations load the Narge list 
+      into their own firewalls, DNS servers, or security platforms—Cutline provides the list.
     </p>
     <p>
       Cutline is:
     </p>
     <ul>
-      <li>One operator providing cut path DNS (not the only one)</li>
       <li>Open source and publicly documented</li>
       <li>No signup, no charge, no accounts</li>
-      <li>Run by <a href="https://github.com/dov-max" target="_blank" rel="noopener">Dov Allison</a></li>
+      <li>Maintained by <a href="https://github.com/dov-max" target="_blank" rel="noopener">Dov Allison</a></li>
+      <li>Feed-first: you control your own DNS</li>
     </ul>
     <p>
-      Cutline is not a house filter, safety product, trust brand, government program, or kids-specific service.
+      Cutline is not a house product, safety brand, trust mark, government program, or kids-specific service.
     </p>
   </section>
 
@@ -62,33 +61,32 @@ import Layout from '../layouts/Layout.astro';
   <section id="how-it-works">
     <h2>How It Works</h2>
     
-    <h3>DNS Resolution</h3>
+    <h3>Feed-First Approach</h3>
     <p>
-      When you configure Cutline as your network's DNS resolver:
+      Organizations load the Narge list into their own infrastructure:
     </p>
     <ol>
-      <li>A device on your network asks Cutline to resolve a domain name (e.g., "example.com")</li>
-      <li>Cutline checks if the domain is on the Narge block list</li>
-      <li>If blocked: returns <code>NXDOMAIN</code> (domain does not exist)</li>
-      <li>If not blocked: queries upstream DNS (Cloudflare 1.1.1.1) and returns the result</li>
+      <li>Your firewall or DNS server fetches the Narge list from <code>https://feeds.thecutline.org</code></li>
+      <li>Your own infrastructure checks incoming requests against the list</li>
+      <li>Blocked domains return <code>NXDOMAIN</code> (domain does not exist) or are blocked at the firewall</li>
+      <li>Everything else resolves normally through your chosen upstream DNS</li>
     </ol>
     
     <p>
-      <strong>Deployment:</strong> Cutline is configured at the router or firewall level. 
-      See <a href="/for-it">For IT Teams</a> for setup instructions.
+      <strong>Deployment:</strong> See <a href="/for-it">For IT Teams</a> for platform-specific setup instructions.
     </p>
 
     <h3>What Gets Blocked</h3>
     <p>
-      Cutline uses the Narge hostname list published at <a href="https://github.com/dov-max/narge-spec" target="_blank" rel="noopener">dov-max/narge-spec</a>. 
-      The list was seeded once from the <a href="https://github.com/StevenBlack/hosts" target="_blank" rel="noopener">StevenBlack hosts porn-only list</a> 
+      The Narge hostname list is published at <a href="https://github.com/dov-max/narge-spec" target="_blank" rel="noopener">dov-max/narge-spec</a>. 
+      The list was seeded once from the <a href="https://github.com/StevenBlack/hosts" target="_blank" rel="noopener">StevenBlack hosts list subset</a> 
       (MIT license) and is now maintained as a curated hostname feed.
     </p>
 
     <h3>Your Traffic</h3>
     <p>
-      <strong>Important:</strong> Only DNS queries go through Cutline. Your actual web traffic (loading pages, 
-      downloading files) goes directly from your device to the destination server. Cutline does not see or proxy your traffic.
+      <strong>Important:</strong> Only DNS queries go through your own DNS infrastructure. Your actual web traffic 
+      (loading pages, downloading files) goes directly from your device to the destination server.
     </p>
   </section>
 
@@ -107,15 +105,15 @@ import Layout from '../layouts/Layout.astro';
   <section id="limitations">
     <h2>Limitations</h2>
     
-    <h3>Not a Complete Filter</h3>
+    <h3>Not Comprehensive</h3>
     <p>
-      Cutline only addresses the Narge content class. It does not block:
+      The Narge list addresses only one narrow content class. It does not block:
     </p>
     <ul>
       <li>Malware or phishing sites (use additional security tools)</li>
       <li>Social media content (sexual or otherwise)</li>
       <li>Dating or hookup apps</li>
-      <li>Non-Narge adult content (violence, gambling, etc.)</li>
+      <li>Other content categories (violence, gambling, etc.)</li>
     </ul>
 
     <h3>Easy to Bypass</h3>
@@ -147,7 +145,7 @@ import Layout from '../layouts/Layout.astro';
     <h3>HTTPS Cannot Be Categorized</h3>
     <p>
       DNS blocking only works at the domain level. HTTPS content on general-purpose platforms 
-      (Twitter, Reddit, Imgur) cannot be filtered by DNS.
+      (Twitter, Reddit, Imgur) cannot be addressed by DNS.
     </p>
   </section>
 
@@ -156,7 +154,7 @@ import Layout from '../layouts/Layout.astro';
     
     <h3>Sites Won't Load</h3>
     <ul>
-      <li>Verify router DNS settings: <code>64.176.200.99</code> and <code>149.28.79.49</code></li>
+      <li>Verify your firewall or DNS server successfully loaded the Narge list</li>
       <li>Check that devices have renewed their DHCP leases</li>
       <li>Flush DNS cache on client devices</li>
       <li>Verify no VPN or proxy is overriding DNS on individual devices</li>
@@ -170,10 +168,10 @@ import Layout from '../layouts/Layout.astro';
       <li>The site may not be in the block list</li>
     </ul>
 
-    <h3>Slow DNS Resolution</h3>
+    <h3>List Not Updating</h3>
     <ul>
-      <li>Monitor resolver health on the <a href="/stats">stats page</a></li>
-      <li>Check your network connection to the resolvers</li>
+      <li>Check your platform's external list fetch logs</li>
+      <li>Verify the feed URL is correct: <code>https://feeds.thecutline.org/v1/narge.txt</code></li>
       <li>Report persistent issues on <a href="https://github.com/dov-max/narge-spec/issues" target="_blank" rel="noopener">GitHub</a></li>
     </ul>
   </section>
@@ -181,41 +179,31 @@ import Layout from '../layouts/Layout.astro';
   <section id="technical">
     <h2>Technical Details</h2>
     
-    <h3>Resolver IPs</h3>
-    <pre><code>Primary:   64.176.200.99
-Secondary: 149.28.79.49</code></pre>
-
-    <h3>Domain</h3>
+    <h3>Feed URLs</h3>
+    <pre><code>https://feeds.thecutline.org/v1/narge.txt
+https://feeds.thecutline.org/v1/narge-wildcard.txt
+https://feeds.thecutline.org/v1/narge.rpz
+https://feeds.thecutline.org/v1/narge-adguard.txt</code></pre>
     <p>
-      <strong>thecutline.org</strong> (registered, HTTPS/DoH not yet live)
+      See <a href="/for-it">For IT Teams</a> for all available formats and per-organization feed URLs.
     </p>
 
     <h3>Software Stack</h3>
     <ul>
-      <li><strong>DNS Server:</strong> Blocky (Apache-2.0)</li>
-      <li><strong>Block List:</strong> Narge hostname feed (dist/narge.txt)</li>
-      <li><strong>Upstream:</strong> Cloudflare 1.1.1.1</li>
-      <li><strong>Infrastructure:</strong> US-based VPS with geographic redundancy</li>
-    </ul>
-
-    <h3>Supported Protocols</h3>
-    <ul>
-      <li><strong>DNS (UDP/TCP port 53):</strong> ✅ Live</li>
-      <li><strong>DNS-over-HTTPS (DoH):</strong> ❌ Not yet available</li>
-      <li><strong>DNS-over-TLS (DoT):</strong> ❌ Not yet available</li>
+      <li><strong>Feed Worker:</strong> Cloudflare Workers</li>
+      <li><strong>List Source:</strong> Narge hostname feed (dist/narge.txt)</li>
+      <li><strong>Privacy:</strong> IP-free counter, no Worker logs</li>
     </ul>
 
     <h3>List Refresh</h3>
     <p>
-      The block list automatically refreshes every 24 hours from:
+      The list is updated daily via GitHub Actions and deployed automatically to the feed infrastructure.
     </p>
-    <ul>
-      <li><a href="https://raw.githubusercontent.com/dov-max/narge-spec/main/dist/narge.txt" target="_blank" rel="noopener">Narge hostname list</a></li>
-    </ul>
 
     <h3>Response for Blocked Domains</h3>
     <p>
-      Blocked domains return <code>NXDOMAIN</code> (DNS response code 3), meaning "no such domain exists."
+      Blocked domains return <code>NXDOMAIN</code> (DNS response code 3) when enforced by your own DNS server, 
+      or are blocked at the firewall depending on your deployment method.
     </p>
   </section>
 

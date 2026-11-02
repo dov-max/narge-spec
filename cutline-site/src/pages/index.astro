@@ -6,7 +6,7 @@ const jsonLd = {
   "@type": "WebSite",
   "name": "Cutline",
   "url": "https://thecutline.org",
-  "description": "A public cut path DNS resolver that does not resolve the Narge content class. No signup, no charge, open source.",
+  "description": "A public content class list feed. Narge is a defined, subscribeable hostname list that networks can load into their own infrastructure. No signup, no charge, open source.",
   "author": {
     "@type": "Person",
     "name": "Dov Allison",
@@ -18,7 +18,7 @@ const jsonLd = {
 };
 ---
 
-<Layout title="Cutline — A Cut Path DNS Resolver">
+<Layout title="Cutline — The Narge List Feed">
   <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   
   <div class="hero">
@@ -28,11 +28,11 @@ const jsonLd = {
 
   <section class="intro">
     <p class="lead">
-      Narge is a <strong>subscribeable content class</strong>—a stable hostname feed that software can fetch and use. 
-      Success is a maintainable, publicly accessible list other services can consume.
+      Narge is a <strong>subscribeable content class</strong>—a stable hostname feed that networks can fetch and load 
+      into their own infrastructure. Success is a maintainable, publicly accessible list other services can consume.
     </p>
     <p>
-      Cutline is a reference consumer: a cut path DNS resolver that uses Narge. 
+      Organizations load the Narge list into their firewalls, DNS servers, or security platforms. 
       The goal is a clean technical class definition and distribution system, not a movement or brand.
     </p>
   </section>
@@ -41,12 +41,12 @@ const jsonLd = {
     <h2>Subscribe</h2>
     <p>The Narge hostname list is publicly available:</p>
     <div class="url-box">
-      <code class="subscribe-url">https://raw.githubusercontent.com/dov-max/narge-spec/main/dist/narge.txt</code>
-      <button class="copy-btn" data-url="https://raw.githubusercontent.com/dov-max/narge-spec/main/dist/narge.txt">Copy</button>
+      <code class="subscribe-url">https://feeds.thecutline.org/v1/narge.txt</code>
+      <button class="copy-btn" data-url="https://feeds.thecutline.org/v1/narge.txt">Copy</button>
     </div>
     <p class="subscribe-note">
-      This is a machine-readable hostname list. Software can fetch and apply it. 
-      Cutline is one consumer; anyone can build another.
+      This is a machine-readable hostname list. Load it into your firewall, DNS server, or security platform. 
+      See <a href="/for-it">For IT Teams</a> for platform-specific formats and instructions.
     </p>
   </section>
 
@@ -68,29 +68,28 @@ const jsonLd = {
   </section>
 
   <section class="what-cutline-is">
-    <h2>Cutline: One Consumer</h2>
+    <h2>Cutline: The Feed Infrastructure</h2>
     <p>
-      Cutline is a DNS resolver that consumes the Narge list. It demonstrates how the class can be used:
+      Cutline provides the hosted feed at <code>https://feeds.thecutline.org</code>:
     </p>
     <ul>
-      <li><strong>No signup, no tokens, no accounts</strong></li>
-      <li><strong>Open source</strong> configuration and specification</li>
+      <li><strong>No signup, no tokens required</strong> for the anonymous feed</li>
+      <li><strong>Open source</strong> list and feed infrastructure</li>
       <li><strong>No charge</strong> to use</li>
-      <li>Run by <a href="https://github.com/dov-max" target="_blank" rel="noopener">Dov Allison</a></li>
+      <li>Maintained by <a href="https://github.com/dov-max" target="_blank" rel="noopener">Dov Allison</a></li>
     </ul>
     <p>
-      Cutline is not the movement or the metric. The success metric is other software adopting Narge as a feed.
+      Cutline is the feed, not the enforcement. Organizations load the list into their own infrastructure.
     </p>
   </section>
 
   <section class="what-cutline-is-not">
     <h2>What This Is Not</h2>
     <ul>
-      <li><strong>Not a house filter, hechsher, government, or kids product</strong></li>
+      <li><strong>Not a house product, hechsher, government, or kids product</strong></li>
       <li><strong>Not a "safe/clean/trusted" brand</strong>—no shield, guard, or family language</li>
       <li><strong>Not a movement or coalition</strong>—Narge is a content class, not a brand</li>
-      <li><strong>Not the only cut path</strong>—anyone can run one</li>
-      <li><strong>Not an addiction treatment or complete filtering solution</strong></li>
+      <li><strong>Not a comprehensive solution</strong>—it addresses one narrow class</li>
     </ul>
   </section>
 

@@ -35,29 +35,7 @@ import Layout from '../layouts/Layout.astro';
     <div class="encrypted-grid">
       <div class="encrypted-card">
         <h3>📱 iPhone, iPad, and Mac</h3>
-        <p>Download and install the configuration profile for one-tap encrypted DNS setup. Works on iOS/iPadOS 14+ and macOS 11+.</p>
-        <div class="warning-inline">
-          <strong>⚠️ iCloud Private Relay:</strong> If Private Relay is on, Apple bypasses Cutline DNS entirely and the cut will not work. 
-          Turn Private Relay off: <strong>Settings → [your name] → iCloud → Private Relay → Off</strong>.
-        </div>
-        <ol>
-          <li><strong>Open this page in Safari</strong> (profiles only work in Safari)</li>
-          <li>Tap the button below to download the profile</li>
-          <li>Go to <strong>Settings → Profile Downloaded → Install</strong></li>
-          <li>Enter your passcode and tap <strong>Install</strong></li>
-          <li>The install screen should show <strong>Verified</strong></li>
-        </ol>
-        <a href="/cutline-dns.mobileconfig" class="download-button" download>
-          Download Cutline DNS Profile
-        </a>
-        <p class="note">
-          <strong>Signed profile.</strong> Removable anytime from Settings → General → VPN & Device Management. 
-          Not MDM, not a content filter. Configures DoH for all networks, including cellular data.
-        </p>
-        <p class="note-mac">
-          <strong>Mac users:</strong> If a previous install failed, delete any leftover "Downloaded" profile 
-          in System Settings → General → Device Management, then download again.
-        </p>
+        <p>On-device setup for iPhone, iPad, and Mac is paused for now.</p>
       </div>
 
       <div class="encrypted-card">

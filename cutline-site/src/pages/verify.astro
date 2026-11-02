@@ -94,19 +94,19 @@ import Layout from '../layouts/Layout.astro';
     <div class="test-step">
       <div class="step-number">3</div>
       <div class="step-content">
-        <h3>Use the Canary (Connection Proof, Not DNS Proof)</h3>
+        <h3>Manual DNS Query Test (Advanced)</h3>
         <p>
-          Visit the HTTP canary by IP address to confirm you can reach the resolver infrastructure:
+          If you're comfortable with terminal/command prompt, query your configured DNS directly to 
+          test that blocked domains return <code>NXDOMAIN</code>:
         </p>
+        <pre><code># Test a blocked domain (should fail)
+dig off.thecutline.org
+
+# Test a normal domain (should work)
+dig example.com</code></pre>
         <p>
-          <a href="http://64.176.200.99/" target="_blank" rel="noopener" class="canary-link">http://64.176.200.99/</a>
-        </p>
-        <p class="canary-note">
-          <strong>Important:</strong> This canary proves you can connect to this path, <strong>NOT</strong> 
-          that you're using these DNS servers. It is connectivity verification only.
-        </p>
-        <p>
-          The hostname canary <code>on.narge.test</code> exists but is weak in Safari (may be bypassed by search).
+          If the blocked domain resolves instead of returning <code>NXDOMAIN</code>, the Narge list 
+          may not be loaded into your DNS infrastructure.
         </p>
       </div>
     </div>
@@ -131,23 +131,16 @@ import Layout from '../layouts/Layout.astro';
   </section>
 
   <section class="dns-check-tools">
-    <h2>Command-Line DNS Check (Advanced)</h2>
+    <h2>Platform Verification (Advanced)</h2>
     <p>
-      If you're comfortable with terminal/command prompt, you can directly query Cutline DNS:
+      Check your firewall or DNS server logs to verify the Narge list was successfully loaded:
     </p>
-    
-    <h3>macOS/Linux</h3>
-    <pre><code>dig @64.176.200.99 example.com</code></pre>
-    <p>Should return an address for example.com.</p>
-
-    <h3>Windows</h3>
-    <pre><code>nslookup example.com 64.176.200.99</code></pre>
-    <p>Should return an address for example.com.</p>
-
-    <h3>Test a Blocked Domain</h3>
-    <p>
-      Query a domain from the Narge list. It should return <code>NXDOMAIN</code> (no such domain).
-    </p>
+    <ul>
+      <li><strong>Palo Alto:</strong> Monitor → Logs → System, search for "External Dynamic List"</li>
+      <li><strong>Fortinet:</strong> Log & Report → System Events, search for External Connector updates</li>
+      <li><strong>pfBlockerNG:</strong> Firewall → pfBlockerNG → DNSBL → Statistics</li>
+      <li><strong>Sync scripts:</strong> Check cron job logs or scheduled task history</li>
+    </ul>
   </section>
 
   <section class="troubleshooting">
@@ -155,30 +148,30 @@ import Layout from '../layouts/Layout.astro';
 
     <h3>Normal sites don't load</h3>
     <ul>
-      <li>Double-check the DNS server IPs: <code>64.176.200.99</code> and <code>149.28.79.49</code></li>
+      <li>Verify your firewall or DNS server configuration</li>
       <li>Restart your device or renew DHCP</li>
       <li>Try flushing DNS cache (see below)</li>
-      <li>On Windows, make sure you selected "Manual" DNS, not "Automatic"</li>
+      <li>Check that the Narge list loaded successfully in your platform</li>
     </ul>
 
     <h3>Blocked sites still load</h3>
     <ul>
       <li>Check that your device isn't using another DNS source (VPN, proxy, iCloud Private Relay, corporate network)</li>
-      <li>On iOS, verify DNS is set for the specific Wi-Fi network you're on</li>
+      <li>Verify the Narge list is loaded into your DNS/firewall</li>
       <li>The site may not be in the Narge list (the list is an approximation)</li>
       <li>If the automatic check above is green but sites still load, browser cache may be serving old content — try restarting the browser</li>
     </ul>
 
     <h3>Windows: IPv6 DNS Leak</h3>
     <p>
-      Even after setting the IPv4 Cutline DNS servers, Windows may prioritize an IPv6 DNS resolver 
-      from your router, bypassing Cutline. To check:
+      Even after configuring IPv4 DNS, Windows may prioritize an IPv6 DNS resolver 
+      from your router. To check:
     </p>
     <pre><code>ipconfig /all</code></pre>
     <p>
       Look at the DNS Servers list. If an <strong>IPv6 address appears first</strong> (e.g., starting with 
-      <code>2600:</code> or <code>fe80:</code>), Windows is not using Cutline DNS. The Settings app 
-      "IPv6 DNS Off" toggle does not prevent this.
+      <code>2600:</code> or <code>fe80:</code>), Windows may not be using your configured DNS. 
+      The Settings app "IPv6 DNS Off" toggle does not prevent this.
     </p>
     <p><strong>Fix:</strong> Disable IPv6 on your network adapter:</p>
     <ul>

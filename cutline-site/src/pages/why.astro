@@ -30,13 +30,14 @@ import Layout from '../layouts/Layout.astro';
   <section>
     <h2>What a Cut Path Does</h2>
     <p>
-      A cut path is a DNS resolver that does not resolve the Narge content class. It makes Narge 
-      harder to reach—not impossible, just not the default.
+      A cut path is a network that does not resolve the Narge content class. Organizations load the 
+      Narge list into their own DNS servers or firewalls, making Narge harder to reach—not impossible, 
+      just not the default.
     </p>
     <ul>
-      <li>Sites identified as Narge-purpose return no address (NXDOMAIN)</li>
+      <li>Sites identified as Narge-purpose return no address (NXDOMAIN) or are blocked</li>
       <li>Everything else resolves normally</li>
-      <li>No accounts, no filtering dashboard, no "family settings"</li>
+      <li>No accounts, no web dashboards, no "family settings"</li>
       <li>This is a technical class, not a moral judgment system</li>
     </ul>
   </section>
@@ -62,10 +63,10 @@ import Layout from '../layouts/Layout.astro';
       exactly what is happening. No company stamp, no secret rules.
     </p>
 
-    <h3>Not a Complete Filter</h3>
+    <h3>Not Comprehensive</h3>
     <p>
-      This is not a kids-safety product, an addiction treatment, or a house filter. If you need those, 
-      use a complete filtering solution. A cut path addresses one narrow class.
+      This is not a kids-safety product, an addiction treatment, or a house-wide solution. If you need those, 
+      use a comprehensive tool. A cut path addresses one narrow class.
     </p>
   </section>
 
@@ -97,8 +98,8 @@ import Layout from '../layouts/Layout.astro';
   <section class="cta">
     <h2>Using Narge</h2>
     <p>
-      The Narge hostname list is publicly available. Cutline is one consumer. 
-      See <a href="/for-it">For IT Teams</a> if you want to use Cutline as your resolver.
+      The Narge hostname list is publicly available at <code>https://feeds.thecutline.org</code>. 
+      See <a href="/for-it">For IT Teams</a> if you want to load the Narge list into your infrastructure.
     </p>
   </section>
 </Layout>

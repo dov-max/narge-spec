@@ -4,7 +4,7 @@ import Layout from '../layouts/Layout.astro';
 
 <Layout 
   title="Terms — Cutline" 
-  description="What Cutline is and is not. A public disclaimer for the cut path DNS service."
+  description="What Cutline is and is not. A public disclaimer for the Narge hostname list feed."
 >
   <h1>Terms</h1>
 
@@ -18,12 +18,13 @@ import Layout from '../layouts/Layout.astro';
   <section>
     <h2>What Cutline Is</h2>
     <p>
-      Cutline is an open-source cut-path DNS resolver. It is operated by Dov Allison as a free public service.
+      Cutline is an open-source hostname list feed. It is maintained by Dov Allison as a free public service.
     </p>
     <p>
-      The purpose of Cutline is to provide a DNS resolver that does not resolve the <a href="/spec">Narge content class</a>. 
-      That is the only purpose. If you do not want the Narge content class to resolve on a device or network, 
-      you may point that device or network at this DNS resolver.
+      The purpose of Cutline is to provide a subscribeable list of hostnames classified under the 
+      <a href="/spec">Narge content class</a>. Organizations can load this list into their own DNS servers 
+      or firewalls. That is the only purpose. If you do not want the Narge content class to resolve on a 
+      device or network, you may load the Cutline feed into your infrastructure.
     </p>
   </section>
 
@@ -31,7 +32,7 @@ import Layout from '../layouts/Layout.astro';
     <h2>What Cutline Is Not</h2>
     <p>
       Cutline is not a business. It is not a product for sale. It is not a warranty. It is not a kids safety service, 
-      a compliance service, or a filtering solution beyond the narrow Narge class.
+      a compliance service, or a comprehensive solution beyond the narrow Narge class.
     </p>
     <p>
       There is no company. There is no signup. There is no charge.
@@ -41,31 +42,36 @@ import Layout from '../layouts/Layout.astro';
   <section>
     <h2>Use at Your Own Risk</h2>
     <p>
-      You choose to point a device at this resolver. You are responsible for that choice.
+      You choose to load this list into your infrastructure. You are responsible for that choice.
     </p>
     <p>
       We do not promise that every Narge name is on the list. We do not promise that every non-Narge name stays up. 
-      The list is an approximation. This is an extra path, not a guarantee.
+      The list is an approximation. This is an extra tool, not a guarantee.
     </p>
     <p>
       We are not responsible for what you can or cannot reach. We are not responsible for other software on your devices. 
-      We are not responsible for anyone else's use of the same path.
+      We are not responsible for anyone else's use of the same list.
     </p>
   </section>
 
   <section>
     <h2>Privacy</h2>
     <p>
-      Query names are not stored. After a query, the operator cannot look up what you requested. Source IP addresses are 
-      kept for 7 days for rate limiting and the public distinct-IP count, then deleted. There is no business model involving 
-      your data. For more detail, see the <a href="/privacy">Privacy page</a>.
+      The hosted feed at <code>https://feeds.thecutline.org</code> counts adoption without storing IP addresses. 
+      After a feed fetch, the operator cannot look up the requester. IP addresses are used in memory only to compute 
+      daily hashes for counting distinct installations, then discarded. Aggregated stats are published only when at least 
+      10 distinct fetchers in that ASN were counted that day. For more detail, see the <a href="/privacy-design">Privacy Design</a> and 
+      <a href="/privacy">Privacy Policy</a>.
+    </p>
+    <p>
+      The GitHub mirror has no telemetry.
     </p>
   </section>
 
   <section>
     <h2>Open Source</h2>
     <p>
-      The resolver configuration, block list sources, and overlay corrections are all public. You can read exactly what is 
+      The feed infrastructure, block list sources, and overlay corrections are all public. You can read exactly what is 
       happening and verify it yourself. See the <a href="/spec">Narge specification</a> and the 
       <a href="https://github.com/dov-max/narge-spec" target="_blank" rel="noopener">narge-spec repository</a>.
     </p>

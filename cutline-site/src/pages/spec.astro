@@ -7,7 +7,7 @@ import Layout from '../layouts/Layout.astro';
 
   <section class="intro">
     <p class="lead">
-      Narge is a class of visual content. It is not a brand, a product, a filter, a religion, or a law.
+      Narge is a class of visual content. It is not a brand, a product, a routing tool, a religion, or a law.
     </p>
     <p>
       <strong>Version 0.2.</strong> 27 August 2026.
@@ -77,7 +77,7 @@ import Layout from '../layouts/Layout.astro';
     <h3>Hostname Feed</h3>
     <p>
       The Narge hostname list is published at a stable URL and rebuilt daily from curated sources. 
-      The list was seeded once from the <a href="https://github.com/StevenBlack/hosts" target="_blank" rel="noopener">StevenBlack hosts porn-only list</a> 
+      The list was seeded once from the <a href="https://github.com/StevenBlack/hosts" target="_blank" rel="noopener">StevenBlack hosts list subset</a> 
       (MIT license, attributed) and is now maintained as a curated feed.
     </p>
 
@@ -97,44 +97,14 @@ import Layout from '../layouts/Layout.astro';
   </section>
 
   <section>
-    <h2>Resolver Performance Metrics</h2>
+    <h2>Feed Availability</h2>
     <p>
-      Cutline DNS resolvers publish standardized latency metrics to measure resolver performance.
-    </p>
-
-    <h3>Latency Definition</h3>
-    <p>
-      <strong>Resolver Latency</strong> measures the time from when a DNS query is received by the resolver 
-      to when the answer is sent back. This is the resolver's processing time only.
+      The Narge hostname list is published at <code>https://feeds.thecutline.org</code> in multiple formats. 
+      See <a href="/for-it">For IT Teams</a> for platform-specific formats and integration instructions.
     </p>
     <p>
-      <strong>What is included:</strong> Query parsing, blocklist lookup, upstream resolution (if not blocked), 
-      response assembly, and transmission.
-    </p>
-    <p>
-      <strong>What is NOT included:</strong>
-    </p>
-    <ul>
-      <li>Last-mile network latency between the client and resolver</li>
-      <li>Client operating system DNS delays</li>
-      <li>Browser Secure DNS (DoH) connection overhead</li>
-      <li>Client-side caching</li>
-    </ul>
-
-    <h3>Published Metrics</h3>
-    <p>
-      Cutline publishes two latency percentiles, updated continuously:
-    </p>
-    <ul>
-      <li><strong>p50 (median):</strong> The middle value — 50% of queries are faster, 50% are slower</li>
-      <li><strong>p95 (95th percentile):</strong> 95% of queries complete faster than this value</li>
-    </ul>
-    <p>
-      <strong>Measurement window:</strong> Last 24 hours<br>
-      <strong>Units:</strong> Milliseconds (ms)
-    </p>
-    <p>
-      See live metrics on the <a href="/stats">Stats page</a>.
+      Feed fetches are counted without storing IP addresses. See the <a href="/privacy-design">privacy design</a> 
+      for how adoption is measured, and the <a href="/stats">Stats page</a> for aggregated metrics.
     </p>
   </section>
 

@@ -64,14 +64,19 @@ import Layout from '../layouts/Layout.astro';
     
     <h3>DNS Resolution</h3>
     <p>
-      When you configure Cutline as your DNS server:
+      When you configure Cutline as your network's DNS resolver:
     </p>
     <ol>
-      <li>Your device asks Cutline to resolve a domain name (e.g., "example.com")</li>
+      <li>A device on your network asks Cutline to resolve a domain name (e.g., "example.com")</li>
       <li>Cutline checks if the domain is on the Narge block list</li>
       <li>If blocked: returns <code>NXDOMAIN</code> (domain does not exist)</li>
       <li>If not blocked: queries upstream DNS (Cloudflare 1.1.1.1) and returns the result</li>
     </ol>
+    
+    <p>
+      <strong>Deployment:</strong> Cutline is configured at the router or firewall level. 
+      See <a href="/for-it">For IT Teams</a> for setup instructions.
+    </p>
 
     <h3>What Gets Blocked</h3>
     <p>
@@ -151,24 +156,24 @@ import Layout from '../layouts/Layout.astro';
     
     <h3>Sites Won't Load</h3>
     <ul>
-      <li>Verify DNS settings: <code>64.176.200.99</code> and <code>149.28.79.49</code></li>
-      <li>Restart your device or renew DHCP</li>
-      <li>Flush DNS cache (see <a href="/verify">verification guide</a>)</li>
-      <li>Check for VPN or proxy overriding DNS</li>
+      <li>Verify router DNS settings: <code>64.176.200.99</code> and <code>149.28.79.49</code></li>
+      <li>Check that devices have renewed their DHCP leases</li>
+      <li>Flush DNS cache on client devices</li>
+      <li>Verify no VPN or proxy is overriding DNS on individual devices</li>
     </ul>
 
     <h3>Blocked Sites Still Load</h3>
     <ul>
-      <li>Fully quit and restart your browser (especially Safari)</li>
-      <li>Ensure no VPN or proxy is active</li>
-      <li>On iOS, verify DNS is set for the specific Wi-Fi network</li>
+      <li>Verify DNS configuration with the <a href="/verify">verification probe</a></li>
+      <li>Check for VPN usage on client devices</li>
+      <li>Ensure devices are using DHCP and not static DNS settings</li>
       <li>The site may not be in the block list</li>
     </ul>
 
     <h3>Slow DNS Resolution</h3>
     <ul>
-      <li>Try both resolvers to see if one is faster</li>
-      <li>Check your network connection</li>
+      <li>Monitor resolver health on the <a href="/stats">stats page</a></li>
+      <li>Check your network connection to the resolvers</li>
       <li>Report persistent issues on <a href="https://github.com/dov-max/narge-spec/issues" target="_blank" rel="noopener">GitHub</a></li>
     </ul>
   </section>

@@ -1,0 +1,368 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="For IT Teams — Cutline DNS">
+  <h1>Cutline DNS for IT Teams</h1>
+
+  <section class="intro">
+    <p class="lead">
+      Cutline is a free, open DNS resolver that blocks a narrow, public list of adult content sites. 
+      Point your office router or firewall to our resolvers to provide a cut path for your network.
+    </p>
+  </section>
+
+  <section class="what-it-is">
+    <h2>What Cutline Blocks</h2>
+    <p>
+      Cutline blocks sites on the <a href="/spec">Narge content class</a>—a narrow, secular list 
+      of explicit adult content sites. It operates like malware blocking: DNS queries for blocked 
+      domains return NXDOMAIN (no such domain).
+    </p>
+    <ul>
+      <li>Focused on explicit sites designed for arousal</li>
+      <li>Public, verifiable hostname list</li>
+      <li>Does NOT block social media, dating apps, or general content</li>
+      <li>No query logging—query names are not stored</li>
+    </ul>
+  </section>
+
+  <section class="dns-config">
+    <h2>DNS Configuration</h2>
+    
+    <div class="config-box">
+      <h3>Plain DNS (Port 53)</h3>
+      <div class="config-item">
+        <strong>Primary:</strong> <code class="ip">64.176.200.99</code>
+      </div>
+      <div class="config-item">
+        <strong>Secondary:</strong> <code class="ip">149.28.79.49</code>
+      </div>
+    </div>
+
+    <div class="config-box">
+      <h3>DNS-over-HTTPS (DoH)</h3>
+      <div class="config-item">
+        <strong>Endpoint:</strong><br>
+        <code class="url">https://dns.thecutline.org/dns-query</code>
+      </div>
+      <div class="config-item small-note">
+        Standard RFC 8484 application/dns-message format
+      </div>
+    </div>
+
+    <p class="note-box">
+      <strong>Note:</strong> DNS-over-TLS (DoT) is temporarily unavailable while we complete certificate updates. 
+      Use plain DNS or DoH for now.
+    </p>
+  </section>
+
+  <section class="setup">
+    <h2>Setup: Router or Firewall</h2>
+    
+    <h3>Router DNS</h3>
+    <ol>
+      <li>Access your router admin panel (typically http://192.168.1.1 or http://192.168.0.1)</li>
+      <li>Find DNS settings (often under Internet, WAN, or DHCP configuration)</li>
+      <li>Set Primary DNS to <code>64.176.200.99</code></li>
+      <li>Set Secondary DNS to <code>149.28.79.49</code></li>
+      <li>Save and reboot the router</li>
+      <li>Devices will pick up the new DNS on next DHCP renewal</li>
+    </ol>
+
+    <h3>Firewall / DNS Forwarder</h3>
+    <p>
+      Configure your firewall or internal DNS forwarder to use Cutline as its upstream resolver. 
+      The exact steps depend on your firewall vendor (pfSense, FortiGate, Cisco, etc.).
+    </p>
+
+    <h3>ISP Router Restrictions</h3>
+    <p>
+      Some ISPs lock DNS settings on their provided routers. If DNS settings are grayed out or unavailable, 
+      you may need to use bridge mode or your own router.
+    </p>
+  </section>
+
+  <section class="testing">
+    <h2>Testing</h2>
+    
+    <h3>Verification Probe</h3>
+    <p>
+      After configuring DNS, test from a client device by visiting:
+    </p>
+    <div class="test-link-box">
+      <a href="/verify" class="test-link">thecutline.org/verify</a>
+    </div>
+    <p>
+      This page runs an automatic probe that confirms:
+    </p>
+    <ul>
+      <li><code>on.thecutline.org</code> resolves (special test domain that only resolves via Cutline)</li>
+      <li><code>off.thecutline.org</code> does NOT resolve (blocked by the filter)</li>
+    </ul>
+    <p>
+      The verification shows green only when both conditions are met.
+    </p>
+
+    <h3>Command-Line Test</h3>
+    <p>Query Cutline directly to confirm it responds:</p>
+    <pre><code>dig @64.176.200.99 example.com</code></pre>
+    <p>or on Windows:</p>
+    <pre><code>nslookup example.com 64.176.200.99</code></pre>
+  </section>
+
+  <section class="rollback">
+    <h2>Rolling Back</h2>
+    <p>
+      To remove Cutline DNS from your network:
+    </p>
+    <ol>
+      <li>Access your router or firewall admin panel</li>
+      <li>Change DNS settings back to your ISP's default (often set to "Automatic" or "Obtain automatically")</li>
+      <li>Save and reboot</li>
+    </ol>
+    <p>
+      Devices will revert to the previous DNS configuration on next DHCP renewal. No client-side changes needed.
+    </p>
+  </section>
+
+  <section class="privacy">
+    <h2>Privacy &amp; Logging</h2>
+    <p>
+      Cutline collects no personal data:
+    </p>
+    <ul>
+      <li>Query names are NOT stored—after a query completes, we cannot retrieve what was asked</li>
+      <li>Source IPs are retained for 7 days for rate limiting and public usage statistics, then deleted</li>
+      <li>No user accounts, no tracking, no data sales</li>
+    </ul>
+    <p>
+      Full details: <a href="/privacy">Privacy Policy</a>
+    </p>
+  </section>
+
+  <section class="limitations">
+    <h2>What Cutline Does NOT Do</h2>
+    <ul>
+      <li><strong>Not complete filtering:</strong> Cutline blocks only the Narge content class. It does not block malware, social media explicit content, or other categories.</li>
+      <li><strong>DNS only:</strong> Cutline operates at the DNS layer. HTTPS content on general platforms (Reddit, Twitter, etc.) cannot be filtered by DNS.</li>
+      <li><strong>Bypassable:</strong> Users with VPN access or the ability to change device DNS settings can bypass the filter.</li>
+    </ul>
+  </section>
+
+  <section class="contact">
+    <h2>Contact</h2>
+    <p>
+      <strong>TODO:</strong> Contact information for IT support inquiries.
+    </p>
+    <p>
+      <strong>GitHub:</strong> <a href="https://github.com/dov-max/narge-spec/issues" target="_blank" rel="noopener">Report issues or request changes</a>
+    </p>
+  </section>
+
+  <section class="more-info">
+    <h2>More Information</h2>
+    <div class="card-grid">
+      <a href="/spec" class="info-card">
+        <h3>Narge Specification</h3>
+        <p>The formal definition of what Cutline blocks</p>
+      </a>
+      <a href="/stats" class="info-card">
+        <h3>Live Statistics</h3>
+        <p>Service health, uptime, and usage metrics</p>
+      </a>
+      <a href="/why" class="info-card">
+        <h3>Why Cut Paths?</h3>
+        <p>The reasoning behind this approach</p>
+      </a>
+      <a href="/run-your-own" class="info-card">
+        <h3>Run Your Own</h3>
+        <p>Deploy your own cut path resolver</p>
+      </a>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .intro {
+    margin-bottom: var(--spacing-xl);
+  }
+
+  .lead {
+    font-size: 1.25rem;
+    line-height: 1.7;
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .what-it-is,
+  .dns-config,
+  .setup,
+  .testing,
+  .rollback,
+  .privacy,
+  .limitations,
+  .contact,
+  .more-info {
+    margin: var(--spacing-2xl) 0;
+  }
+
+  h3 {
+    margin-top: var(--spacing-xl);
+    font-size: 1.25rem;
+  }
+
+  ul, ol {
+    padding-left: var(--spacing-lg);
+    margin: var(--spacing-md) 0;
+  }
+
+  li {
+    margin-bottom: var(--spacing-sm);
+    line-height: 1.7;
+  }
+
+  .config-box {
+    background: var(--color-card-bg);
+    border: 2px solid var(--color-accent);
+    border-radius: var(--radius);
+    padding: var(--spacing-lg);
+    margin: var(--spacing-lg) 0;
+  }
+
+  .config-box h3 {
+    margin-top: 0;
+    margin-bottom: var(--spacing-md);
+  }
+
+  .config-item {
+    margin: var(--spacing-sm) 0;
+    font-size: 1rem;
+  }
+
+  .config-item.small-note {
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+    margin-top: var(--spacing-xs);
+  }
+
+  .ip {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-accent);
+    background: var(--color-bg);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+  }
+
+  .url {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-accent);
+    background: var(--color-bg);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    word-break: break-all;
+  }
+
+  .note-box {
+    background: #fff3cd;
+    border: 2px solid #ffc107;
+    border-radius: var(--radius);
+    padding: var(--spacing-md);
+    margin: var(--spacing-lg) 0;
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+
+  .note-box strong {
+    color: #856404;
+  }
+
+  .test-link-box {
+    background: var(--color-card-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: var(--spacing-md);
+    margin: var(--spacing-md) 0;
+    text-align: center;
+  }
+
+  .test-link {
+    font-size: 1.2rem;
+    font-weight: 600;
+  }
+
+  pre {
+    background: var(--color-text);
+    color: #f8f8f2;
+    padding: var(--spacing-md);
+    border-radius: var(--radius);
+    overflow-x: auto;
+    margin: var(--spacing-md) 0;
+  }
+
+  pre code {
+    color: #f8f8f2;
+  }
+
+  code {
+    white-space: nowrap;
+  }
+
+  .contact {
+    background: var(--color-card-bg);
+    border-radius: var(--radius);
+    padding: var(--spacing-xl);
+  }
+
+  .contact h2 {
+    margin-top: 0;
+  }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-lg);
+  }
+
+  .info-card {
+    background: var(--color-card-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: var(--spacing-lg);
+    text-decoration: none;
+    color: var(--color-text);
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  }
+
+  .info-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-color: var(--color-accent);
+    text-decoration: none;
+  }
+
+  .info-card h3 {
+    margin-top: 0;
+    margin-bottom: var(--spacing-sm);
+    color: var(--color-accent);
+    font-size: 1.15rem;
+  }
+
+  .info-card p {
+    margin-bottom: 0;
+    color: var(--color-text-muted);
+    font-size: 0.95rem;
+  }
+
+  @media (max-width: 640px) {
+    .ip {
+      font-size: 1.1rem;
+    }
+
+    .card-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

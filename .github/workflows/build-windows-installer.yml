@@ -1,16 +1,10 @@
+# Paused Nov 2026: business-router-only strategy.
+# Per-device apps and installers are no longer actively distributed.
+# This workflow remains available for manual execution if needed.
+
 name: Build Cutline DNS Installer
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'cutline-dns-installer/**'
-      - '.github/workflows/build-windows-installer.yml'
-  pull_request:
-    paths:
-      - 'cutline-dns-installer/**'
-      - '.github/workflows/build-windows-installer.yml'
   workflow_dispatch:
 
 permissions:

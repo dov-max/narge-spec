@@ -1,5 +1,8 @@
 # Cutline DNS Windows Installer
 
+> **PAUSED (Nov 2026):** Cutline now targets IT teams and router-level DNS configuration. 
+> Per-device installers are no longer actively distributed. This codebase remains available for reference.
+
 One-click Windows DNS installer for Cutline DNS. This self-contained executable configures encrypted DNS (DoH) on Windows 10 and 11.
 
 ## Features

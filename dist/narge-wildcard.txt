@@ -1,6 +1,6 @@
 # Narge domain list (wildcard format)
 # Spec version: 0.2
-# Build date: 2026-11-02 18:01:36 UTC
+# Build date: 2026-11-02 18:54:50 UTC
 # Feed URL: https://feeds.thecutline.org/v1/narge-wildcard.txt
 # Format: domain and *.domain on separate lines
 # License: CC0 1.0 (public domain)

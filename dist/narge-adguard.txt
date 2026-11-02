@@ -1,7 +1,7 @@
 ! Title: Narge
 ! Description: Narge content class - adult content sites
 ! Spec version: 0.2
-! Build date: 2026-11-02 18:01:36 UTC
+! Build date: 2026-11-02 18:54:50 UTC
 ! Feed URL: https://feeds.thecutline.org/v1/narge-adguard.txt
 ! Homepage: https://github.com/dov-max/narge-spec
 ! License: CC0 1.0 (public domain)

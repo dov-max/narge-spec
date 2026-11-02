@@ -43,9 +43,9 @@ import Layout from '../layouts/Layout.astro';
       <li>The request object includes <code>request.cf.asn</code> and <code>asOrganization</code></li>
       <li>IP address is used <strong>in memory only</strong> to compute a daily hash</li>
       <li>Hash: <code>h = HMAC(daily_key, client_ip)</code></li>
-      <li>The hash is added to a HyperLogLog sketch to count distinct installations</li>
+      <li>The hash is used to de-duplicate fetches (counted once per address per day)</li>
       <li>IP and hash are <strong>immediately discarded</strong> after processing</li>
-      <li>The daily HMAC key is destroyed at midnight UTC, so sketches cannot be re-linked across days</li>
+      <li>The daily HMAC key is destroyed at midnight UTC, so hashes cannot be re-linked across days</li>
     </ul>
 
     <h3>2. What Gets Stored</h3>
@@ -56,7 +56,7 @@ import Layout from '../layouts/Layout.astro';
       <li><strong>Day:</strong> Date of the fetch (e.g., 2026-11-02)</li>
       <li><strong>Organization token:</strong> Unique feed URL token (e.g., <code>/v1/org-abc123/narge.txt</code>)</li>
       <li><strong>ASN:</strong> Autonomous System Number (e.g., AS7922 = Comcast)</li>
-      <li><strong>Distinct estimate:</strong> HyperLogLog count of unique installations</li>
+      <li><strong>Distinct count:</strong> Number of unique fetchers per ASN per day</li>
       <li><strong>Fetch count:</strong> Total HTTP 200 and 304 responses</li>
     </ul>
     <p>
@@ -89,16 +89,16 @@ import Layout from '../layouts/Layout.astro';
 
     <h3>k-Anonymity Threshold</h3>
     <p>
-      Per-ASN rows are published <strong>only when ≥10 distinct organizations</strong> are active in that ASN. 
-      This prevents revealing that "one company on Comcast's network uses Narge."
+      Per-ASN rows are published <strong>only when at least 10 distinct fetchers in that ASN</strong> were counted that day. 
+      This prevents revealing that "one installation on Comcast's network fetched the list."
     </p>
     <p>
       Example published row:
     </p>
-    <pre><code>AS7922 (Comcast): 14 active installations</code></pre>
+    <pre><code>AS7922 (Comcast): 14 distinct fetchers</code></pre>
     <p>
       This reveals nothing about any individual person or organization. It shows only that multiple 
-      Comcast-connected orgs use Narge.
+      distinct fetchers in that network requested the list.
     </p>
 
     <h3>Organization Opt-In</h3>
@@ -125,7 +125,7 @@ import Layout from '../layouts/Layout.astro';
       <li><strong>Active organizations (24h):</strong> Orgs that fetched the list in the last day</li>
       <li><strong>Active installations (24h):</strong> Distinct installation count across all orgs</li>
       <li><strong>Declared seats:</strong> Sum of self-reported seat counts from verified orgs</li>
-      <li><strong>Per-ASN counts:</strong> Published only when ≥10 orgs, with optional differential privacy noise</li>
+      <li><strong>Per-ASN counts:</strong> Published only when the ASN has at least 10 distinct fetchers that day, with optional differential privacy noise</li>
     </ul>
   </section>
 
@@ -187,10 +187,10 @@ import Layout from '../layouts/Layout.astro';
       <h3>Live</h3>
       <p>
         The hosted feed infrastructure at <code>https://feeds.thecutline.org</code> is live. 
-        Per-organization feed URLs (<code>/v1/&lt;token&gt;/&lt;file&gt;</code>) and the anonymous form 
+        Per-organization feed URLs         (<code>/v1/&lt;token&gt;/&lt;file&gt;</code>) and the anonymous form 
         (<code>/v1/&lt;file&gt;</code>, <code>/v1/public/&lt;file&gt;</code>) are active. IP-free telemetry 
         counts organization fetches by ASN without storing addresses. ISP rows in <code>stats.json</code> 
-        are published only when ≥10 organizations are active in that ASN.
+        are published only when at least 10 distinct fetchers in that ASN were counted that day.
       </p>
       <p>
         <strong>GitHub mirror:</strong> 

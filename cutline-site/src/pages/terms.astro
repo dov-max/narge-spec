@@ -59,8 +59,8 @@ import Layout from '../layouts/Layout.astro';
     <p>
       The hosted feed at <code>https://feeds.thecutline.org</code> counts adoption without storing IP addresses. 
       After a feed fetch, the operator cannot look up the requester. IP addresses are used in memory only to compute 
-      daily hashes for counting distinct installations, then discarded. Aggregated stats are published only when ≥10 
-      organizations are active in an ASN. For more detail, see the <a href="/privacy-design">Privacy Design</a> and 
+      daily hashes for counting distinct installations, then discarded. Aggregated stats are published only when at least 
+      10 distinct fetchers in that ASN were counted that day. For more detail, see the <a href="/privacy-design">Privacy Design</a> and 
       <a href="/privacy">Privacy Policy</a>.
     </p>
     <p>

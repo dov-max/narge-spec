@@ -2,142 +2,156 @@
 import Layout from '../layouts/Layout.astro';
 ---
 
-<Layout title="Privacy — Cutline" description="Cutline collects no personal data. Query names are not stored. The only retained data is source IP for 7 days, then deleted.">
+<Layout title="Privacy — Cutline" description="The Narge feed measures usage without storing addresses. No addresses, prefixes, or fetcher IDs are stored.">
   <h1>Privacy</h1>
 
   <section class="intro">
     <p class="lead">
-      Cutline collects no personal data. We do not store query names, so there is no record of what you ask.
+      The Narge feed at <code>https://feeds.thecutline.org</code> measures usage without storing addresses. 
+      The list is public, and no personal data is collected.
     </p>
   </section>
 
-  <section class="no-collection">
-    <h2>What We Do Not Collect</h2>
+  <section class="what-we-measure">
+    <h2>What Is Measured</h2>
+    <p>
+      The feed infrastructure counts distinct fetching addresses per ASN (Internet Service Provider) per UTC day.
+    </p>
     <ul>
-      <li><strong>No signup.</strong> No tokens, no accounts, no email, phone, or name collected.</li>
-      <li><strong>No query names.</strong> The domain names (QNAME) you request are not logged to disk. After a query completes, the operator cannot look up what was asked. There is nothing to retrieve.</li>
-      <li><strong>No user identity.</strong> No cookies, no device IDs, no user-agent tracking.</li>
-      <li><strong>No browsing history.</strong> We handle DNS queries only. Your web traffic goes directly to destination servers.</li>
+      <li><strong>Per ASN per day:</strong> How many distinct addresses from each ISP fetched the list today</li>
+      <li><strong>No addresses stored:</strong> The address is dropped at once; only the daily count remains</li>
+      <li><strong>k-threshold anonymization:</strong> Per-ASN counts are published only when ≥10 distinct addresses that day</li>
     </ul>
   </section>
 
   <section class="how-it-works">
-    <h2>How DNS Works</h2>
+    <h2>How It Works</h2>
     <p>
-      A DNS resolver must read the question to answer it. When you ask Cutline to resolve a domain name, 
-      the resolver sees that name in memory long enough to decide whether to block it or pass it upstream. 
-      That is how DNS works.
+      When a firewall or DNS server fetches the feed, the Worker:
     </p>
-    <p>
-      <strong>The difference is storage.</strong> Cutline does not write query names to disk. No query log, 
-      no history file, no searchable record. Once the query is answered, the name is gone. The operator 
-      cannot retrieve it later because it was never stored.
-    </p>
-  </section>
-
-  <section class="what-is-retained">
-    <h2>What Is Retained: Source IP for 7 Days</h2>
-    <p>
-      The only data Cutline keeps is the <strong>public source IP address</strong> that sent a query. 
-      This is retained for 7 days, then deleted.
-    </p>
-    
-    <h3>Why Retain Source IPs?</h3>
-    <p>Two reasons only:</p>
     <ol>
-      <li><strong>Rate limiting.</strong> Per-IP rate limits plus a global cap keep the free resolvers operational under load.</li>
-      <li><strong>Public usage statistics.</strong> A public count of distinct source IPs that queried in the last 7 days 
-          (not households), and optional GeoIP mapping to US state for a public status page.</li>
+      <li>Reads the connecting address and ISP (ASN)</li>
+      <li>Derives a one-day ID from the address (IPv6 addresses are reduced to their /64 prefix first)</li>
+      <li><strong>Drops the address immediately</strong> — it is never written to storage</li>
+      <li>Keeps the one-day ID in memory only until the day ends (for de-duplication)</li>
+      <li>Increments the count for that ASN if this ID was not seen today</li>
     </ol>
-
-    <h3>What Source IPs Cannot Do</h3>
     <p>
-      A source IP address alone cannot reconstruct what domains were queried. Query names are not stored, 
-      so there is no log to correlate with the IP.
-    </p>
-
-    <h3>Deletion</h3>
-    <p>
-      After 7 days, source IPs are deleted. No long-term IP retention, no archival storage.
+      At midnight UTC, the daily counts are saved to storage and the in-memory IDs are discarded. 
+      No address, prefix, or fetcher ID is ever written to disk.
     </p>
   </section>
 
-  <section class="no-business-model">
-    <h2>No Data Sale</h2>
+  <section class="what-is-not-collected">
+    <h2>What We Do Not Collect</h2>
+    <ul>
+      <li><strong>No addresses stored:</strong> Connecting addresses are dropped at once, never written to storage</li>
+      <li><strong>No user accounts:</strong> No signup, no tokens required for the anonymous feed</li>
+      <li><strong>No query names:</strong> The feed serves static files; we do not see what domains your firewall blocks</li>
+      <li><strong>No device IDs:</strong> No cookies, no user-agent tracking, no fingerprinting</li>
+      <li><strong>No browsing history:</strong> We serve a hostname list; we do not see your web traffic</li>
+    </ul>
+  </section>
+
+  <section class="retention">
+    <h2>Data Retention</h2>
+    <ul>
+      <li><strong>Fetcher IDs:</strong> Kept in memory only until the day ends, never stored</li>
+      <li><strong>Daily counts:</strong> Per-ASN counts are kept indefinitely for public statistics</li>
+      <li><strong>No address retention:</strong> Addresses are dropped at the edge and are not recoverable</li>
+    </ul>
+  </section>
+
+  <section class="public-stats">
+    <h2>Public Statistics</h2>
     <p>
-      Cutline has no business model involving your data. No ads, no profiles, no sale to third parties. 
-      This is a public service with no charge to users.
+      Daily aggregated stats are published at <code>https://feeds.thecutline.org/stats.json</code>:
+    </p>
+    <ul>
+      <li>Date and total fetch count</li>
+      <li>Per-ASN rows: ISP name, distinct addresses, fetch count</li>
+      <li>Rows are suppressed when &lt;10 distinct addresses that day (k-anonymity)</li>
+      <li>Number of suppressed rows is disclosed</li>
+    </ul>
+    <p>
+      If the counter is reset mid-day (rare), that day's distinct counts become upper bounds and the reset is disclosed.
+    </p>
+  </section>
+
+  <section class="per-org-tokens">
+    <h2>Per-Organization Tokens</h2>
+    <p>
+      Organizations can request a unique feed URL token for attribution. The token identifies the organization 
+      in internal logs (not published), but addresses are still dropped at once and not stored.
+    </p>
+    <p>
+      The GitHub mirror (<code>https://raw.githubusercontent.com/...</code>) has no measurement at all.
     </p>
   </section>
 
   <section class="verification">
     <h2>How to Verify</h2>
     <p>
-      Cutline's privacy promise is backed by public configuration and an open invitation to inspect.
-    </p>
-
-    <h3>Public Configuration</h3>
-    <p>
-      The resolver configuration is public. You can verify that Blocky's <code>queryLog</code> is not enabled:
+      The feed Worker code is public:
     </p>
     <ul>
-      <li><a href="https://github.com/dov-max/narge-spec/blob/main/resolver/config.yml" target="_blank" rel="noopener">Blocky resolver config</a></li>
-      <li><a href="https://github.com/dov-max/narge-spec" target="_blank" rel="noopener">Full narge-spec repository</a></li>
+      <li><a href="https://github.com/dov-max/narge-spec/tree/main/feeds-worker" target="_blank" rel="noopener">feeds-worker source code</a></li>
+      <li>Privacy rules are enforced by tests: no addresses, prefixes, or fetcher IDs in storage</li>
+      <li>Cloudflare Workers logs are off (<code>wrangler.toml</code> sets <code>observability.enabled = false</code>)</li>
     </ul>
+  </section>
 
-    <h3>Inspection Invitation</h3>
+  <section class="no-business-model">
+    <h2>No Data Sale</h2>
     <p>
-      We cannot cryptographically prove a negative to someone who never looks. The proof is in looking.
-    </p>
-    <p>
-      Any independent inspector—journalist, researcher, security engineer—is invited to inspect the public 
-      repository and, by arrangement, the running resolvers. To request inspection access, open an issue on 
-      <a href="https://github.com/dov-max/narge-spec/issues" target="_blank" rel="noopener">GitHub</a>.
+      Cutline has no business model involving your data. No ads, no profiles, no sale to third parties. 
+      This is a public feed with no charge to users.
     </p>
   </section>
 
   <section class="operator">
     <h2>Operator</h2>
     <p>
-      Cutline is operated by <a href="https://github.com/dov-max" target="_blank" rel="noopener">Dov Allison</a>. 
-      Feedback and questions go to <a href="https://github.com/dov-max/narge-spec/issues" target="_blank" rel="noopener">GitHub issues</a>.
+      The Narge feed and specification are maintained by <strong>Dov Allison</strong>. 
+      For privacy questions or to report issues:
+    </p>
+    <p>
+      Email: <a href="mailto:it@thecutline.org">it@thecutline.org</a><br>
+      GitHub: <a href="https://github.com/dov-max/narge-spec" target="_blank" rel="noopener">dov-max/narge-spec</a>
     </p>
   </section>
 
-  <section class="summary-box">
-    <h2>Summary</h2>
-    <div class="summary-card">
-      <p><strong>No personal data collected.</strong></p>
-      <p><strong>Query names not stored.</strong> Operator cannot retrieve them.</p>
-      <p><strong>Source IP kept 7 days</strong> for rate limits and public stats, then deleted.</p>
-      <p><strong>Public config, open inspection.</strong></p>
-    </div>
+  <section class="more-info">
+    <h2>Related</h2>
+    <ul>
+      <li><a href="/privacy-design">Privacy Design</a> — Technical implementation details</li>
+      <li><a href="/terms">Terms of Service</a> — Legal terms and limitations</li>
+      <li><a href="/for-it">For IT Teams</a> — How to use the feed</li>
+    </ul>
   </section>
 </Layout>
 
 <style>
+  section {
+    margin-bottom: var(--spacing-2xl);
+  }
+
   .intro {
-    margin-bottom: var(--spacing-xl);
+    padding: var(--spacing-lg);
+    background: var(--color-card-bg);
+    border-radius: var(--radius);
+    border-left: 4px solid var(--color-accent);
   }
 
   .lead {
-    font-size: 1.25rem;
+    font-size: 1.2rem;
     line-height: 1.7;
-    color: var(--color-text);
-  }
-
-  section {
-    margin: var(--spacing-2xl) 0;
-  }
-
-  h3 {
-    margin-top: var(--spacing-xl);
-    font-size: 1.25rem;
+    margin-bottom: 0;
   }
 
   ul, ol {
     padding-left: var(--spacing-lg);
-    margin: var(--spacing-md) 0;
+    margin-bottom: var(--spacing-md);
   }
 
   li {
@@ -145,51 +159,22 @@ import Layout from '../layouts/Layout.astro';
     line-height: 1.7;
   }
 
-  .no-collection,
-  .how-it-works,
-  .what-is-retained,
-  .verification {
-    background: var(--color-card-bg);
-    border-radius: var(--radius);
-    padding: var(--spacing-xl);
-  }
-
-  .no-collection h2,
-  .how-it-works h2,
-  .what-is-retained h2,
-  .verification h2 {
-    margin-top: 0;
-  }
-
-  .summary-box {
-    margin-top: var(--spacing-2xl);
-  }
-
-  .summary-card {
-    background: var(--color-accent);
-    color: white;
-    border-radius: var(--radius);
-    padding: var(--spacing-xl);
-    text-align: center;
-  }
-
-  .summary-card p {
-    margin-bottom: var(--spacing-md);
-    font-size: 1.1rem;
-    line-height: 1.6;
-  }
-
-  .summary-card p:last-child {
-    margin-bottom: 0;
-  }
-
   code {
-    white-space: nowrap;
+    background: var(--color-text);
+    color: #f8f8f2;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 0.9em;
   }
 
-  @media (max-width: 640px) {
-    .summary-card p {
-      font-size: 1rem;
-    }
+  a {
+    color: var(--color-accent);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s;
+  }
+
+  a:hover {
+    border-bottom-color: var(--color-accent);
   }
 </style>

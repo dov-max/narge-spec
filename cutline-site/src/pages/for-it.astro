@@ -7,30 +7,30 @@ import Layout from '../layouts/Layout.astro';
 
   <section class="intro">
     <p class="lead">
-      The Narge domain list blocks a narrow, public set of adult content sites. Load it into your own 
-      firewall, DNS server, or security platform—no need to point at external resolvers.
+      The Narge list is a narrow, defined, public hostname feed. Load it into your firewall, DNS server, 
+      or security platform—you keep control of your infrastructure.
     </p>
   </section>
 
   <section class="what-it-is">
-    <h2>What Narge Blocks</h2>
+    <h2>What Is Narge</h2>
     <p>
-      Narge is a curated list of ~371 domains classified as explicit adult content sites. 
+      Narge is a defined content class—approximately 305 hostnames. 
       See the <a href="/spec">specification</a> for the formal definition.
     </p>
     <ul>
-      <li>Focused on sites designed for explicit content consumption</li>
-      <li>Public, verifiable hostname list</li>
-      <li>Does NOT block social media, dating apps, or general content</li>
-      <li>Free and open source (CC0 1.0)</li>
+      <li>A specific, public hostname list that makes Narge sites harder to reach</li>
+      <li>Public, verifiable, open source (CC0 1.0)</li>
+      <li>Does NOT block social media or general content</li>
+      <li>Dating apps: case-by-case (adultfriendfinder.com is on the list; match.com and similar relationship sites are not)</li>
     </ul>
   </section>
 
   <section class="feed-first">
-    <h2>Feed-First Approach</h2>
+    <h2>How to Use the Feed</h2>
     <p>
       <strong>You keep control of your DNS.</strong> Most enterprise firewalls and DNS servers can load 
-      an external domain list by URL. Narge is the <strong>feed</strong>—you handle enforcement.
+      an external domain list by URL. Narge is the <strong>feed</strong>—you load it into your own infrastructure.
     </p>
     <div class="feed-urls">
       <h3>Feed URLs</h3>
@@ -53,6 +53,7 @@ import Layout from '../layouts/Layout.astro';
       <details class="more-formats">
         <summary>More formats</summary>
         <div class="format-list">
+          <p><code>version.json</code> — Metadata: domain count, SHA-256 hashes, build timestamp</p>
           <p><code>narge-plain-nocomments.txt</code> — For UniFi</p>
           <p><code>narge.csv</code> — CSV with header</p>
           <p><code>narge-controld.json</code> — Control D folder JSON</p>
@@ -61,8 +62,8 @@ import Layout from '../layouts/Layout.astro';
       </details>
     </div>
     <p class="note-box">
-      <strong>Per-organization feed URLs</strong> (with unique tokens for telemetry) are available on request. 
-      GitHub mirror remains available as a fallback at <code>https://raw.githubusercontent.com/dov-max/narge-spec/main/dist/narge.txt</code>
+      <strong>Per-organization feed URLs</strong> (with unique tokens for usage telemetry) are available on request. 
+      GitHub mirror: <code>https://raw.githubusercontent.com/dov-max/narge-spec/main/dist/narge.txt</code>
     </p>
   </section>
 
@@ -176,16 +177,6 @@ import Layout from '../layouts/Layout.astro';
     </p>
   </section>
 
-  <section class="resolver-optional">
-    <h2>Resolvers (By Arrangement)</h2>
-    <p>
-      If you cannot load a list into your own DNS and need a resolver that enforces Narge, contact us to arrange access. 
-      Public open resolvers are no longer offered.
-    </p>
-    <p>
-      <strong>Contact:</strong> Dov Allison, <a href="mailto:it@thecutline.org">it@thecutline.org</a>
-    </p>
-  </section>
 
   <section class="testing">
     <h2>Testing Your Deployment</h2>
@@ -198,13 +189,9 @@ import Layout from '../layouts/Layout.astro';
       <a href="/verify" class="test-link">thecutline.org/verify</a>
     </div>
     <p>
-      This page runs an automatic probe that confirms:
+      This page runs an automatic probe that confirms <code>off.thecutline.org</code> does NOT resolve (it's a test domain in the Narge list).
     </p>
-    <ul>
-      <li><code>on.thecutline.org</code> resolves (control, should work)</li>
-      <li><code>off.thecutline.org</code> does NOT resolve (test domain in the block list)</li>
-    </ul>
-    <p>Green status means the cut is working.</p>
+    <p>Green status means the list is loaded and working.</p>
 
     <h3>Command-Line Test</h3>
     <p>From a client device behind your firewall/DNS:</p>
@@ -251,29 +238,27 @@ dig off.thecutline.org</code></pre>
   </section>
 
   <section class="privacy">
-    <h2>Privacy &amp; Telemetry</h2>
+    <h2>Privacy &amp; Usage Measurement</h2>
     <p>
-      The hosted feed at <code>https://feeds.thecutline.org</code> counts adoption without storing requester IPs. 
-      See the <a href="/privacy-design">privacy design</a> for how feed adoption is measured:
+      The hosted feed at <code>https://feeds.thecutline.org</code> measures usage without storing addresses. 
+      See the <a href="/privacy-design">privacy design</a> for details:
     </p>
     <ul>
-      <li>Organization feed IDs and ASN/ISP are recorded</li>
-      <li>IPs are discarded at the edge (never stored)</li>
-      <li>Aggregated stats published only when at least 10 distinct fetchers in that ASN were counted that day</li>
-      <li>Organizations verified via DNS TXT record</li>
-      <li>Seat counts are self-declared</li>
+      <li>Addresses are dropped at once; distinct fetching addresses per ASN per day are counted</li>
+      <li>Aggregated stats published only when ≥10 distinct addresses in that ASN that day</li>
+      <li>No addresses, prefixes, or fetcher IDs are stored</li>
     </ul>
     <p>
-      The GitHub mirror has no telemetry. Per-organization feed URLs with tokens are available on request.
+      The GitHub mirror has no measurement. Per-organization feed URLs with tokens are available on request.
     </p>
   </section>
 
   <section class="limitations">
     <h2>What Narge Does NOT Do</h2>
     <ul>
-      <li><strong>Not comprehensive:</strong> Narge blocks only ~371 explicit sites. It does not block malware, social media content, or other categories.</li>
+      <li><strong>Not comprehensive:</strong> Narge is one narrow class (~305 sites). It does not block malware, social media content, or other categories.</li>
       <li><strong>DNS only:</strong> HTTPS content on general platforms (Reddit, Twitter, etc.) cannot be addressed by DNS alone.</li>
-      <li><strong>Bypassable:</strong> Users with VPN access or the ability to change device DNS settings can route around the block list.</li>
+      <li><strong>Bypassable:</strong> Users with VPN access or the ability to change device DNS settings can route around any DNS-based list.</li>
       <li><strong>No real-time categorization:</strong> Narge is a curated list, not a dynamic web classifier.</li>
     </ul>
   </section>
@@ -281,7 +266,7 @@ dig off.thecutline.org</code></pre>
   <section class="contact">
     <h2>Contact</h2>
     <p>
-      For IT support, feed access tokens, and resolver arrangements:
+      For IT support and feed access tokens:
     </p>
     <p>
       <strong>Dov Allison</strong><br>

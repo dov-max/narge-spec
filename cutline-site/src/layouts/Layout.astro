@@ -4,7 +4,7 @@ interface Props {
   description?: string;
 }
 
-const { title, description = "Cutline provides a cut path—a DNS resolver that does not resolve Narge content class. No signup, no charge, open source." } = Astro.props;
+const { title, description = "Cutline provides the Narge list—a defined, public hostname feed that networks load into their own infrastructure. No signup, no charge, open source." } = Astro.props;
 const { pathname } = Astro.url;
 ---
 
@@ -24,15 +24,13 @@ const { pathname } = Astro.url;
         <a href="/" class="nav-logo">Cutline</a>
         <div class="nav-links">
           <a href="/" class={pathname === "/" ? "active" : ""}>Home</a>
-          <a href="/why" class={pathname === "/why" ? "active" : ""}>Why</a>
           <a href="/for-it" class={pathname === "/for-it" ? "active" : ""}>For IT</a>
           <a href="/verify" class={pathname === "/verify" ? "active" : ""}>Verify</a>
           <a href="/spec" class={pathname === "/spec" ? "active" : ""}>Spec</a>
-          <a href="/stats" class={pathname === "/stats" ? "active" : ""}>Stats</a>
-          <a href="/privacy-design" class={pathname === "/privacy-design" ? "active" : ""}>Privacy Design</a>
-          <a href="/run-your-own" class={pathname === "/run-your-own" ? "active" : ""}>Run Your Own</a>
           <a href="/docs" class={pathname === "/docs" ? "active" : ""}>Docs</a>
           <a href="/privacy" class={pathname === "/privacy" ? "active" : ""}>Privacy</a>
+          <a href="/privacy-design" class={pathname === "/privacy-design" ? "active" : ""}>Privacy Design</a>
+          <a href="/why" class={pathname === "/why" ? "active" : ""}>Why</a>
           <a href="/terms" class={pathname === "/terms" ? "active" : ""}>Terms</a>
           <a href="https://github.com/dov-max/narge-spec/issues" target="_blank" rel="noopener">Feedback</a>
         </div>

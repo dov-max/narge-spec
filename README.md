@@ -1,8 +1,8 @@
 # Narge
 
-Website: https://dov-max.github.io/narge-spec/
+Website: https://thecutline.org
 
-Narge is a class of visual content. It is not a brand, a product, a filter, a religion, or a law.
+Narge is a class of visual content. It is not a brand, a product, a routing tool, a religion, or a law.
 
 Version 0.2. 27 August 2026.
 

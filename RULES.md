@@ -1,7 +1,7 @@
 # Narge List Rules
 
 Draft, October 2026. These rules govern the hostname feed at
-`https://raw.githubusercontent.com/dov-max/narge-spec/main/dist/narge.txt`.
+`https://feeds.thecutline.org/v1/narge.txt` (GitHub mirror: `https://raw.githubusercontent.com/dov-max/narge-spec/main/dist/narge.txt`).
 The class itself is defined in [README.md](README.md). Nothing here adds a class or a rating.
 
 ## 1. What qualifies
@@ -38,8 +38,8 @@ A new name needs all of:
 3. **Real traffic**: in the [Tranco](https://tranco-list.eu/) top 50,000 on the current list, or
    a delivery host for a listed site.
 4. **Evidence without visiting**: the site's own public description, an app-store or
-   company listing, news coverage, or presence on at least one independent NSFW blocklist
-   (OISD NSFW, HaGeZi NSFW). We do not crawl and we do not visit sites to judge them.
+   company listing, news coverage, or presence on at least one independent blocklist with
+   a related category. We do not crawl and we do not visit sites to judge them.
 5. A reviewer other than the proposer agrees, in a public issue or pull request.
 
 ## 5. Public suffixes

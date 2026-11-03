@@ -1,6 +1,6 @@
 $TTL 60
 @ IN SOA rpz.thecutline.org. hostmaster.thecutline.org. (
-    2026110201  ; Serial (YYYYMMDDNN)
+    2026110301  ; Serial (YYYYMMDDNN)
     3600      ; Refresh (1 hour)
     600       ; Retry (10 minutes)
     604800    ; Expire (7 days)
@@ -8,10 +8,11 @@ $TTL 60
     )
 @ IN NS rpz.thecutline.org.
 
-; Narge RPZ zone
+; Narge list — a defined, public list of hostnames (RPZ zone format)
 ; Spec version: 0.2
-; Build date: 2026-11-02 18:54:50 UTC
+; Build date: 2026-11-03 00:18:31 UTC
 ; Feed URL: https://feeds.thecutline.org/v1/narge.rpz
+; Spec: https://thecutline.org/spec
 ; Total domains: 305
 
 100bucksbabes.com CNAME .

@@ -1,9 +1,9 @@
 ! Title: Narge
-! Description: Narge content class - adult content sites
+! Description: Narge list — a defined, public list of hostnames
 ! Spec version: 0.2
-! Build date: 2026-11-02 18:54:50 UTC
+! Build date: 2026-11-03 00:18:31 UTC
 ! Feed URL: https://feeds.thecutline.org/v1/narge-adguard.txt
-! Homepage: https://github.com/dov-max/narge-spec
+! Homepage: https://thecutline.org/spec
 ! License: CC0 1.0 (public domain)
 ! Total domains: 305
 !

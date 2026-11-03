@@ -1,7 +1,7 @@
 # cutline-feeds: Cloudflare Worker for feeds.thecutline.org
 
 Serves the Narge list in 9 formats at `https://feeds.thecutline.org/v1/<token>/<file>`, plus an
-IP-free fetch counter. Built locally only, not deployed. Deploying needs Dov's okay (via Path).
+IP-free fetch counter. Deployed automatically when the list or worker code changes.
 
 ## Routes
 | Path | Result |
@@ -27,7 +27,7 @@ GET and HEAD, ETag + `If-None-Match` give 304, `Cache-Control: public, max-age=3
 - `src/ip.ts`: IPv4 as-is, IPv6 reduced to its /64.
 - `src/counter.ts`: `FetchCounter` DO. De-dup sets in memory only. Persists counts only. Finalises a
   day into KV `agg:<day>` (private), `pub:<day>` and `pub:latest` (k-thresholded).
-- `scripts/build-assets.mjs`: copies narge-spec `dist/` into `feed-dist/`, writes `version.json`,
+- `scripts/build-assets.mjs`: copies the canonical `../dist/` into `feed-dist/`, writes `version.json`,
   refuses to build if < 200 domains or a > 20% drop vs. previous build.
 - `scripts/issue-token.mjs <org-slug>`: makes a token, prints it once plus the KV command storing only its hash.
 
@@ -47,14 +47,13 @@ GET and HEAD, ETag + `If-None-Match` give 304, `Cache-Control: public, max-age=3
 ## Local use
 ```sh
 npm install
-npm test              # builds feed-dist from dist-src/, runs vitest in workerd (miniflare)
+npm test              # builds feed-dist from ../dist/, runs vitest in workerd (miniflare)
 npm run dev           # wrangler dev --local on :8787 (needs .dev.vars with COUNTER_SECRET; gitignored)
 npx wrangler deploy --dry-run --outdir bundled   # config validation, no network
 ```
-`dist-src/` holds the 8 files fetched read-only from narge-spec branch `cursor/router-only-strategy-cd36`
-(PR #66) on 2026-11-02. In CI, point `build-assets.mjs` at the repo's `dist/` after the daily build.
+The feed assets are built from the canonical `../dist/` directory at the repo root.
 
-## Deploy (NOT done; needs Dov's okay via Path; zone must be active on Cloudflare first)
+## Deploy (automated via GitHub Actions)
 ```sh
 npx wrangler login                                   # neutral Cloudflare account
 npx wrangler kv namespace create TOKENS              # put ids into wrangler.toml

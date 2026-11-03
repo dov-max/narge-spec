@@ -6,7 +6,7 @@ const TOK = "cdefghijklmnopqrstuvwxyz23";
 beforeAll(async () => { await addToken(TOK, "formats-co"); });
 
 const FIRST: Record<string, (s: string) => boolean> = {
-  "narge.txt": (s) => s.startsWith("# Narge domain list") && /^[a-z0-9.-]+\.[a-z]+$/m.test(s),
+  "narge.txt": (s) => s.startsWith("# Narge list") && /^[a-z0-9.-]+\.[a-z]+$/m.test(s),
   "narge.hosts": (s) => /^0\.0\.0\.0 [a-z0-9.-]+$/m.test(s),
   "narge-wildcard.txt": (s) => /^\*\.[a-z0-9.-]+$/m.test(s),
   "narge.rpz": (s) => s.startsWith("$TTL") && /CNAME \.$/m.test(s),

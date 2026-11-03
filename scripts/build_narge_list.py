@@ -24,8 +24,10 @@ import json
 from datetime import datetime, timezone
 
 
-SUBSCRIBE_URL = "https://raw.githubusercontent.com/dov-max/narge-spec/main/dist/narge.txt"
+SUBSCRIBE_URL = "https://feeds.thecutline.org/v1/narge.txt"
+GITHUB_MIRROR_URL = "https://raw.githubusercontent.com/dov-max/narge-spec/main/dist/narge.txt"
 FEED_BASE_URL = "https://feeds.thecutline.org/v1"
+SPEC_URL = "https://thecutline.org/spec"
 SPEC_VERSION = "0.2"
 
 
@@ -82,17 +84,19 @@ def main():
     timestamp = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')
     
     # Determine source attribution
-    source_note = "core sources (seeded from StevenBlack porn-only MIT license), overlay/block.txt, overlay/allow.txt"
+    source_note = "core sources (initial seed from StevenBlack hosts, MIT license), overlay/block.txt, overlay/allow.txt"
     
     # Create dist/ directory
     os.makedirs('dist', exist_ok=True)
     
     # Write dist/narge.txt
     with open('dist/narge.txt', 'w') as f:
-        f.write(f"# Narge domain list\n")
+        f.write(f"# Narge list — a defined, public list of hostnames\n")
         f.write(f"# Spec version: {SPEC_VERSION}\n")
         f.write(f"# Build date: {timestamp}\n")
-        f.write(f"# Subscribe URL: {SUBSCRIBE_URL}\n")
+        f.write(f"# Feed URL: {SUBSCRIBE_URL}\n")
+        f.write(f"# GitHub mirror: {GITHUB_MIRROR_URL}\n")
+        f.write(f"# Spec: {SPEC_URL}\n")
         f.write(f"# Sources: {source_note}\n")
         f.write(f"# License: CC0 1.0 (public domain)\n")
         f.write(f"# Attribution: Initial seed from StevenBlack hosts (MIT license)\n")
@@ -101,9 +105,9 @@ def main():
         f.write(f"#\n")
         f.write(f"# Catalog ingest policy:\n")
         f.write(f"#   - Ingest as \"Narge,\" a separate optional category\n")
-        f.write(f"#   - Do not merge into existing porn/adult/NSFW lists\n")
-        f.write(f"#   - Do not relabel the class with those words\n")
-        f.write(f"#   - See https://github.com/dov-max/narge-spec for definition\n")
+        f.write(f"#   - Do not merge into existing lists with other class names\n")
+        f.write(f"#   - Do not relabel the class\n")
+        f.write(f"#   - See {SPEC_URL} for definition\n")
         f.write(f"\n")
         for domain in sorted_domains:
             f.write(f"{domain}\n")
@@ -112,10 +116,11 @@ def main():
     
     # Write dist/narge.hosts
     with open('dist/narge.hosts', 'w') as f:
-        f.write(f"# Narge domain list (hosts file format)\n")
+        f.write(f"# Narge list — a defined, public list of hostnames (hosts file format)\n")
         f.write(f"# Spec version: {SPEC_VERSION}\n")
         f.write(f"# Build date: {timestamp}\n")
-        f.write(f"# Subscribe URL: {SUBSCRIBE_URL}\n")
+        f.write(f"# Feed URL: {FEED_BASE_URL}/narge.hosts\n")
+        f.write(f"# Spec: {SPEC_URL}\n")
         f.write(f"# Sources: {source_note}\n")
         f.write(f"# License: CC0 1.0 (public domain)\n")
         f.write(f"# Attribution: Initial seed from StevenBlack hosts (MIT license)\n")
@@ -124,9 +129,9 @@ def main():
         f.write(f"#\n")
         f.write(f"# Catalog ingest policy:\n")
         f.write(f"#   - Ingest as \"Narge,\" a separate optional category\n")
-        f.write(f"#   - Do not merge into existing porn/adult/NSFW lists\n")
-        f.write(f"#   - Do not relabel the class with those words\n")
-        f.write(f"#   - See https://github.com/dov-max/narge-spec for definition\n")
+        f.write(f"#   - Do not merge into existing lists with other class names\n")
+        f.write(f"#   - Do not relabel the class\n")
+        f.write(f"#   - See {SPEC_URL} for definition\n")
         f.write(f"\n")
         for domain in sorted_domains:
             f.write(f"0.0.0.0 {domain}\n")
@@ -135,12 +140,14 @@ def main():
     
     # Write dist/narge-wildcard.txt (domain + *.domain on separate lines)
     with open('dist/narge-wildcard.txt', 'w') as f:
-        f.write(f"# Narge domain list (wildcard format)\n")
+        f.write(f"# Narge list — a defined, public list of hostnames (wildcard format)\n")
         f.write(f"# Spec version: {SPEC_VERSION}\n")
         f.write(f"# Build date: {timestamp}\n")
         f.write(f"# Feed URL: {FEED_BASE_URL}/narge-wildcard.txt\n")
+        f.write(f"# Spec: {SPEC_URL}\n")
         f.write(f"# Format: domain and *.domain on separate lines\n")
         f.write(f"# License: CC0 1.0 (public domain)\n")
+        f.write(f"# Total domains: {len(sorted_domains)}\n")
         f.write(f"# Total entries: {len(sorted_domains) * 2}\n")
         f.write(f"\n")
         for domain in sorted_domains:
@@ -163,10 +170,11 @@ def main():
         f.write(f"    )\n")
         f.write(f"@ IN NS rpz.thecutline.org.\n")
         f.write(f"\n")
-        f.write(f"; Narge RPZ zone\n")
+        f.write(f"; Narge list — a defined, public list of hostnames (RPZ zone format)\n")
         f.write(f"; Spec version: {SPEC_VERSION}\n")
         f.write(f"; Build date: {timestamp}\n")
         f.write(f"; Feed URL: {FEED_BASE_URL}/narge.rpz\n")
+        f.write(f"; Spec: {SPEC_URL}\n")
         f.write(f"; Total domains: {len(sorted_domains)}\n")
         f.write(f"\n")
         for domain in sorted_domains:
@@ -178,11 +186,11 @@ def main():
     # Write dist/narge-adguard.txt (AdGuard/AdBlock format)
     with open('dist/narge-adguard.txt', 'w') as f:
         f.write(f"! Title: Narge\n")
-        f.write(f"! Description: Narge content class - adult content sites\n")
+        f.write(f"! Description: Narge list — a defined, public list of hostnames\n")
         f.write(f"! Spec version: {SPEC_VERSION}\n")
         f.write(f"! Build date: {timestamp}\n")
         f.write(f"! Feed URL: {FEED_BASE_URL}/narge-adguard.txt\n")
-        f.write(f"! Homepage: https://github.com/dov-max/narge-spec\n")
+        f.write(f"! Homepage: {SPEC_URL}\n")
         f.write(f"! License: CC0 1.0 (public domain)\n")
         f.write(f"! Total domains: {len(sorted_domains)}\n")
         f.write(f"!\n")
@@ -210,7 +218,7 @@ def main():
     controld_data = {
         "folder": {
             "title": "Narge",
-            "description": "Narge content class - adult content sites",
+            "description": "Narge list — a defined, public list of hostnames. " + SPEC_URL,
             "rules": []
         },
         "metadata": {

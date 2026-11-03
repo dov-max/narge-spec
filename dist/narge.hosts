@@ -1,8 +1,9 @@
-# Narge domain list (hosts file format)
+# Narge list — a defined, public list of hostnames (hosts file format)
 # Spec version: 0.2
-# Build date: 2026-11-02 18:54:50 UTC
-# Subscribe URL: https://raw.githubusercontent.com/dov-max/narge-spec/main/dist/narge.txt
-# Sources: core sources (seeded from StevenBlack porn-only MIT license), overlay/block.txt, overlay/allow.txt
+# Build date: 2026-11-03 00:18:31 UTC
+# Feed URL: https://feeds.thecutline.org/v1/narge.hosts
+# Spec: https://thecutline.org/spec
+# Sources: core sources (initial seed from StevenBlack hosts, MIT license), overlay/block.txt, overlay/allow.txt
 # License: CC0 1.0 (public domain)
 # Attribution: Initial seed from StevenBlack hosts (MIT license)
 #              https://github.com/StevenBlack/hosts
@@ -10,9 +11,9 @@
 #
 # Catalog ingest policy:
 #   - Ingest as "Narge," a separate optional category
-#   - Do not merge into existing porn/adult/NSFW lists
-#   - Do not relabel the class with those words
-#   - See https://github.com/dov-max/narge-spec for definition
+#   - Do not merge into existing lists with other class names
+#   - Do not relabel the class
+#   - See https://thecutline.org/spec for definition
 
 0.0.0.0 100bucksbabes.com
 0.0.0.0 3xxx.pro

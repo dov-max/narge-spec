@@ -3,7 +3,7 @@ name: Deploy feeds Worker
 on:
   push:
     branches: [main]
-    paths: ['feeds-worker/**', '.github/workflows/deploy-feeds.yml']
+    paths: ['feeds-worker/**', 'dist/**', '.github/workflows/deploy-feeds.yml']
   workflow_dispatch:
 
 permissions:

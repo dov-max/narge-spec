@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "build:assets": "node scripts/build-assets.mjs dist-src feed-dist",
+    "build:assets": "node scripts/build-assets.mjs ../dist feed-dist",
     "dev": "npm run build:assets && wrangler dev --local",
     "test": "npm run build:assets && vitest run",
     "typecheck": "tsc --noEmit"

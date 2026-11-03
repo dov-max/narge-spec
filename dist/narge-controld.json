@@ -1,7 +1,7 @@
 {
   "folder": {
     "title": "Narge",
-    "description": "Narge content class - adult content sites",
+    "description": "Narge list \u2014 a defined, public list of hostnames. https://thecutline.org/spec",
     "rules": [
       {
         "group": "domain",
@@ -1837,7 +1837,7 @@
   },
   "metadata": {
     "spec_version": "0.2",
-    "build_date": "2026-11-02 18:54:50 UTC",
+    "build_date": "2026-11-03 00:18:31 UTC",
     "feed_url": "https://feeds.thecutline.org/v1/narge-controld.json",
     "total_domains": 305
   }

@@ -6,21 +6,21 @@ This process sits next to the [Narge specification](README.md). It produces a ho
 
 **Maintenance**: See [MAINTENANCE.md](MAINTENANCE.md) for the weekly maintenance SOP.
 
-## Subscribe URL
+## Feed URLs
 
-The stable Narge list is available at:
+The Narge list is available at **https://feeds.thecutline.org** in multiple formats:
 
-**https://raw.githubusercontent.com/dov-max/narge-spec/main/dist/narge.txt**
+**https://feeds.thecutline.org/v1/narge.txt** (primary feed URL)
 
-A hosts file format is also available:
+GitHub mirror: **https://raw.githubusercontent.com/dov-max/narge-spec/main/dist/narge.txt**
 
-**https://raw.githubusercontent.com/dov-max/narge-spec/main/dist/narge.hosts**
+Additional formats (RPZ, AdGuard, Control D, CSV, hosts file) are available at the same feed URL. See [For IT Teams](https://thecutline.org/for-it) for all formats.
 
 The list is rebuilt daily and on every change to the source files. It is dedicated to the public domain under CC0 1.0.
 
 ## Initial seed
 
-The list was seeded once from the [StevenBlack hosts porn-only list](https://github.com/StevenBlack/hosts) (MIT license). Apex domains with high subdomain fanout (≥10 hostnames) were selected as likely type 1 (watch) or type 2 (paid creator) sites. This was a one-time candidate source. The seed is attributed in the distribution file headers.
+The list was seeded once from the StevenBlack hosts (MIT license) by selecting apex domains with high subdomain fanout (≥10 hostnames) as likely type 1 (watch) or type 2 (paid creator) sites. This was a one-time candidate source. The seed is attributed in the distribution file headers.
 
 ## Overlay
 
@@ -31,9 +31,6 @@ Two small public files add corrections:
 
 A day-one steward may edit these files. These files exist to refine the core list through targeted additions and exceptions.
 
-## Resolver implementation
-
-See [resolver/](resolver/) for a ready-to-run Blocky DNS configuration that loads the Narge list and overlay files. This is for VPS deployment, not a hosted service.
 
 ## Host grain
 
@@ -47,14 +44,14 @@ A host fits one of eight relevant types. Type is not voted.
 
 1. **Watch** — streaming or gallery
 2. **Paid creator** — subscription or tip platform
-3. **Dating** — hookup or relationship
+3. **Dating** — case-by-case (hookup or relationship sites considered individually)
 4. **Sex education / health** — information, therapy, clinics
 5. **Lingerie / clothing shop** — apparel sale
 6. **Toy / wellness shop** — product sale
 7. **Editorial** — news, magazine, review
 8. **Mixed social / art** — community, portfolio, mixed media
 
-Irrelevant types (grocery, banks) are cleared and never asked. A porn CDN is delivery for type 1, not a ninth type.
+Irrelevant types (grocery, banks) are cleared and never asked. A CDN that primarily delivers type 1 content is considered delivery infrastructure for type 1, not a separate type.
 
 ## Defaults by type
 
@@ -97,7 +94,7 @@ Third-party catalogs may ingest the Narge list as a separate, optional category.
 
 **Policy:**
 - Ingest as "Narge," a distinct optional category
-- Do not merge into existing porn/adult/NSFW lists
+- Do not merge into existing lists with other class names
 - Do not relabel the class with those words
 - If a catalog will only accept it as "adult," skip that catalog
 

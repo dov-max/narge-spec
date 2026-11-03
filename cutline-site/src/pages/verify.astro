@@ -2,566 +2,235 @@
 import Layout from '../layouts/Layout.astro';
 ---
 
-<Layout title="Verify You're Using Cutline">
-  <h1>Verify You're Using Cutline</h1>
+<Layout title="Verify the Narge List Works">
+  <h1>Verify the Narge List Works</h1>
 
   <section class="intro">
     <p class="lead">
-      After configuring your DNS, follow these steps to confirm you're using the cut path.
+      After loading the Narge list into your firewall or DNS server, follow these steps to confirm 
+      it's working.
     </p>
   </section>
 
-  <section class="dns-check">
-    <h2>Automatic DNS Check</h2>
-    <p>Click the button below to check if this device is using Cutline DNS:</p>
+  <section class="test-hostname">
+    <h2>Test Hostname: off.thecutline.org</h2>
+    <p>
+      <code>off.thecutline.org</code> is a test hostname included in the Narge list. If the list is 
+      loaded correctly, this hostname should <strong>not resolve</strong> (NXDOMAIN) on your network.
+    </p>
     
-    <button id="check-button" class="check-button">Check Now</button>
-    
-    <div id="status-banner" class="status-banner status-idle">
-      <strong>Not checked yet.</strong> Click "Check Now" to test.
-    </div>
+    <h3>Quick Test</h3>
+    <p>From a device behind your firewall/DNS:</p>
+    <pre><code># Should fail (blocked by Narge list)
+ping off.thecutline.org
 
-    <div id="probe-details" class="probe-details" style="display: none;">
-      <div class="probe-result">
-        <strong>on.thecutline.org:</strong> <span id="on-result">—</span>
-      </div>
-      <div class="probe-result">
-        <strong>off.thecutline.org:</strong> <span id="off-result">—</span>
-      </div>
-    </div>
-
-    <details class="how-it-works">
-      <summary>How this check works</summary>
-      <div class="details-content">
-        <p>
-          When you click "Check Now," your browser silently probes two hostnames:
-        </p>
-        <ul>
-          <li><code>on.thecutline.org</code> — exists <strong>only</strong> on Cutline DNS, not in public DNS</li>
-          <li><code>off.thecutline.org</code> — exists in public DNS but is on the Cutline block overlay, so a cut path must return NXDOMAIN</li>
-        </ul>
-        <p>
-          <strong>Green (you are on a cut path) only if:</strong> the first fetch succeeds <strong>and</strong> the second fetch fails.
-        </p>
-        <p>
-          Any other combination means you are not on a cut path. If both succeed, you are either using public DNS, 
-          a mixed resolver, or Cutline is not blocking the off probe (leak). If the on probe fails, you are not 
-          using Cutline DNS. If both fail, you are not on a cut path.
-        </p>
-        <p>
-          You are not sent to either hostname. The check is performed silently in JavaScript with fetch, 
-          and all errors are caught by this page.
-        </p>
-      </div>
-    </details>
-  </section>
-
-  <section class="steps">
-    <h2>Test Steps</h2>
-
-    <div class="test-step">
-      <div class="step-number">1</div>
-      <div class="step-content">
-        <h3>Run the Automatic Check</h3>
-        <p>
-          Use the <strong>Automatic DNS Check</strong> button above to verify 
-          you're on the cut path. This is the easiest and most reliable verification method.
-        </p>
-        <p class="status-note">
-          The check automatically retries for ~15 seconds if needed to account for DNS cache clearing.
-        </p>
-      </div>
-    </div>
-
-    <div class="test-step">
-      <div class="step-number">2</div>
-      <div class="step-content">
-        <h3>Test Normal Sites Work</h3>
-        <p>
-          Visit a normal website to confirm DNS is working:
-        </p>
-        <ul>
-          <li><a href="https://example.com" target="_blank" rel="noopener">example.com</a> — Should load</li>
-          <li><a href="https://wikipedia.org" target="_blank" rel="noopener">wikipedia.org</a> — Should load</li>
-          <li><a href="https://github.com" target="_blank" rel="noopener">github.com</a> — Should load</li>
-        </ul>
-        <p>
-          If these sites don't load, your DNS configuration may be incorrect. Double-check the settings.
-        </p>
-      </div>
-    </div>
-
-    <div class="test-step">
-      <div class="step-number">3</div>
-      <div class="step-content">
-        <h3>Manual DNS Query Test (Advanced)</h3>
-        <p>
-          If you're comfortable with terminal/command prompt, query your configured DNS directly to 
-          test that blocked domains return <code>NXDOMAIN</code>:
-        </p>
-        <pre><code># Test a blocked domain (should fail)
+# Or check DNS directly
 dig off.thecutline.org
+nslookup off.thecutline.org</code></pre>
+    <p>
+      If <code>off.thecutline.org</code> <strong>does not resolve</strong> (NXDOMAIN or timeout), 
+      the list is working. If it resolves, the list is not loaded or not being applied.
+    </p>
+  </section>
 
-# Test a normal domain (should work)
-dig example.com</code></pre>
-        <p>
-          If the blocked domain resolves instead of returning <code>NXDOMAIN</code>, the Narge list 
-          may not be loaded into your DNS infrastructure.
-        </p>
-      </div>
+  <section class="browser-test">
+    <h2>Browser Test</h2>
+    <p>
+      Try to visit <code>off.thecutline.org</code> in a browser from a device on your network:
+    </p>
+    <div class="test-link-box">
+      <a href="http://off.thecutline.org" target="_blank" rel="noopener" class="test-link">http://off.thecutline.org</a>
     </div>
-  </section>
-
-  <section class="workarounds">
-    <h2>If the Check Stays Red</h2>
-    
-    <h3>Browser DNS Cache Workaround</h3>
     <p>
-      Safari and other browsers cache DNS aggressively. If the automatic check stays red after you've 
-      enabled Cutline DNS, the browser may still have old DNS records cached.
-    </p>
-    <ul>
-      <li><strong>macOS Safari:</strong> Fully quit Safari (⌘Q), then reopen it</li>
-      <li><strong>iOS Safari:</strong> Swipe up to close Safari completely, then reopen</li>
-      <li><strong>Chrome/Firefox:</strong> Restart the browser</li>
-    </ul>
-    <p class="status-note">
-      The automatic check already retries for ~15 seconds, so try that first before restarting your browser.
+      <strong>Expected result:</strong> The page should <strong>not load</strong> (DNS error, "site can't be reached"). 
+      If the page loads or redirects, the list is not blocking this hostname.
     </p>
   </section>
 
-  <section class="dns-check-tools">
-    <h2>Platform Verification (Advanced)</h2>
+  <section class="normal-sites">
+    <h2>Verify Normal Sites Still Work</h2>
     <p>
-      Check your firewall or DNS server logs to verify the Narge list was successfully loaded:
+      Confirm that non-blocked sites still resolve correctly:
     </p>
     <ul>
-      <li><strong>Palo Alto:</strong> Monitor → Logs → System, search for "External Dynamic List"</li>
-      <li><strong>Fortinet:</strong> Log & Report → System Events, search for External Connector updates</li>
-      <li><strong>pfBlockerNG:</strong> Firewall → pfBlockerNG → DNSBL → Statistics</li>
-      <li><strong>Sync scripts:</strong> Check cron job logs or scheduled task history</li>
+      <li><a href="https://example.com" target="_blank" rel="noopener">example.com</a> — Should load</li>
+      <li><a href="https://wikipedia.org" target="_blank" rel="noopener">wikipedia.org</a> — Should load</li>
+      <li><a href="https://github.com" target="_blank" rel="noopener">github.com</a> — Should load</li>
     </ul>
+    <p>
+      If these sites don't load, your DNS configuration may be incorrect. Double-check the settings.
+    </p>
+  </section>
+
+  <section class="platform-checks">
+    <h2>Check Platform Logs</h2>
+    <p>
+      Verify your firewall or DNS server is loading and applying the list:
+    </p>
+
+    <h3>Palo Alto (PAN-OS)</h3>
+    <ul>
+      <li><strong>Monitor → Logs → System:</strong> Search for "External Dynamic List" to see list updates</li>
+      <li><strong>Objects → External Dynamic Lists:</strong> Check the list status and entry count</li>
+      <li>The entry count should match the feed's <code>version.json</code> (approximately 305 domains)</li>
+    </ul>
+
+    <h3>Fortinet FortiGate</h3>
+    <ul>
+      <li><strong>Log & Report → System Events:</strong> Search for External Connector updates</li>
+      <li><strong>Security Fabric → External Connectors:</strong> Verify the feed is listed and active</li>
+      <li>Check the last update time and entry count</li>
+    </ul>
+
+    <h3>Infoblox</h3>
+    <ul>
+      <li><strong>TIDE dashboard:</strong> Shows last refresh time and entry count for custom feeds</li>
+      <li>Verify the Narge feed is listed and the count matches</li>
+    </ul>
+
+    <h3>pfBlockerNG</h3>
+    <ul>
+      <li><strong>Firewall → pfBlockerNG → DNSBL → Statistics:</strong> Shows loaded lists and domain counts</li>
+      <li>Verify Narge is in the active lists</li>
+    </ul>
+
+    <h3>Pi-hole / Blocky / Unbound</h3>
+    <ul>
+      <li>Check the configuration file for the Narge list URL</li>
+      <li>Verify the blocklist was fetched (check logs or list update times)</li>
+      <li>Query <code>off.thecutline.org</code> directly from the resolver</li>
+    </ul>
+  </section>
+
+  <section class="version-check">
+    <h2>Check the Feed Version</h2>
+    <p>
+      The feed publishes a <code>version.json</code> file with metadata:
+    </p>
+    <pre><code>https://feeds.thecutline.org/v1/version.json</code></pre>
+    <p>
+      This file includes:
+    </p>
+    <ul>
+      <li><strong>count:</strong> Number of domains in the list (should match your platform's entry count)</li>
+      <li><strong>generated:</strong> When the list was last built</li>
+      <li><strong>sha256:</strong> Hash of narge.txt for verification</li>
+    </ul>
+    <p>
+      If your platform shows a different count or an old timestamp, it may not be fetching the latest list.
+    </p>
   </section>
 
   <section class="troubleshooting">
     <h2>Troubleshooting</h2>
 
+    <h3>off.thecutline.org resolves (not blocked)</h3>
+    <ul>
+      <li><strong>List not loaded:</strong> Check that your platform successfully fetched the feed URL</li>
+      <li><strong>Policy not applied:</strong> Verify the list is being used in a DNS policy or firewall rule</li>
+      <li><strong>DNS cache:</strong> Clear the DNS cache on your device or router</li>
+      <li><strong>Device bypass:</strong> Check if the device is using a different DNS (VPN, hardcoded DNS, DoH)</li>
+    </ul>
+
     <h3>Normal sites don't load</h3>
     <ul>
-      <li>Verify your firewall or DNS server configuration</li>
-      <li>Restart your device or renew DHCP</li>
-      <li>Try flushing DNS cache (see below)</li>
-      <li>Check that the Narge list loaded successfully in your platform</li>
+      <li><strong>Wrong list URL:</strong> Make sure you're loading <code>narge.txt</code>, not a different list</li>
+      <li><strong>DNS misconfiguration:</strong> Verify your DNS upstream settings are correct</li>
+      <li><strong>Firewall block all:</strong> Check that the policy is "block Narge list," not "block everything except"</li>
     </ul>
 
-    <h3>Blocked sites still load</h3>
+    <h3>Count mismatch (platform shows wrong number of domains)</h3>
     <ul>
-      <li>Check that your device isn't using another DNS source (VPN, proxy, iCloud Private Relay, corporate network)</li>
-      <li>Verify the Narge list is loaded into your DNS/firewall</li>
-      <li>The site may not be in the Narge list (the list is an approximation)</li>
-      <li>If the automatic check above is green but sites still load, browser cache may be serving old content — try restarting the browser</li>
+      <li><strong>Stale cache:</strong> Force a list refresh in your platform's settings</li>
+      <li><strong>Wrong format:</strong> Some platforms need a specific format (RPZ, AdGuard, etc.)</li>
+      <li><strong>Subdomain expansion:</strong> Some platforms count <code>*.example.com</code> as 2 entries, not 1</li>
     </ul>
-
-    <h3>Windows: IPv6 DNS Leak</h3>
-    <p>
-      Even after configuring IPv4 DNS, Windows may prioritize an IPv6 DNS resolver 
-      from your router. To check:
-    </p>
-    <pre><code>ipconfig /all</code></pre>
-    <p>
-      Look at the DNS Servers list. If an <strong>IPv6 address appears first</strong> (e.g., starting with 
-      <code>2600:</code> or <code>fe80:</code>), Windows may not be using your configured DNS. 
-      The Settings app "IPv6 DNS Off" toggle does not prevent this.
-    </p>
-    <p><strong>Fix:</strong> Disable IPv6 on your network adapter:</p>
-    <ul>
-      <li><strong>GUI:</strong> Press <kbd>Win+R</kbd>, type <code>ncpa.cpl</code>, press Enter. 
-          Right-click your connection, select Properties, and uncheck 
-          <strong>Internet Protocol Version 6 (TCP/IPv6)</strong>.</li>
-      <li><strong>PowerShell</strong> (Administrator): 
-          <code>Disable-NetAdapterBinding -Name 'Wi-Fi' -ComponentID ms_tcpip6</code></li>
-    </ul>
-    <p>
-      After disabling IPv6, run <code>ipconfig /flushdns</code> and retest with the Check Now button above.
-    </p>
-
-    <h3>Flush DNS Cache</h3>
-    <p><strong>macOS:</strong></p>
-    <pre><code>sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder</code></pre>
-
-    <p><strong>Windows:</strong></p>
-    <pre><code>ipconfig /flushdns</code></pre>
-
-    <p><strong>Linux:</strong></p>
-    <pre><code>sudo systemd-resolve --flush-caches</code></pre>
   </section>
 
-  <section class="help">
-    <h2>Still Having Issues?</h2>
+  <section class="contact">
+    <h2>Need Help?</h2>
     <p>
-      If you're stuck, check the <a href="/docs">docs</a> or open an issue on 
-      <a href="https://github.com/dov-max/narge-spec/issues" target="_blank" rel="noopener">GitHub</a>.
+      If you're having trouble loading or verifying the list:
     </p>
+    <p>
+      <strong>Email:</strong> <a href="mailto:it@thecutline.org">it@thecutline.org</a><br>
+      <strong>GitHub:</strong> <a href="https://github.com/dov-max/narge-spec/issues" target="_blank" rel="noopener">Report issues</a>
+    </p>
+  </section>
+
+  <section class="more-info">
+    <h2>More Information</h2>
+    <div class="card-grid">
+      <a href="/for-it" class="info-card">
+        <h3>For IT Teams</h3>
+        <p>Platform-specific setup instructions and feed formats</p>
+      </a>
+      <a href="/spec" class="info-card">
+        <h3>Narge Spec</h3>
+        <p>The formal definition of the Narge content class</p>
+      </a>
+      <a href="/privacy" class="info-card">
+        <h3>Privacy</h3>
+        <p>How the feed measures usage without storing addresses</p>
+      </a>
+    </div>
   </section>
 </Layout>
 
-<script>
-  let retryTimer = null;
-  const MAX_RETRIES = 6; // ~15 seconds with 2.5s intervals
-
-  function checkDNS(retryAttempt = 0) {
-    const banner = document.getElementById('status-banner');
-    const button = document.getElementById('check-button');
-    const probeDetails = document.getElementById('probe-details');
-    const onResultEl = document.getElementById('on-result');
-    const offResultEl = document.getElementById('off-result');
-    
-    if (!banner || !button) return;
-
-    // Clear any existing retry timer
-    if (retryTimer) {
-      clearTimeout(retryTimer);
-      retryTimer = null;
-    }
-    
-    // Set checking state
-    if (retryAttempt === 0) {
-      banner.className = 'status-banner status-checking';
-      banner.innerHTML = '<strong>Checking...</strong>';
-      button.disabled = true;
-      if (probeDetails) probeDetails.style.display = 'none';
-    } else {
-      banner.className = 'status-banner status-waiting';
-      banner.innerHTML = `
-        <strong>Waiting for DNS cache to clear...</strong>
-        <p class="status-note">Attempt ${retryAttempt} of ${MAX_RETRIES}</p>
-      `;
-    }
-    
-    // Probe both endpoints
-    const onProbe = fetch('https://on.thecutline.org/ok', {
-      method: 'GET',
-      cache: 'no-store',
-      mode: 'cors'
-    });
-    
-    const offProbe = fetch('https://off.thecutline.org/ok', {
-      method: 'GET',
-      cache: 'no-store',
-      mode: 'cors'
-    });
-    
-    // Wait for both probes to complete (or fail)
-    Promise.allSettled([onProbe, offProbe])
-      .then(results => {
-        const onResult = results[0];
-        const offResult = results[1];
-        
-        // Check if on succeeded (200)
-        const onSuccess = onResult.status === 'fulfilled' && onResult.value.ok;
-        
-        // Check if off failed (network/DNS error)
-        const offFailed = offResult.status === 'rejected';
-
-        // Update individual probe results
-        if (onResultEl) {
-          if (onSuccess) {
-            onResultEl.innerHTML = '<span style="color: green;">✓ Resolved (expected)</span>';
-          } else {
-            onResultEl.innerHTML = '<span style="color: red;">✗ Failed</span>';
-          }
-        }
-        
-        if (offResultEl) {
-          if (offFailed) {
-            offResultEl.innerHTML = '<span style="color: green;">✓ Blocked (expected)</span>';
-          } else {
-            offResultEl.innerHTML = '<span style="color: red;">⚠️ Resolved (should be blocked)</span>';
-          }
-        }
-
-        if (probeDetails) {
-          probeDetails.style.display = 'block';
-        }
-        
-        // Green ONLY if on succeeds AND off fails
-        const testPassed = onSuccess && offFailed;
-        
-        if (testPassed) {
-          banner.className = 'status-banner status-success';
-          banner.innerHTML = `
-            <strong>You are on a cut path.</strong>
-            <p class="status-note">iCloud Private Relay or a VPN can bypass Cutline.</p>
-          `;
-          button.disabled = false;
-        } else if (retryAttempt < MAX_RETRIES) {
-          // Test failed, retry after delay
-          banner.className = 'status-banner status-waiting';
-          banner.innerHTML = `
-            <strong>Waiting for DNS cache to clear...</strong>
-            <p class="status-note">Attempt ${retryAttempt + 1} of ${MAX_RETRIES}. Retrying in 2.5s...</p>
-          `;
-          
-          retryTimer = setTimeout(() => {
-            checkDNS(retryAttempt + 1);
-          }, 2500);
-        } else {
-          // Test failed and max retries reached
-          showNotOnCutPath(banner, onSuccess, offFailed);
-          button.disabled = false;
-        }
-      });
-  }
-  
-  function showNotOnCutPath(banner, onSuccess, offFailed) {
-    banner.className = 'status-banner status-fail';
-    
-    let reason = '';
-    if (!onSuccess && !offFailed) {
-      reason = 'Neither domain resolved. Check your internet connection.';
-    } else if (!onSuccess) {
-      reason = 'on.thecutline.org did not resolve. You are not using Cutline DNS.';
-    } else if (!offFailed) {
-      reason = 'off.thecutline.org resolved when it should be blocked. DNS is not routing through Cutline. iCloud Private Relay or a VPN can bypass Cutline.';
-    } else {
-      reason = 'Verification failed.';
-    }
-    
-    banner.innerHTML = `
-      <strong>You are not on a cut path.</strong>
-      <p class="status-note">${reason}</p>
-    `;
-  }
-  
-  // Auto-run check on page load
-  document.addEventListener('DOMContentLoaded', () => {
-    checkDNS();
-  });
-  
-  // Button click handler
-  const checkButton = document.getElementById('check-button');
-  if (checkButton) {
-    checkButton.addEventListener('click', () => {
-      if (retryTimer) {
-        clearTimeout(retryTimer);
-        retryTimer = null;
-      }
-      checkDNS(0);
-    });
-  }
-</script>
-
 <style>
+  section {
+    margin-bottom: var(--spacing-2xl);
+  }
+
   .intro {
-    margin-bottom: var(--spacing-xl);
+    padding: var(--spacing-lg);
+    background: var(--color-card-bg);
+    border-radius: var(--radius);
+    border-left: 4px solid var(--color-accent);
   }
 
   .lead {
-    font-size: 1.25rem;
+    font-size: 1.2rem;
     line-height: 1.7;
+    margin-bottom: 0;
   }
 
-  .dns-check {
-    margin: var(--spacing-2xl) 0;
-    padding: var(--spacing-xl);
+  .test-link-box {
     background: var(--color-card-bg);
+    border: 2px solid #dc3545;
     border-radius: var(--radius);
-    border: 2px solid var(--color-border);
-  }
-
-  .dns-check h2 {
-    margin-top: 0;
-  }
-
-  .check-button {
-    background: var(--color-accent);
-    color: white;
-    border: none;
-    padding: var(--spacing-md) var(--spacing-xl);
-    font-size: 1.1rem;
-    font-weight: 600;
-    border-radius: var(--radius);
-    cursor: pointer;
-    margin: var(--spacing-md) 0;
-    transition: background 0.2s;
-  }
-
-  .check-button:hover:not(:disabled) {
-    background: var(--color-accent-hover);
-  }
-
-  .check-button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-
-  .status-banner {
     padding: var(--spacing-lg);
-    border-radius: var(--radius);
     margin: var(--spacing-lg) 0;
-    border-left: 4px solid #ccc;
+    text-align: center;
   }
 
-  .status-banner strong {
-    display: block;
-    font-size: 1.15rem;
-    margin-bottom: var(--spacing-xs);
-  }
-
-  .status-note {
-    font-size: 0.9rem;
-    color: var(--color-text-muted);
-    margin: var(--spacing-xs) 0 0 0;
-  }
-
-  .status-idle {
-    background: #f5f5f5;
-    border-left-color: #999;
-  }
-
-  .status-checking {
-    background: #e3f2fd;
-    border-left-color: #2196f3;
-  }
-
-  .status-waiting {
-    background: #fff3e0;
-    border-left-color: #ff9800;
-  }
-
-  .status-success {
-    background: #e8f5e9;
-    border-left-color: #4caf50;
-  }
-
-  .status-fail {
-    background: #ffebee;
-    border-left-color: #f44336;
-  }
-
-  .probe-details {
-    margin-top: var(--spacing-md);
-    padding: var(--spacing-md);
-    background: #fafafa;
-    border-radius: var(--radius);
-    border: 1px solid var(--color-border);
-    font-size: 0.95rem;
-  }
-
-  .probe-result {
-    margin: var(--spacing-xs) 0;
-  }
-
-  .probe-result strong {
+  .test-link {
+    font-size: 1.2rem;
     font-weight: 600;
+    color: #dc3545;
+    text-decoration: none;
   }
 
-  .how-it-works {
-    margin-top: var(--spacing-xl);
-    padding: var(--spacing-md);
-    background: #fafafa;
-    border-radius: var(--radius);
-    border: 1px solid var(--color-border);
+  .test-link:hover {
+    text-decoration: underline;
   }
 
-  .how-it-works summary {
-    cursor: pointer;
-    font-weight: 600;
-    padding: var(--spacing-sm);
-    user-select: none;
-  }
-
-  .how-it-works summary:hover {
-    color: var(--color-accent);
-  }
-
-  .details-content {
-    padding: var(--spacing-md) var(--spacing-sm) 0;
-  }
-
-  .details-content p {
+  ul {
+    padding-left: var(--spacing-lg);
     margin-bottom: var(--spacing-md);
   }
 
-  .steps {
-    margin: var(--spacing-2xl) 0;
-  }
-
-  .test-step {
-    display: flex;
-    gap: var(--spacing-lg);
-    margin: var(--spacing-xl) 0;
-    padding: var(--spacing-lg);
-    background: var(--color-card-bg);
-    border-radius: var(--radius);
-  }
-
-  .step-number {
-    flex-shrink: 0;
-    width: 3rem;
-    height: 3rem;
-    background: var(--color-accent);
-    color: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    font-weight: 700;
-  }
-
-  .step-content {
-    flex: 1;
-  }
-
-  .step-content h3 {
-    margin-top: 0;
+  li {
     margin-bottom: var(--spacing-sm);
+    line-height: 1.7;
   }
 
-  .step-content ul {
-    padding-left: var(--spacing-lg);
-  }
-
-  .step-content li {
-    margin-bottom: var(--spacing-xs);
-  }
-
-  .warning {
-    background: #fff3cd;
-    border-left: 4px solid #ffc107;
-    padding: var(--spacing-md);
-    margin: var(--spacing-md) 0;
-    border-radius: 4px;
-    color: #856404;
-  }
-
-  .canary-link {
-    display: inline-block;
-    font-size: 1.1rem;
-    padding: var(--spacing-sm) var(--spacing-md);
-    background: var(--color-card-bg);
-    border: 1px solid var(--color-border);
-    border-radius: 4px;
-    margin: var(--spacing-sm) 0;
-  }
-
-  .canary-note {
-    font-size: 0.95rem;
-    color: var(--color-text-muted);
-    font-style: italic;
-  }
-
-  .dns-check-tools,
-  .troubleshooting,
-  .workarounds,
-  .help {
-    margin: var(--spacing-2xl) 0;
-  }
-
-  h3 {
-    margin-top: var(--spacing-xl);
-    font-size: 1.25rem;
+  code {
+    background: var(--color-text);
+    color: #f8f8f2;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 0.9em;
   }
 
   pre {
@@ -570,31 +239,57 @@ dig example.com</code></pre>
     padding: var(--spacing-md);
     border-radius: var(--radius);
     overflow-x: auto;
+    margin: var(--spacing-md) 0;
   }
 
   pre code {
-    color: #f8f8f2;
+    background: none;
+    padding: 0;
   }
 
-  ul {
-    padding-left: var(--spacing-lg);
+  a {
+    color: var(--color-accent);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s;
   }
 
-  li {
+  a:hover {
+    border-bottom-color: var(--color-accent);
+  }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-lg);
+  }
+
+  .info-card {
+    background: var(--color-card-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: var(--spacing-lg);
+    text-decoration: none;
+    color: var(--color-text);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .info-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-color: var(--color-accent);
+  }
+
+  .info-card h3 {
+    margin-top: 0;
     margin-bottom: var(--spacing-sm);
-    line-height: 1.7;
+    color: var(--color-accent);
   }
 
-  @media (max-width: 640px) {
-    .test-step {
-      flex-direction: column;
-      gap: var(--spacing-sm);
-    }
-
-    .step-number {
-      width: 2.5rem;
-      height: 2.5rem;
-      font-size: 1.25rem;
-    }
+  .info-card p {
+    margin-bottom: 0;
+    color: var(--color-text-muted);
+    font-size: 0.95rem;
   }
 </style>

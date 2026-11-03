@@ -2,118 +2,117 @@
 import Layout from '../layouts/Layout.astro';
 ---
 
-<Layout title="Privacy Design — Narge Feed Telemetry">
+<Layout title="Privacy Design — Narge Feed Measurement">
   <h1>Privacy Design</h1>
 
   <div class="status-banner">
     <strong>Status: Live</strong>
-    <p>The hosted feed at <code>https://feeds.thecutline.org</code> is live with IP-free telemetry. 
-    Per-organization feed URLs and the anonymous feed are available. The GitHub mirror remains available as a fallback with no telemetry.</p>
+    <p>The hosted feed at <code>https://feeds.thecutline.org</code> measures usage without storing addresses. 
+    Code is public at <a href="https://github.com/dov-max/narge-spec/tree/main/feeds-worker" target="_blank" rel="noopener">feeds-worker</a>.</p>
   </div>
 
   <section class="intro">
     <p class="lead">
-      Narge counts feed adoption without storing IP addresses. This page documents the privacy-preserving 
-      design for measuring how many organizations use the Narge list.
+      The Narge feed measures usage without storing addresses. This page documents how distinct fetching 
+      addresses are counted per ASN per day, with no addresses, prefixes, or fetcher IDs written to storage.
     </p>
   </section>
 
   <section class="problem">
     <h2>The Challenge</h2>
     <p>
-      When organizations load the Narge list into their own DNS or firewall, we want to count adoption 
-      without storing personal data about their users or employees. Traditional analytics would log 
-      IP addresses, which we explicitly do not want.
+      When organizations load the Narge list into their DNS or firewall, we want to count usage 
+      without storing addresses. Traditional analytics would log addresses, which we explicitly do not want.
     </p>
   </section>
 
   <section class="solution">
-    <h2>IP-Free Counting</h2>
+    <h2>Address-Free Counting</h2>
     <p>
-      The feed telemetry system counts <strong>installations</strong> (organizations fetching the list), 
-      not individual users, using an IP-free pipeline:
+      The feed Worker counts <strong>distinct fetching addresses per ASN per UTC day</strong> 
+      without storing addresses, using an address-free pipeline:
     </p>
 
-    <h3>1. Edge Processing</h3>
+    <h3>1. Edge Processing (One Request)</h3>
     <p>
-      Feed URLs are served through an edge worker (e.g., Cloudflare Workers) that exposes ASN and 
-      organization metadata <strong>without writing the IP address</strong>:
+      When a firewall or DNS server fetches the list:
+    </p>
+    <ol>
+      <li>The Worker reads the connecting address and ISP (ASN) from <code>request.cf</code></li>
+      <li>IPv6 addresses are reduced to their /64 prefix (standard privacy practice)</li>
+      <li>A <strong>one-day ID</strong> is derived: <code>HMAC(K_day, normalized_address)</code></li>
+      <li><strong>The address is dropped at once</strong> — it is never written to storage or logs</li>
+      <li>The one-day ID is passed to a Durable Object (in-memory counter)</li>
+    </ol>
+
+    <h3>2. Daily HMAC Key</h3>
+    <p>
+      The daily key <code>K_day</code> is derived from a long-lived secret and the UTC date:
+    </p>
+    <pre><code>K_day = HMAC(COUNTER_SECRET, "cutline-feeds/counter/v1/" + day)</code></pre>
+    <p>
+      <strong>Key rotation:</strong> The day key changes at midnight UTC. Fetcher IDs from different days 
+      cannot be linked because they use different keys. However, the long-lived secret means any day's 
+      key can be re-derived (it is not destroyed in the cryptographic sense).
+    </p>
+
+    <h3>3. In-Memory De-Duplication</h3>
+    <p>
+      The Durable Object keeps fetcher IDs <strong>in memory only</strong> (not in storage):
     </p>
     <ul>
-      <li>The request object includes <code>request.cf.asn</code> and <code>asOrganization</code></li>
-      <li>IP address is used <strong>in memory only</strong> to compute a daily hash</li>
-      <li>Hash: <code>h = HMAC(daily_key, client_ip)</code></li>
-      <li>The hash is used to de-duplicate fetches (counted once per address per day)</li>
-      <li>IP and hash are <strong>immediately discarded</strong> after processing</li>
-      <li>The daily HMAC key is destroyed at midnight UTC, so hashes cannot be re-linked across days</li>
+      <li>Each per-ASN de-dup set lives in memory until the day ends</li>
+      <li>If a fetcher ID is seen for the first time, the distinct count increments</li>
+      <li>At midnight UTC, the sets are discarded and the new day starts</li>
+      <li><strong>No fetcher ID is ever written to storage</strong> — only counts are persisted</li>
     </ul>
-
-    <h3>2. What Gets Stored</h3>
     <p>
-      Only aggregated, non-identifying metrics:
+      <strong>Caveat:</strong> If the Durable Object is evicted mid-day (rare), the in-memory sets are lost. 
+      The counter increments a "resets" field, and that day's distinct counts become upper bounds (disclosed in stats).
+    </p>
+
+    <h3>4. What Gets Stored</h3>
+    <p>
+      Only aggregated, non-identifying metrics are written to storage (KV and Durable Object):
     </p>
     <ul>
-      <li><strong>Day:</strong> Date of the fetch (e.g., 2026-11-02)</li>
-      <li><strong>Organization token:</strong> Unique feed URL token (e.g., <code>/v1/org-abc123/narge.txt</code>)</li>
+      <li><strong>Day:</strong> UTC date (e.g., 2026-11-02)</li>
+      <li><strong>Organization:</strong> Token slug or "public" (for the anonymous feed)</li>
       <li><strong>ASN:</strong> Autonomous System Number (e.g., AS7922 = Comcast)</li>
-      <li><strong>Distinct count:</strong> Number of unique fetchers per ASN per day</li>
-      <li><strong>Fetch count:</strong> Total HTTP 200 and 304 responses</li>
+      <li><strong>AS Organization:</strong> ISP name (e.g., "Comcast Cable Communications")</li>
+      <li><strong>Distinct count:</strong> How many unique fetcher IDs were seen in this ASN today</li>
+      <li><strong>Fetch counts:</strong> HTTP 200 and 304 counts</li>
     </ul>
     <p>
-      <strong>What is NOT stored:</strong> IP addresses, user agents, geographic coordinates, device identifiers, 
-      or any personally identifiable information.
-    </p>
-
-    <h3>3. Organization Verification</h3>
-    <p>
-      To distinguish real organizations from test/spam fetches, organizations are verified via DNS TXT record:
-    </p>
-    <pre><code>narge-verify=&lt;token&gt;</code></pre>
-    <p>
-      This proves domain control without revealing anything about the organization's users. Only verified 
-      organizations are included in public stats.
-    </p>
-
-    <h3>4. Declared Seats</h3>
-    <p>
-      Organizations may optionally declare how many people are covered (seats). This is <strong>self-reported</strong> 
-      and labeled as "declared seats" in all published data—it is not verified or measured automatically.
+      <strong>What is NOT stored:</strong> Addresses, address prefixes, fetcher IDs, user agents, 
+      geographic coordinates, device identifiers, or any personally identifiable information.
     </p>
   </section>
 
   <section class="publishing">
     <h2>Publishing Thresholds</h2>
     <p>
-      Aggregated stats are published with privacy protections:
+      Daily aggregated stats are published at <code>https://feeds.thecutline.org/stats.json</code> 
+      with k-anonymity protection:
     </p>
 
-    <h3>k-Anonymity Threshold</h3>
+    <h3>k-Anonymity (k=10)</h3>
     <p>
-      Per-ASN rows are published <strong>only when at least 10 distinct fetchers in that ASN</strong> were counted that day. 
-      This prevents revealing that "one installation on Comcast's network fetched the list."
+      Per-ASN rows are published <strong>only when ≥10 distinct fetchers in that ASN that day</strong>. 
+      This prevents revealing "one address on Comcast fetched the list."
     </p>
     <p>
       Example published row:
     </p>
-    <pre><code>AS7922 (Comcast): 14 distinct fetchers</code></pre>
+    <pre><code>{`{
+  "asn": 7922,
+  "as_org": "Comcast Cable Communications",
+  "distinct": 14,
+  "fetches": 28
+}`}</code></pre>
     <p>
-      This reveals nothing about any individual person or organization. It shows only that multiple 
-      distinct fetchers in that network requested the list.
-    </p>
-
-    <h3>Organization Opt-In</h3>
-    <p>
-      Organizations may opt in to being named publicly. Opt-in stats include:
-    </p>
-    <ul>
-      <li>Organization name (self-provided)</li>
-      <li>Active status (fetched in last 24 hours)</li>
-      <li>Last fetch time (rounded to hour)</li>
-      <li>Installation count (distinct fetchers from that org's token)</li>
-      <li>Declared seats (if provided)</li>
-    </ul>
-    <p>
-      <strong>Without opt-in,</strong> the organization is counted in aggregate totals but not named.
+      This reveals nothing about any individual address or organization. It shows only that multiple 
+      distinct addresses in that network requested the list.
     </p>
 
     <h3>Published Metrics</h3>
@@ -121,162 +120,164 @@ import Layout from '../layouts/Layout.astro';
       The public <code>stats.json</code> includes:
     </p>
     <ul>
-      <li><strong>Verified organizations:</strong> Orgs with valid DNS TXT verification</li>
-      <li><strong>Active organizations (24h):</strong> Orgs that fetched the list in the last day</li>
-      <li><strong>Active installations (24h):</strong> Distinct installation count across all orgs</li>
-      <li><strong>Declared seats:</strong> Sum of self-reported seat counts from verified orgs</li>
-      <li><strong>Per-ASN counts:</strong> Published only when the ASN has at least 10 distinct fetchers that day, with optional differential privacy noise</li>
+      <li><strong>day:</strong> UTC date of the data</li>
+      <li><strong>k:</strong> Anonymity threshold (10)</li>
+      <li><strong>total_fetches:</strong> Total fetch count across all ASNs</li>
+      <li><strong>asns:</strong> Array of per-ASN rows (only those with ≥10 distinct addresses)</li>
+      <li><strong>suppressed_asn_rows:</strong> Count of ASNs below the k threshold (not shown)</li>
+      <li><strong>counter_resets:</strong> How many times the counter was reset that day (0 normally)</li>
     </ul>
+    <p>
+      The "distinct" count is <strong>distinct fetching addresses per ASN per day</strong> (not organizations, 
+      not installations, not seats). An organization with multiple offices in different ASNs would be counted 
+      separately in each.
+    </p>
   </section>
 
-  <section class="device-heartbeat">
-    <h2>Optional Device Heartbeat (Phase 2)</h2>
+  <section class="per-org-tokens">
+    <h2>Per-Organization Tokens</h2>
     <p>
-      For organizations that want to count <strong>protected devices</strong> (not just installations), 
-      an opt-in device heartbeat is planned:
+      Organizations can request a unique feed URL token for attribution:
+    </p>
+    <pre><code>https://feeds.thecutline.org/v1/&lt;org-token&gt;/narge.txt</code></pre>
+    <p>
+      Tokens are 26-character base32 strings (e.g., <code>abc2def3ghi4jkl5mno6pqr7st</code>). 
+      The token identifies the organization in internal aggregates (not published by name), 
+      but addresses are still dropped at once.
+    </p>
+    <p>
+      <strong>Rate limiting:</strong> Tokens are rate-limited per organization (120 requests/minute), 
+      not per address. The anonymous feed URL (<code>/v1/narge.txt</code> or <code>/v1/public/narge.txt</code>) 
+      shares one "public" rate limit across all anonymous fetchers.
+    </p>
+  </section>
+
+  <section class="what-is-not-built">
+    <h2>What Is Not Built</h2>
+    <p>
+      The following features are <strong>not implemented</strong>:
     </p>
     <ul>
-      <li><strong>MDM-managed devices</strong> periodically resolve a heartbeat domain or POST to an aggregator</li>
-      <li><strong>DNS form:</strong> Resolver IP + org label (easy to spam, so low priority)</li>
-      <li><strong>DAP form:</strong> Uses <a href="https://divviup.org/" target="_blank" rel="noopener">ISRG Divvi Up</a> 
-          (IETF DAP, Prio3Count) for split-trust aggregation—no single party sees individual reports</li>
-      <li><strong>Privacy Pass tokens:</strong> Optionally, per-seat tokens (RFC 9576/9578) issued through the org's 
-          MDM can be required to prevent fake reports</li>
+      <li><strong>DNS TXT verification:</strong> Organizations are not verified; public stats count every fetch</li>
+      <li><strong>Seat counts:</strong> Organizations do not declare seat counts; nothing asks for it</li>
+      <li><strong>Differential privacy noise:</strong> Per-ASN counts are not noised; the k threshold is the only protection</li>
+      <li><strong>Signed stats:</strong> <code>stats.json</code> is not cryptographically signed</li>
+      <li><strong>Device heartbeat / MDM:</strong> No device-level measurement exists (only feed fetches)</li>
     </ul>
     <p>
-      This gives an honest "protected devices" count without revealing which specific devices or users.
-    </p>
-    <p>
-      <strong>Status:</strong> Phase 2, not yet implemented.
+      If a feature is listed above, do not claim it is live. The Privacy and Privacy Design pages reflect 
+      what is actually built.
     </p>
   </section>
 
-  <section class="auditing">
-    <h2>Transparency &amp; Auditing</h2>
+  <section class="verification">
+    <h2>How to Verify</h2>
     <p>
-      To build trust in the privacy design:
+      The feed Worker code is public and testable:
     </p>
     <ul>
-      <li><strong>Open-source code:</strong> Feed-serving and telemetry pipeline code will be published</li>
-      <li><strong>Signed stats:</strong> Published <code>stats.json</code> will be cryptographically signed</li>
-      <li><strong>Daily builds:</strong> List builds and stats updates are timestamped and verifiable</li>
-      <li><strong>No query logging:</strong> Edge workers do not log requests (logging is disabled)</li>
-      <li><strong>Third-party audit (optional):</strong> Pipeline configuration can be audited by an independent party</li>
+      <li><a href="https://github.com/dov-max/narge-spec/tree/main/feeds-worker/src" target="_blank" rel="noopener">Worker source code</a></li>
+      <li><a href="https://github.com/dov-max/narge-spec/blob/main/feeds-worker/test/counter.test.ts" target="_blank" rel="noopener">Privacy tests</a> 
+          dump all storage and search for test addresses, prefixes, and fetcher IDs (must not be found)</li>
+      <li>Cloudflare Workers logs are off (<code>wrangler.toml</code> sets <code>observability.enabled = false</code>)</li>
+      <li>No Logpush, Tail Workers, or analytics in production</li>
     </ul>
+    <p>
+      The counter is a <a href="https://developers.cloudflare.com/durable-objects/" target="_blank" rel="noopener">Cloudflare Durable Object</a> 
+      (single-threaded SQLite-backed object). Its de-dup sets live in memory (JavaScript <code>Map&lt;string, Set&lt;string&gt;&gt;</code>), 
+      not in storage.
+    </p>
   </section>
 
-  <section class="limitations">
-    <h2>Honest Limitations</h2>
-    <p>
-      This design <strong>cannot</strong> provide:
-    </p>
+  <section class="retention">
+    <h2>Data Retention</h2>
     <ul>
-      <li><strong>Real-time user count:</strong> Without resolver access or device heartbeats, we count installations, not users</li>
-      <li><strong>Passive device count:</strong> Devices become countable only with an opt-in heartbeat</li>
-      <li><strong>Per-user attribution:</strong> By design, individual users are never identified or counted</li>
-      <li><strong>Perfect fake resistance:</strong> Anyone can curl a feed URL; verification and thresholds raise the bar but don't eliminate spam</li>
+      <li><strong>Addresses:</strong> Never stored (dropped at the edge)</li>
+      <li><strong>Fetcher IDs:</strong> Kept in memory only until the day ends, never persisted</li>
+      <li><strong>Daily aggregates:</strong> Per-ASN counts are kept indefinitely in KV for public stats</li>
     </ul>
     <p>
-      The trade-off is intentional: privacy preservation over perfect accuracy.
+      The daily key secret (<code>COUNTER_SECRET</code>) and a brute-forced address could theoretically 
+      recover an IPv4 address from a fetcher ID if the ID were stored. That is why fetcher IDs never 
+      leave memory and are never written to storage or logs.
     </p>
   </section>
 
-  <section class="current-status">
-    <h2>Current Status</h2>
-    <div class="status-box">
-      <h3>Live</h3>
-      <p>
-        The hosted feed infrastructure at <code>https://feeds.thecutline.org</code> is live. 
-        Per-organization feed URLs         (<code>/v1/&lt;token&gt;/&lt;file&gt;</code>) and the anonymous form 
-        (<code>/v1/&lt;file&gt;</code>, <code>/v1/public/&lt;file&gt;</code>) are active. IP-free telemetry 
-        counts organization fetches by ASN without storing addresses. ISP rows in <code>stats.json</code> 
-        are published only when at least 10 distinct fetchers in that ASN were counted that day.
-      </p>
-      <p>
-        <strong>GitHub mirror:</strong> 
-        <code>https://raw.githubusercontent.com/dov-max/narge-spec/main/dist/narge.txt</code> 
-        remains available as a fallback with <strong>no telemetry</strong>.
-      </p>
-    </div>
+  <section class="operator">
+    <h2>Operator</h2>
+    <p>
+      The Narge feed and specification are maintained by <strong>Dov Allison</strong>. 
+      For privacy questions or to report issues:
+    </p>
+    <p>
+      Email: <a href="mailto:it@thecutline.org">it@thecutline.org</a><br>
+      GitHub: <a href="https://github.com/dov-max/narge-spec" target="_blank" rel="noopener">dov-max/narge-spec</a>
+    </p>
   </section>
 
   <section class="more-info">
-    <h2>More Information</h2>
-    <div class="card-grid">
-      <a href="/for-it" class="info-card">
-        <h3>For IT Teams</h3>
-        <p>Feed URLs and platform integration</p>
-      </a>
-      <a href="/privacy" class="info-card">
-        <h3>Privacy Policy</h3>
-        <p>Overall privacy commitments</p>
-      </a>
-      <a href="https://github.com/dov-max/narge-spec" target="_blank" rel="noopener" class="info-card">
-        <h3>GitHub Repository</h3>
-        <p>Open-source list and build scripts</p>
-      </a>
-      <a href="https://divviup.org/" target="_blank" rel="noopener" class="info-card">
-        <h3>ISRG Divvi Up</h3>
-        <p>Split-trust aggregation for device heartbeats</p>
-      </a>
-    </div>
+    <h2>Related</h2>
+    <ul>
+      <li><a href="/privacy">Privacy Policy</a> — User-facing summary</li>
+      <li><a href="/terms">Terms of Service</a> — Legal terms and limitations</li>
+      <li><a href="/for-it">For IT Teams</a> — How to use the feed</li>
+    </ul>
   </section>
 </Layout>
 
 <style>
+  section {
+    margin-bottom: var(--spacing-2xl);
+  }
+
   .status-banner {
-    background: #fff3cd;
-    border: 2px solid #ffc107;
+    background: #d4edda;
+    border: 2px solid #28a745;
     border-radius: var(--radius);
     padding: var(--spacing-lg);
     margin-bottom: var(--spacing-xl);
   }
 
   .status-banner strong {
-    color: #856404;
+    color: #155724;
     font-size: 1.1rem;
-    display: block;
-    margin-bottom: var(--spacing-xs);
   }
 
   .status-banner p {
+    margin-top: var(--spacing-sm);
     margin-bottom: 0;
-    color: #856404;
+    color: #155724;
   }
 
   .intro {
-    margin-bottom: var(--spacing-xl);
+    padding: var(--spacing-lg);
+    background: var(--color-card-bg);
+    border-radius: var(--radius);
+    border-left: 4px solid var(--color-accent);
   }
 
   .lead {
-    font-size: 1.25rem;
+    font-size: 1.2rem;
     line-height: 1.7;
+    margin-bottom: 0;
   }
 
-  .problem,
-  .solution,
-  .publishing,
-  .device-heartbeat,
-  .auditing,
-  .limitations,
-  .current-status,
-  .more-info {
-    margin: var(--spacing-2xl) 0;
-  }
-
-  h3 {
-    margin-top: var(--spacing-xl);
-    font-size: 1.25rem;
-  }
-
-  ul {
+  ul, ol {
     padding-left: var(--spacing-lg);
-    margin: var(--spacing-md) 0;
+    margin-bottom: var(--spacing-md);
   }
 
   li {
     margin-bottom: var(--spacing-sm);
     line-height: 1.7;
+  }
+
+  code {
+    background: var(--color-text);
+    color: #f8f8f2;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 0.9em;
   }
 
   pre {
@@ -289,73 +290,34 @@ import Layout from '../layouts/Layout.astro';
   }
 
   pre code {
-    color: #f8f8f2;
+    background: none;
+    padding: 0;
   }
 
-  code {
-    background: var(--color-card-bg);
-    padding: 0.125rem 0.375rem;
-    border-radius: 4px;
-    font-size: 0.9em;
-  }
-
-  .status-box {
-    background: var(--color-card-bg);
-    border: 2px solid var(--color-accent);
-    border-radius: var(--radius);
-    padding: var(--spacing-xl);
-  }
-
-  .status-box h3 {
-    margin-top: 0;
-    margin-bottom: var(--spacing-md);
+  a {
     color: var(--color-accent);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s;
   }
 
-  .status-box p:last-child {
-    margin-bottom: 0;
+  a:hover {
+    border-bottom-color: var(--color-accent);
   }
 
-  .card-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: var(--spacing-md);
-    margin-top: var(--spacing-lg);
-  }
-
-  .info-card {
-    background: var(--color-card-bg);
-    border: 1px solid var(--color-border);
+  .what-is-not-built {
+    background: #fff3cd;
+    border: 2px solid #ffc107;
     border-radius: var(--radius);
     padding: var(--spacing-lg);
-    text-decoration: none;
-    color: var(--color-text);
-    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
   }
 
-  .info-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    border-color: var(--color-accent);
-    text-decoration: none;
-  }
-
-  .info-card h3 {
+  .what-is-not-built h2 {
     margin-top: 0;
-    margin-bottom: var(--spacing-sm);
-    color: var(--color-accent);
-    font-size: 1.15rem;
+    color: #856404;
   }
 
-  .info-card p {
-    margin-bottom: 0;
-    color: var(--color-text-muted);
-    font-size: 0.95rem;
-  }
-
-  @media (max-width: 640px) {
-    .card-grid {
-      grid-template-columns: 1fr;
-    }
+  .what-is-not-built p, .what-is-not-built ul {
+    color: #856404;
   }
 </style>

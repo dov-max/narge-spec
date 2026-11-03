@@ -57,14 +57,13 @@ import Layout from '../layouts/Layout.astro';
   <section>
     <h2>Privacy</h2>
     <p>
-      The hosted feed at <code>https://feeds.thecutline.org</code> counts adoption without storing IP addresses. 
-      After a feed fetch, the operator cannot look up the requester. IP addresses are used in memory only to compute 
-      daily hashes for counting distinct installations, then discarded. Aggregated stats are published only when at least 
-      10 distinct fetchers in that ASN were counted that day. For more detail, see the <a href="/privacy-design">Privacy Design</a> and 
-      <a href="/privacy">Privacy Policy</a>.
+      The hosted feed at <code>https://feeds.thecutline.org</code> counts usage without storing addresses. 
+      Addresses are dropped at once; only distinct fetching addresses per ASN per day are counted. Aggregated stats 
+      are published only when ≥10 distinct addresses in that ASN that day. For more detail, see the 
+      <a href="/privacy-design">Privacy Design</a> and <a href="/privacy">Privacy Policy</a>.
     </p>
     <p>
-      The GitHub mirror has no telemetry.
+      The GitHub mirror has no measurement.
     </p>
   </section>
 

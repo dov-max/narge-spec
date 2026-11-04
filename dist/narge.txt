@@ -1,6 +1,6 @@
 # Narge list — a defined, public list of hostnames
 # Spec version: 0.2
-# Build date: 2026-11-03 13:07:27 UTC
+# Build date: 2026-11-04 13:23:04 UTC
 # Feed URL: https://feeds.thecutline.org/v1/narge.txt
 # GitHub mirror: https://raw.githubusercontent.com/dov-max/narge-spec/main/dist/narge.txt
 # Spec: https://thecutline.org/spec

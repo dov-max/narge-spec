@@ -1,6 +1,6 @@
 $TTL 60
 @ IN SOA rpz.thecutline.org. hostmaster.thecutline.org. (
-    2026110401  ; Serial (YYYYMMDDNN)
+    2026110501  ; Serial (YYYYMMDDNN)
     3600      ; Refresh (1 hour)
     600       ; Retry (10 minutes)
     604800    ; Expire (7 days)
@@ -10,7 +10,7 @@ $TTL 60
 
 ; Narge list — a defined, public list of hostnames (RPZ zone format)
 ; Spec version: 0.2
-; Build date: 2026-11-04 13:23:04 UTC
+; Build date: 2026-11-05 13:37:09 UTC
 ; Feed URL: https://feeds.thecutline.org/v1/narge.rpz
 ; Spec: https://thecutline.org/spec
 ; Total domains: 305

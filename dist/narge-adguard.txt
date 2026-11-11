@@ -1,7 +1,7 @@
 ! Title: Narge
 ! Description: Narge list — a defined, public list of hostnames
 ! Spec version: 0.2
-! Build date: 2026-11-10 13:51:57 UTC
+! Build date: 2026-11-11 13:03:42 UTC
 ! Feed URL: https://feeds.thecutline.org/v1/narge-adguard.txt
 ! Homepage: https://thecutline.org/spec
 ! License: CC0 1.0 (public domain)

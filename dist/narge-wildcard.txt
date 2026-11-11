@@ -1,6 +1,6 @@
 # Narge list — a defined, public list of hostnames (wildcard format)
 # Spec version: 0.2
-# Build date: 2026-11-10 13:51:57 UTC
+# Build date: 2026-11-11 13:03:42 UTC
 # Feed URL: https://feeds.thecutline.org/v1/narge-wildcard.txt
 # Spec: https://thecutline.org/spec
 # Format: domain and *.domain on separate lines

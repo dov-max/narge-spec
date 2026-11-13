@@ -1,6 +1,6 @@
 # Narge list — a defined, public list of hostnames (hosts file format)
 # Spec version: 0.2
-# Build date: 2026-11-12 14:06:09 UTC
+# Build date: 2026-11-13 13:31:06 UTC
 # Feed URL: https://feeds.thecutline.org/v1/narge.hosts
 # Spec: https://thecutline.org/spec
 # Sources: core sources (initial seed from StevenBlack hosts, MIT license), overlay/block.txt, overlay/allow.txt
